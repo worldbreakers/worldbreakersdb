@@ -15,6 +15,18 @@ body {font-size:16px;font-family: 'LatoWeb', sans-serif;}
 
 .card-cost {
     font-size: 125%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.card-cost .card-cost-mythium {
+    white-space: nowrap;
+}
+
+.card-cost .card-standing-requirements {
+    margin-left: 8px;
+    font-size: 16px;
+    width: 1em;
 }
 
 .card-text {
@@ -35,7 +47,13 @@ body {font-size:16px;font-family: 'LatoWeb', sans-serif;}
     font-size: 0.8em;
 }
 
-.card-text::before, .card-flavor::before, .card-illustrator::before {
+.card-text::before,
+.card-flavor::before,
+.card-illustrator::before,
+.card-signature-cards::before,
+.card-location-stages::before,
+.card-worldbreaker::before
+{
     border-top: 1px solid rgba(0, 0, 0, 0.2);
     width: 95%;
     content: "";
@@ -59,88 +77,15 @@ body {font-size:16px;font-family: 'LatoWeb', sans-serif;}
   display: inline-block;
   text-align: center;
 }
-.influence {
-  font-size: 90%;
-  font-family: Arial;
-}
-.influence-anarch{color:orangered;border-color:orangered}
-.influence-criminal{color:royalblue;border-color:royalblue}
-.influence-shaper{color:limegreen;border-color:limegreen}
-.influence-neutral-runner{color:gray;border-color:gray}
-.influence-haas-bioroid{color:blueviolet;border-color:blueviolet}
-.influence-jinteki{color:crimson;border-color:crimson}
-.influence-nbn{color:darkorange;border-color:darkorange}
-.influence-weyland-consortium{color:darkgreen;border-color:darkgreen}
-.influence-neutral-corp{color:gray;border-color:gray}
-
-.background-anarch-10{background-color:#ffece6}
-.background-criminal-10{background-color:#ecf0fc}
-.background-shaper-10{background-color:#eafaea}
-.background-neutral-runner-10{background-color:#f0f2f4}
-.background-haas-bioroid-10{background-color:#f3eafc}
-.background-jinteki-10{background-color:#fbe7eb}
-.background-nbn-10{background-color:#fff3e6}
-.background-weyland-consortium-10{background-color:#e6efe6}
-.background-neutral-corp-10{background-color:#f0f2f4}
-
-.nav>li>a.background-anarch-hover:hover{background-color:#ffece6}
-.nav>li>a.background-criminal-hover:hover{background-color:#ecf0fc}
-.nav>li>a.background-shaper-hover:hover{background-color:#eafaea}
-.nav>li>a.background-neutral-runner-hover:hover{background-color:#f0f2f4}
-.nav>li>a.background-haas-bioroid-hover:hover{background-color:#f3eafc}
-.nav>li>a.background-jinteki-hover:hover{background-color:#fbe7eb}
-.nav>li>a.background-nbn-hover:hover{background-color:#fff3e6}
-.nav>li>a.background-weyland-consortium-hover:hover{background-color:#e6efe6}
-.nav>li>a.background-neutral-corp-hover:hover{background-color:#f0f2f4}
-
-.background-anarch-20{background-color:#ffd9cc}
-.background-criminal-20{background-color:#d9e1f9}
-.background-shaper-20{background-color:#d6f5d6}
-.background-neutral-runner-20{background-color:#e2e5e8}
-.background-haas-bioroid-20{background-color:#e7d4f9}
-.background-jinteki-20{background-color:#f8d0d8}
-.background-nbn-20{background-color:#ffe8cc}
-.background-weyland-consortium-20{background-color:#cce0cc}
-.background-neutral-corp-20{background-color:#e2e5e8}
-
-.border-anarch{border-color:orangered}
-.border-criminal{border-color:royalblue}
-.border-shaper{border-color:limegreen}
-.border-neutral-runner{border-color:gray}
-.border-haas-bioroid{border-color:blueviolet}
-.border-jinteki{border-color:crimson}
-.border-nbn{border-color:darkorange}
-.border-weyland-consortium{border-color:darkgreen}
-.border-neutral-corp{border-color:gray}
 
 #tag_toggles button {margin:0 1px 1px 0}
 .label {margin:0 1px 1px 0}
 
-.anarch{stroke:orangered;color:orangered !important;border-color:orangered}
-.criminal{stroke:royalblue;color:royalblue !important;border-color:royalblue}
-.shaper{stroke:limegreen;color:limegreen !important;border-color:limegreen}
-.neutral-runner{stroke:gray;color:gray !important;border-color:gray}
-.haas-bioroid{stroke:blueviolet;color:blueviolet !important;border-color:blueviolet}
-.jinteki{stroke:crimson;color:crimson !important;border-color:crimson}
-.nbn{stroke:darkorange;color:darkorange !important;border-color:darkorange}
-.weyland-consortium{stroke:darkgreen;color:darkgreen !important;border-color:darkgreen}
-.neutral-corp{stroke:gray;color:gray !important;border-color:gray}
 .admin{stroke:deeppink;color:deeppink !important;border-color:deeppink}
 
 .qtip-nrdb{min-width: 310px;max-width:350px;font-size:85.7%}
 .qtip-nrdb .card-image { float: right;height:90px;width: 101px; background-size:120px;background-repeat: no-repeat; margin: 5px 0px;position: relative}
 .qtip-nrdb .card-image svg { position: relative; top: -1px; left: -1px; height:92px;width: 103px }
-.qtip-nrdb .card-image-runner-identity {  background-size:95px; background-position: 3px -8px }
-.qtip-nrdb .card-image-runner-event { background-size:100px; background-position: 3px -1px }
-.qtip-nrdb .card-image-runner-hardware {  background-size:110px; background-position: -5px 3px }
-.qtip-nrdb .card-image-runner-program { background-position: -10px 7px }
-.qtip-nrdb .card-image-runner-resource { background-size:140px; background-position: -14px -5px }
-.qtip-nrdb .card-image-corp-identity {  background-size:105px; background-position: -4px -18px }
-.qtip-nrdb .card-image-corp-agenda { background-size:110px; background-position: -10px -4px }
-.qtip-nrdb .card-image-corp-asset { background-size:110px; background-position: -6px 8px }
-.qtip-nrdb .card-image-corp-operation { background-size:105px; background-position: -1px -2px }
-.qtip-nrdb .card-image-corp-upgrade { background-size:105px; background-position: -4px 8px }
-.qtip-nrdb .card-image-corp-ice { background-size:115px; background-position: -9px -77px;transform: rotate(90deg) ;-webkit-transform: rotate(90deg) ;-moz-transform: rotate(90deg) ;-o-transform: rotate(90deg) ;-ms-transform: rotate(90deg)}
 
 
 article.rules aside{border-left:1px solid blue;padding-left:20px}
@@ -159,6 +104,7 @@ footer{padding:50px 0;color:darkgray}
 .jumbotron{/*box-shadow:-1px 1px 4px*/border:1px solid silver;border-width:1px 0px}
 textarea{resize:vertical}
 tbody#decks{cursor:pointer}
+#deck-content { margin-bottom: 3rem; }
 #deck-content img{height:15px;vertical-align:text-bottom}
 .type,.faction{text-align:center}
 .nav-tabs{margin-bottom:15px}
@@ -190,14 +136,6 @@ tbody .btn-group{white-space:nowrap}
 #collection-grid .col-sm-4 .media {margin-bottom:10px;padding-bottom:10px;border-bottom:1px dotted lightgray;overflow:hidden;}
 #collection-grid .col-sm-4 .media-object {height:70px}
 #collection-grid .col-sm-4 .media-heading {line-height:30px;white-space:nowrap}
-#table-draw-simulator-content img.card-image {width:99px;height:138px;float:left;margin:5px;box-shadow: black 0px 0px 5px;border-radius: 5px;}
-#table-draw-simulator-content img.card-image.trashed {opacity: 0.25;box-shadow: none;}
-#table-draw-simulator-content img.card-image.trashed:hover {opacity: 0.75;}
-#table-draw-simulator-content div.card-proxy {background:#888;color:white;width:99px;height:138px;float:left;margin:5px;box-shadow: black 0px 0px 5px;border-radius: 5px;}
-#table-draw-simulator-content img.card-proxy.trashed {opacity: 0.25;box-shadow: none;}
-#table-draw-simulator-content img.card-proxy.trashed:hover {opacity: 0.75;}
-#table-draw-simulator-content div.card-proxy div{position: relative;top: 50%; transform: translateY(-50%);text-align:center}
-#draw-simulator-special {display: none;}
 
 .builder-legality-indicators {
   display: inline-block;
@@ -361,16 +299,6 @@ tbody .btn-group{white-space:nowrap}
 #deck_gallery td > div { height: 100px; overflow: visible; position: relative }
 #deck_gallery td > div > img { height: 100% ; border: 1px solid white; border-radius: 10px;}
 #deck_gallery td > div > div { background: rgba(0, 0, 0, 0.5); position: absolute; left: 1px; bottom: 1px; color: white; width: 24px; height: 24px; line-height: 24px; font-size: 16px; font-weight: bold; text-align: center; border-radius: 15px; font-family: monospace }
-
-@-webkit-keyframes animDonator {
-  0% { color: rgba(255,223,48, 1); }
-  100% { color: rgba(255,223,48, 0.2); }
-}
-.donator {
-  animation: animDonator 2s ease-in 0s infinite alternate;
-  -webkit-animation: animDonator 2s ease-in 0s infinite alternate;
-  color: rgba(255,223,48, 1);
-}
 
 .rwd-table tr {
   border-top: 1px solid #ddd;
@@ -611,4 +539,38 @@ ul.rulings-list blockquote {
   a[href]:after {
     content: "";
   }
+}
+
+/*** worldbreaker icons ***/
+.icon-wb {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    stroke-width: 0;
+    stroke: currentColor;
+    fill: currentColor;
+}
+
+#navbar-factions svg.icon-wb {
+    vertical-align: text-bottom;
+}
+
+.border-moon {
+    border-color: darkblue;
+}
+
+ol.stages {
+    list-style-type: upper-roman;
+}
+
+/*** list as text ***/
+.card-props {
+    display: flex;
+    justify-content: space-between;
+}
+
+/*** list as full ***/
+.card-prop {
+    display: flex;
+    justify-content: space-between;
 }

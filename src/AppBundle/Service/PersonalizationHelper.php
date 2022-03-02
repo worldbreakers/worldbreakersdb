@@ -47,7 +47,6 @@ class PersonalizationHelper
             'introductions'      => $user->getIntroductions(),
             'faction'            => $user->getFaction(),
             'autoload_images'    => $user->getAutoloadImages(),
-            'is_supporter'       => $user->isSupporter(),
             'unchecked_activity' => $this->activityHelper->countUncheckedItems($this->activityHelper->getItems($user)),
             'is_moderator'       => $this->authorizationChecker->isGranted('ROLE_MODERATOR'),
             'roles'              => $user->getRoles(),

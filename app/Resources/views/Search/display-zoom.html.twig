@@ -22,17 +22,20 @@
     <div class="col-sm-4">
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 class="panel-title card-title" style="display: flex; justify-content: space-between">
+                <h3 class="panel-title card-title" style="display: flex; justify-content: space-between; margin-right: 0;">
                     <span class="card-title{% if card.available == false %} card-preview{% endif %}">
-                        {% if card.uniqueness == true %}&diams;{% endif %}
                         {{ card.title }}
+                        {% if card.is_signature_card %}<span class="glyphicon glyphicon-star" title="Signature Card"></span>{% endif %}
                     </span>
                     <span class="card-cost">
-                        {% if card.type_code == "agenda" %}
-                            {{ card.advancementcost }}/{{ card.agendapoints }}<span class="icon icon-agenda-points"></span>
-                        {% endif %}
-                        {% if card.type_code != "identity" and card.type_code != "agenda" %}
-                            {{ card.formatted_cost|raw }}
+                        {% if card.type_code != "identity" %}
+                            <span class="card-cost-mythium">
+                                {{ card.formatted_cost|raw }}
+                            </span>
+
+                            <span class="card-standing-requirements">
+                                {{ include('/Search/standing_requirements.html.twig') }}
+                            </span>
                         {% endif %}
                     </span>
                 </h3>
@@ -45,44 +48,28 @@
 
                 <div class="card-stats">
                     {% if card.type_code == "identity" %}
-                        Deck size: {{ card.minimumdecksize }}
-                        &bull;
-                        Influence:
-                        {% if card.influencelimit ?? 0 == 0 %}&#8734;{% else %}{{ card.influencelimit }}{% endif %}
-                        {% if card.side_code == "runner" %}
-                            &bull;
-                            Link: {{ card.baselink }}
-                        {% endif %}
-                    {% elseif card.type_code in ["event", "operation"] %}
-                        {% if card.trash is not null %}
-                            Trash: {{ card.trash }}
-                        {% endif %}
-                    {% elseif card.type_code in ["asset", "upgrade"] %}
-                        Trash: {{ card.trash }}
-                    {% elseif card.type_code == "program" %}
-                        Memory: {{ card.memoryunits }}
-                        &bull;
-                        Strength: {{ card.strength ?? "-" }}
-                    {% elseif card.type_code == "ice" %}
+                    {% elseif card.type_code == "event" %}
+                    {% elseif card.type_code == "follower" %}
                         Strength: {{ card.strength }}
-                        {% if card.trash is not null %}
-                            &bull;
-                            Trash: {{ card.trash }}
-                        {% endif %}
+                        &bull;
+                        Health: {{ card.health }}
+                    {% elseif card.type_code == "location" %}
                     {% endif %}
                 </div>
-
-                {% if card.type_code != "identity" and card.faction_cost_dots|length > 0 %}
-                    <div class="card-influence">
-                        Influence:
-                        <span class="icon icon-{{ card.faction_code }} {{ card.faction_code }}"></span>
-                        {{ card.faction_cost_dots|raw }}
-                    </div>
-                {% endif %}
 
                 {% if card.text|length > 0 %}
                     <div class="card-text border-{{ card.faction_code }}">
                         {{ card.text|raw }}
+                    </div>
+                {% endif %}
+
+                {% if card.stages %}
+                    <div class="card-location-stages">
+                        <ol class="stages">
+                            {% for stage in card.stages %}
+                                <li>{{stage|raw}}</li>
+                            {% endfor %}
+                        </ol>
                     </div>
                 {% endif %}
 
@@ -99,8 +86,27 @@
                                 {% for illustrator in card.illustrators %}
                                     <a href="{{ path('cards_find',{type:'find',_locale:app.request.locale,'view':'images','q':'i:"' ~ illustrator ~ '"'}) }}">{{ illustrator }}</a>
                                 {% endfor %}
-                            </a>
+                                    </a>
                         </small>
+                    </div>
+                {% endif %}
+
+                {% if card.is_signature_card %}
+                    <div class="card-worldbreaker">
+                        Signature card of
+                        <a href="{{ path('cards_zoom',{_locale:app.request.locale, 'card_code':card.worldbreaker}) }}"> {{card.signature}} </a>
+                    </div>
+                {% endif %}
+
+                {% if card.type_code == 'identity' %}
+                    <div class="card-signature-cards">
+                        <ul>
+                            {% for signatureCard in card.signature_cards  %}
+                                <li>
+                                    <a href="{{ path('cards_zoom',{_locale:app.request.locale, 'card_code':signatureCard[0]}) }}"> {{signatureCard[1]}} </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
                     </div>
                 {% endif %}
             </div>
@@ -121,9 +127,6 @@
             <div class="panel-body">
                 <table>
                     <thead>
-                        <tr>
-                            <th class="legality-{{ card.startup_legality }}"> Startup Card Pool</th>
-                        </tr>
                         <tr>
                             <th class="legality-{{ card.standard_legality }}"> Standard Card Pool</th>
                         </tr>
@@ -221,7 +224,6 @@
                 </div>
                 <div class="review-author">
                     <a href="{{ path('user_profile_view', {user_id:review.author_id,user_name:review.author_name|e('url')}) }}" rel="author" class="username {{ review.author_color }}">{{ review.author_name }}</a>
-                    {% if review.author_donation > 0 %}<span class="glyphicon glyphicon-gift donator" title="NetrunnerDB Gracious Donator"></span>{% endif %}
                     <small class="reputation">{{ review.author_reputation }}</small>
                 </div>
 
@@ -231,7 +233,6 @@
                 <div class="review-comment text-muted small">{{ comment.text|raw }}
                     &mdash;
                     <a title="{{ comment.author.reputation }} reputation" href="{{ path('user_profile_view', {user_id:comment.author.id,user_name:comment.author.username|e('url')}) }}" rel="author" class="username {{ comment.author.faction }}">{{ comment.author.username }}</a>
-                    {% if comment.author.donation > 0 %}<span class="glyphicon glyphicon-gift donator" title="NetrunnerDB Gracious Donator"></span>{% endif %}
                     <time datetime="{{ comment.dateCreation|date('c') }}">{{ comment.dateCreation|date('j M Y') }}</time>
                 </div>
                 {% endfor %}

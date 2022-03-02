@@ -47,23 +47,9 @@ $(document).on('data.app', function() {
   rotated_cycles['napd'] = 1;
   NRDB.data.cycles.find( { "rotated": true } ).forEach(function(cycle) { rotated_cycles[cycle.code] = 1; });
 
-  var startup_cycles = Array();
-  startup_cycles['ashes'] = 1;
-  startup_cycles['system-gateway'] = 1;
-  startup_cycles['system-update-2021'] = 1;
   var rotated_packs = Array();
-  var startup_packs = Array();
   NRDB.data.packs.find().forEach(function(pack) {
     if (rotated_cycles[pack.cycle.code]) { rotated_packs[pack.code] = 1; }
-    if (startup_cycles[pack.cycle.code]) { startup_packs[pack.code] = 1; }
-  });
-
-  $('#select_startup').on('click', function (event) {
-    $('#allowed_packs').find('input[type="checkbox"]').each(function() {
-      $(this).prop('checked', Boolean(startup_cycles[this.value] || startup_packs[this.value]));
-    });
-    handle_checkbox_change();
-    return false;
   });
 
   $('#select_standard').on('click', function (event) {

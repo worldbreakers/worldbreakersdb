@@ -23,12 +23,19 @@
     var card = NRDB.data.cards.findById(code);
     modal.data('index', code);
     modal.find('.card-modal-link').attr('href', Routing.generate('cards_zoom',{card_code:card.code}));
-    modal.find('h3.modal-title').html((card.uniqueness ? "&diams; " : "")+card.title);
+    modal.find('h3.modal-title').html(card.title);
     modal.find('.modal-image').html('<img class="img-responsive" src="'+card.imageUrl+'" alt="'+card.title+'">');
+
+    var modalText = NRDB.format.text(card);
+    if (card.type_code === 'location') {
+        var stages = card.stages.filter(s => s).map(stage => '<li>' + NRDB.format.text({ text: stage }) + '</li>');
+        modalText += '<p><ol class="stages">' + stages.join("") + '</ol></p>';
+    }
+
     modal.find('.modal-info').html(
       '<div class="card-info">'+NRDB.format.type(card)+'</div>'
       +'<div><small>' + card.faction.name + ' &bull; '+ card.pack.name + '</small></div>'
-      +'<div class="card-text border-'+card.faction_code+'"><small>'+NRDB.format.text(card)+'</small></div>'
+      +'<div class="card-text border-'+card.faction_code+'"><small>'+modalText+'</small></div>'
     );
 
     var qtyelt = modal.find('.modal-qty');

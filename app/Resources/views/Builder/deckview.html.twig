@@ -3,7 +3,6 @@
 {% block head %}
 
 <script src="{{ asset('/js/nrdb.deck_gallery.js') }}"></script>
-<script src="{{ asset('/js/nrdb.draw_simulator.js') }}"></script>
 <script src="{{ asset('/js/nrdb.card_modal.js') }}"></script>
 <script src="{{ asset('/js/publish_deck_form.v2.js') }}"></script>
 <script src="{{ asset('/js/deckview.v2.js') }}"></script>
@@ -16,9 +15,6 @@ var Identity = null,
   DisplaySortSecondary = 'name',
   Order = 1,
   Identity = null,
-  InfluenceSpent = 0,
-  InfluenceLimit = 0,
-  MinimumDeckSize = 0,
   DeckSize = 0,
   MWL = null;
 
@@ -90,7 +86,6 @@ var Identity = null,
       <li><a href="#" id="btn-display-plain">Plain</a></li>
       <li><a href="#" id="btn-display-bbcode">bbCode</a></li>
       <li><a href="#" id="btn-display-markdown">Markdown</a></li>
-      <li><a href="#" id="btn-display-jintekinet">Jinteki.net</a></li>
     </ul>
   </div>
 </div>
@@ -100,8 +95,6 @@ var Identity = null,
   <div class="row">
     <div class="col-sm-12">
       <h3 id="identity"></h3>
-      <div id="influence"></div>
-      <div id="agendapoints"></div>
       <div id="cardcount"></div>
       <div id="latestpack"></div>
       <div id="restricted"></div>
@@ -136,8 +129,6 @@ var Identity = null,
 {% endif %}
 <!-- Description -->
 
-{% include '/Builder/draw-simulator.html.twig' %}
-
 <!-- Graphs -->
 <table class="table table-condensed" id="table-graph-costs">
 <thead>
@@ -146,17 +137,6 @@ var Identity = null,
 <tbody>
 <tr>
   <td><div id="costChart"></div></td>
-</tr>
-</tbody>
-</table>
-
-<table class="table table-condensed" id="table-graph-strengths">
-<thead>
-<tr><th colspan="1"><span class="glyphicon glyphicon-stats"></span> Repartition by Strength</th></tr>
-</thead>
-<tbody>
-<tr>
-  <td><div id="strengthChart"></div></td>
 </tr>
 </tbody>
 </table>
@@ -208,57 +188,6 @@ var Identity = null,
 </div>
 </div>
 </div><!-- .container -->
-
-<!-- Modal -->
-<div class="modal hidden-print" id="oddsModal" tabindex="-1" role="dialog" aria-labelledby="oddsModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h3 class="modal-title">Odds Calculator</h3>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-sm-12">
-            <form class="form-horizontal" role="form">
-                <div class="form-group">
-                    <label for="inputEmail3" class="col-xs-7 control-label">Number of cards in deck</label>
-                    <div class="col-xs-2">
-                        <input type="number" class="form-control" id="odds-calculator-N" value="0">
-                </div>
-              </div>
-              <div class="form-group">
-                <label for="inputPassword3" class="col-xs-7 control-label">Number of <em>desired</em> cards in deck</label>
-                <div class="col-xs-2">
-                  <input type="number" class="form-control" id="odds-calculator-K" value="0">
-                </div>
-              </div>
-              <div class="form-group">
-                <label for="inputPassword3" class="col-xs-7 control-label">Number of cards drawn</label>
-                <div class="col-xs-2">
-                  <input type="number" class="form-control" id="odds-calculator-n" value="0">
-                </div>
-              </div>
-              <div class="form-group">
-                <label for="inputPassword3" class="col-xs-7 control-label">Number of <em>desired</em> cards in draw (at least)</label>
-                <div class="col-xs-2">
-                  <input type="number" class="form-control" id="odds-calculator-k" value="0">
-                </div>
-              </div>
-              <div class="form-group">
-                <label for="inputPassword3" class="col-xs-7 control-label">Probability of such an outcome</label>
-                <div class="col-xs-2">
-                   <p class="form-control-static"><span id="odds-calculator-p"></span>%</p>
-                </div>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-<!-- Modal -->
 
 <!-- Modal -->
 <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">

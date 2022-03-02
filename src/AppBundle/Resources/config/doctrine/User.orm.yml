@@ -72,14 +72,6 @@ AppBundle\Entity\User:
             type: string
             length: 255
             nullable: true
-        donation:
-            type: integer
-            nullable: false
-        patreon_pledge_cents:
-            type: integer
-            nullable: false
-            options:
-                default: 0
         notif_author:
             type: boolean
             nullable: false

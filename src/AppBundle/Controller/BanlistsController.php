@@ -48,7 +48,7 @@ class BanlistsController extends Controller
             $x['start_date'] = $mwl->getDateStart();
             $x['mwl_object_delete'] = $mwl;
             $x['all_currents_banned'] = array_key_exists($mwl->getCode(), $mwl_codes_all_currents_banned);
-            $mwl_cards = $mwl->getCards(); 
+            $mwl_cards = $mwl->getCards();
             krsort($mwl_cards);
             $x['cards'] = array();
 
@@ -61,21 +61,17 @@ class BanlistsController extends Controller
                   $verdict = 'Banned';
                 } elseif (array_key_exists('is_restricted', $mwl_entry)) {
                   $verdict = 'Restricted';
-                } elseif (array_key_exists('global_penalty', $mwl_entry)) {
-                  $verdict = 'Identity Influence Reduction';
-                } elseif (array_key_exists('universal_faction_cost', $mwl_entry)) {
-                  $verdict = '+' . $mwl_entry['universal_faction_cost'] . ' Universal Influence';
                 }
                 if (!array_key_exists($verdict, $x['cards'])) {
                   $x['cards'][$verdict] = array();
                 }
                 // Only add the most recent printing for each card.
                 $card = $unique_cards[$title_to_most_recent_printing[$code_to_title[$code]]];
-                $x['cards'][$verdict][$card->getCode()]['card'] = $card; 
-                $x['cards'][$verdict][$card->getCode()]['banlist_entry'] = $mwl_entry; 
+                $x['cards'][$verdict][$card->getCode()]['card'] = $card;
+                $x['cards'][$verdict][$card->getCode()]['banlist_entry'] = $mwl_entry;
                 ++$num_cards;
             }
-            // Keep track of the number of cards here so the template doesn't have to walk all the maps to count the cards. 
+            // Keep track of the number of cards here so the template doesn't have to walk all the maps to count the cards.
             $x['num_cards'] = $num_cards;
             $banlists[] = $x;
         }

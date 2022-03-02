@@ -33,8 +33,7 @@ class Reviews
                 u.id user_id,
                 u.username,
                 u.faction usercolor,
-                u.reputation,
-                u.donation
+                u.reputation
              from review r
                 join user u on r.user_id=u.id
                 join card c on r.card_id=c.id
@@ -72,8 +71,7 @@ class Reviews
                 u.id user_id,
                 u.username,
                 u.faction usercolor,
-                u.reputation,
-                u.donation
+                u.reputation
              from review r
                 join user u on r.user_id=u.id
                 join card c on r.card_id=c.id

@@ -3,21 +3,12 @@
     <div class="row" style="margin-bottom:1em">
         <div class="col-sm-4">
             <div class="form-group">
-                <label for="">Side or Faction</label> <select class="form-control"
-                                                              id="faction" name="faction">
+                <label for="">Guild</label> <select class="form-control" id="faction" name="faction">
                     <option value="">Ignore</option>
-                    <option value="corp"{{ faction_C|default('') }}>any Corp</option>
-                    <option value="haas-bioroid"{{ faction_h|default('') }}>Haas-Bioroid</option>
-                    <option value="jinteki"{{ faction_j|default('') }}>Jinteki</option>
-                    <option value="nbn"{{ faction_n|default('') }}>NBN</option>
-                    <option value="weyland-consortium"{{ faction_w|default('') }}>Weyland</option>
-                    <option value="runner"{{ faction_R|default('') }}>any Runner</option>
-                    <option value="anarch"{{ faction_a|default('') }}>Anarch</option>
-                    <option value="criminal"{{ faction_c|default('') }}>Criminal</option>
-                    <option value="shaper"{{ faction_s|default('') }}>Shaper</option>
-                    <option value="adam"{{ faction_d|default('') }}>Adam</option>
-                    <option value="apex"{{ faction_p|default('') }}>Apex</option>
-                    <option value="sunny-lebeau"{{ faction_u|default('') }}>Sunny Lebeau</option>
+                    <option value="earth"{{ faction_e|default('') }}>Earth Guild</option>
+                    <option value="moon"{{ faction_m|default('') }}>Moon Guild</option>
+                    <option value="stars"{{ faction_s|default('') }}>Stars Guild</option>
+                    <option value="void"{{ faction_v|default('') }}>Void Guild</option>
                 </select>
             </div>
             <div class="form-group">
@@ -82,7 +73,6 @@
             <p><a data-toggle="collapse" data-target="#allowed_packs" href="#allowed_packs">Select allowed packs</a> <span id="packs-on"></span> <span id="packs-off"></span></p>
             <div id="allowed_packs" class="collapse">
                 <div>
-                    <a href="#" id="select_startup">Startup</a> |
                     <a href="#" id="select_standard">Standard</a> |
                     <a href="#" id="select_all">All</a> |
                     <a href="#" id="select_none">None</a>

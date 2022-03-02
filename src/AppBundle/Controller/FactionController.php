@@ -20,16 +20,11 @@ class FactionController extends Controller
         $response->setPublic();
         $response->setMaxAge($this->getParameter('short_cache'));
 
-        if ($faction_code === 'mini-factions') {
-            $factions = $entityManager->getRepository('AppBundle:Faction')->findBy(['isMini' => true], ['code' => 'ASC']);
-            $faction_name = "Mini-factions";
-        } else {
-            $factions = $entityManager->getRepository('AppBundle:Faction')->findBy(['code' => $faction_code]);
-            if (!count($factions)) {
-                throw $this->createNotFoundException();
-            }
-            $faction_name = $factions[0]->getName();
+        $factions = $entityManager->getRepository('AppBundle:Faction')->findBy(['code' => $faction_code]);
+        if (!count($factions)) {
+            throw $this->createNotFoundException();
         }
+        $faction_name = $factions[0]->getName();
 
         $result = [];
         $banned_cards = array();
@@ -96,7 +91,7 @@ class FactionController extends Controller
                 ];
             }
 
-            // Sort the identities alphabetically. 
+            // Sort the identities alphabetically.
             usort($decklists, function ($a, $b) {
                 return strcasecmp($a['identity']->getTitle(), $b['identity']->getTitle());
             });

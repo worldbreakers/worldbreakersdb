@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>{{ pagetitle|default('Deckbuilder') }} &middot; NetrunnerDB</title>
+    <title>{{ pagetitle|default('Deckbuilder') }} &middot; WorldbreakersDB</title>
     <link rel="icon" sizes="16x16" href="/favicon.png" />
     <link rel="icon" sizes="196x196" href="/icon.png" />
     <link rel="apple-touch-icon" sizes="129x129" href="/apple-touch-icon.png" />
@@ -68,7 +68,6 @@
           cards: '{{ path('api_public_cards')|raw }}',
           factions: '{{ path('api_public_factions')|raw }}',
           types: '{{ path('api_public_types')|raw }}',
-          sides: '{{ path('api_public_sides')|raw }}',
           mwl: '{{ path('api_public_mwl')|raw }}'
         },
         locale: '{{ app.request.locale }}'
@@ -76,8 +75,6 @@
       moment.locale(window.navigator.language);
     </script>
     {% if app.environment == 'prod' %}
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-131671930-1"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
@@ -98,6 +95,7 @@
 
   </head>
   <body>
+    {% include 'icons.html' %}
     <div id="wrapper">
       <nav class="navbar navbar-inverse navbar-static-top" role="navigation">
         <div class="container">
@@ -108,10 +106,10 @@
               <span class="icon-bar"></span>
               <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="{{ path('netrunnerdb_index') }}">
+            <a class="navbar-brand" href="{{ path('worldbreakerdb_index') }}">
               <span class="icon icon-link-half-top"></span>
               <span class="icon icon-link-half-bottom"></span>
-              NetrunnerDB
+              WorldbreakerDB
             </a>
           </div>
           <div class="navbar-collapse collapse">
@@ -120,19 +118,32 @@
               <li><a href="{{ path('decklists_list', {type:'popular'}) }}">Decklists</a></li>
               <li><a href="{{ path('cards_sets') }}">Sets</a></li>
               <li class="hidden-sm dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Factions <span class="caret"></span></a>
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Guilds <span class="caret"></span></a>
                 <ul class="dropdown-menu" role="menu">
-                  <li role="presentation" class="dropdown-header">Runner</li>
-                  <li><a href="{{ path('faction_page',{faction_code:'anarch'}) }}"><span class="icon icon-anarch influence-anarch"></span> Anarch</a></li>
-                  <li><a href="{{ path('faction_page',{faction_code:'criminal'}) }}"><span class="icon icon-criminal influence-criminal"></span> Criminal</a></li>
-                  <li><a href="{{ path('faction_page',{faction_code:'shaper'}) }}"><span class="icon icon-shaper influence-shaper"></span> Shaper</a></li>
-                  <li><a href="{{ path('faction_page',{faction_code:'mini-factions'}) }}"><span style="padding-left:16px">Mini-factions</span></a></li>
-                  <li class="divider"></li>
-                  <li role="presentation" class="dropdown-header">Corp</li>
-                  <li><a href="{{ path('faction_page',{faction_code:'haas-bioroid'}) }}"><span class="icon icon-haas-bioroid influence-haas-bioroid"></span> Haas-Bioroid</a></li>
-                  <li><a href="{{ path('faction_page',{faction_code:'jinteki'}) }}"><span class="icon icon-jinteki influence-jinteki"></span> Jinteki</a></li>
-                  <li><a href="{{ path('faction_page',{faction_code:'nbn'}) }}"><span class="icon icon-nbn influence-nbn"></span> NBN</a></li>
-                  <li><a href="{{ path('faction_page',{faction_code:'weyland-consortium'}) }}"><span class="icon icon-weyland-consortium influence-weyland-consortium"></span> Weyland Consortium</a></li>
+                    <li>
+                        <a href="{{ path('faction_page',{faction_code:'earth'}) }}">
+                            <svg class="icon-wb icon-earth"><use xlink:href="#icon-earth"></use></svg>
+                            <span class="hidden-sm">Earth Guild</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ path('faction_page',{faction_code:'moon'}) }}">
+                            <svg class="icon-wb icon-moon"><use xlink:href="#icon-moon"></use></svg>
+                            <span class="hidden-sm">Moon Guild</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ path('faction_page',{faction_code:'stars'}) }}">
+                            <svg class="icon-wb icon-stars"><use xlink:href="#icon-stars"></use></svg>
+                            <span class="hidden-sm">Stars Guild</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ path('faction_page',{faction_code:'void'}) }}">
+                            <svg class="icon-wb icon-void"><use xlink:href="#icon-void"></use></svg>
+                            <span class="hidden-sm">Void Guild</span>
+                        </a>
+                    </li>
                 </ul>
               </li>
               <li class="hidden-sm dropdown">
@@ -202,35 +213,22 @@
 
             <ul class="list-inline">
               <li><a href="{{ path('cards_about') }}">About</a></li>
-              <li><a href="{{ path('api_doc') }}">API</a></li>
-              <li><a href="{{ path('tools_demo') }}">Integration</a></li>
-              <li><a href="{{ path('donators') }}">Donators</a> <span class="glyphicon glyphicon-gift donator" title="NetrunnerDB Gracious Donator"></span></li>
               <li><a href="javascript:localStorage.clear()">Clear data</a></li>
             </ul>
 
             <p>
-              Designed and built by <a href="//twitter.com/alsciende">@alsciende</a>. Maintained by <a href="http://nisei.net/">NISEI</a>.
+                Forked from <a href="https://github.com/NetrunnerDB/netrunnerdb">NetrunnerDB</a>.
             </p>
 
             <p>
-              Please post bug reports and feature requests on <a href="https://github.com/Alsciende/netrunnerdb">Github</a>
-            </p>
-
-            <p>
-              You may contribute by giving money on <a href="https://paypal.me/niseiproject">Paypal</a>. (Please add a note with your username so that we can add you to the <a href="{{ path('donators') }}">Donators</a> list.)
-            </p>
-            <p>
-              Alternatively, you can check out the Project NISEI <a href="https://www.patreon.com/join/NISEI">Patreon</a>.
-              <a href="https://www.patreon.com/join/NISEI" class="patreon-button"><img src=" {{ asset('/become_a_patron_button.png') }} " height="40" alt="Become a Patron of NISEI!"/></a>
-			</ul>
-
+                Please post bug reports and feature requests on <a href="https://github.com/worldbreakers/worldbreakersdb/issues">Github</a>
             </p>
 
             <p style="color:#333">
-              The information presented on this site about Android: Netrunner, both literal and graphical, is copyrighted by Fantasy Flight Games and/or Wizards of the Coast.
+              The information presented on this site about Worldbreakers, both literal and graphical, is copyrighted by TODO:xxx.
             </p>
             <p style="color:#333">
-              This website is not produced, endorsed, supported, or affiliated with Fantasy Flight Games and/or Wizards of the Coast.
+              This website is not produced, endorsed, supported, or affiliated with TODO:xxx.
             </p>
 
             <svg width="0" height="0" viewBox="0 0 677 601" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="nrdb_svg_hex">

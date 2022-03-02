@@ -38,7 +38,7 @@ class ImportStdCommand extends ContainerAwareCommand
     {
         $this
             ->setName('app:import:std')
-            ->setDescription('Import std data file in json format from a copy of https://github.com/zaroth/netrunner-cards-json')
+            ->setDescription('Import std data file in json format')
             ->addArgument('path', InputArgument::REQUIRED, 'Path to the repository')
             ->addOption('force', 'f', InputOption::VALUE_NONE, "Yes to all questions");
     }
@@ -51,21 +51,6 @@ class ImportStdCommand extends ContainerAwareCommand
         $this->output = $output;
 
         $helper = $this->getHelper('question');
-
-        // sides
-
-        $output->writeln("Importing Sides...");
-        $sidesFileInfo = $this->getFileInfo($path, 'sides.json');
-        $imported = $this->importSidesJsonFile($sidesFileInfo);
-        if (!$force && count($imported)) {
-            $question = new ConfirmationQuestion("Do you confirm? (Y/n) ", true);
-            if (!$helper->ask($input, $output, $question)) {
-                die();
-            }
-        }
-        $this->entityManager->flush();
-        $this->loadCollection('Side');
-        $output->writeln("Done.");
 
         // factions
 
@@ -188,25 +173,6 @@ class ImportStdCommand extends ContainerAwareCommand
         $output->writeln("Done.");
     }
 
-    protected function importSidesJsonFile(\SplFileInfo $fileinfo)
-    {
-        $result = [];
-
-        $list = $this->getDataFromFile($fileinfo);
-        foreach ($list as $data) {
-            $side = $this->getEntityFromData('AppBundle\\Entity\\Side', $data, [
-                'code',
-                'name',
-            ], [], []);
-            if ($side !== null) {
-                $result[] = $side;
-                $this->entityManager->persist($side);
-            }
-        }
-
-        return $result;
-    }
-
     protected function importFactionsJsonFile(\SplFileInfo $fileinfo)
     {
         $result = [];
@@ -219,7 +185,6 @@ class ImportStdCommand extends ContainerAwareCommand
                 'color',
                 'is_mini',
             ], [
-                'side_code',
             ], []);
             if ($faction) {
                 $result[] = $faction;
@@ -242,7 +207,6 @@ class ImportStdCommand extends ContainerAwareCommand
                 'position',
                 'is_subtype',
             ], [
-                'side_code',
             ], []);
             if ($type) {
                 $result[] = $type;
@@ -315,16 +279,13 @@ class ImportStdCommand extends ContainerAwareCommand
         foreach ($cardsData as $cardData) {
             $card = $this->getEntityFromData('AppBundle\Entity\Card', $cardData, [
                 'code',
-                'deck_limit',
                 'position',
-                'quantity',
+                'signature',
                 'stripped_title',
                 'title',
-                'uniqueness',
             ], [
                 'faction_code',
                 'pack_code',
-                'side_code',
                 'type_code',
             ], [
                 'illustrator',
@@ -332,9 +293,6 @@ class ImportStdCommand extends ContainerAwareCommand
                 'keywords',
                 'text',
                 'stripped_text',
-                'cost',
-                'faction_cost',
-                'trash_cost',
             ]);
             if ($card) {
                 $result[] = $card;
@@ -374,7 +332,6 @@ class ImportStdCommand extends ContainerAwareCommand
                     if ($card->getType()->getCode() === 'identity') {
                         $prebuilt->setIdentity($card);
                         $prebuilt->setFaction($card->getFaction());
-                        $prebuilt->setSide($card->getFaction()->getSide());
                     }
                 }
             }
@@ -417,10 +374,6 @@ class ImportStdCommand extends ContainerAwareCommand
                         if (array_key_exists('global_penalty', $mwl_entry)) {
                             $mwl_card->setGlobalPenalty($mwl_entry['global_penalty']);
                             $mwl_value = 'global penalty: ' . $mwl_entry['global_penalty'];
-                        }
-                        if (array_key_exists('universal_faction_cost', $mwl_entry)) {
-                            $mwl_card->setUniversalFactionCost($mwl_entry['universal_faction_cost']);
-                            $mwl_value = 'universal faction cost: ' . $mwl_entry['universal_faction_cost'];
                         }
                         if (array_key_exists('is_restricted', $mwl_entry)) {
                             $mwl_card->setIsRestricted($mwl_entry['is_restricted']);
@@ -504,11 +457,6 @@ class ImportStdCommand extends ContainerAwareCommand
                         }
                 }
             }
-        }
-
-        // Special case faction cost for agenda and identity cards which will always have null values returned as 0.
-        if ($entityName == 'AppBundle\Entity\Card' && $fieldName == 'factionCost' && ($entity->getType()->getCode() == 'identity' || $entity->getType()->getCode() == 'agenda')) {
-            return;
         }
 
         if ($currentJsonValue !== $newJsonValue) {
@@ -668,60 +616,25 @@ class ImportStdCommand extends ContainerAwareCommand
         return $this->uniquelyEncodeJson($array1) === $this->uniquelyEncodeJson($array2);
     }
 
-    protected function importAgendaData(Card $card, array $data)
-    {
-        $mandatoryKeys = [
-            'advancement_cost',
-            'agenda_points',
-        ];
-
-        foreach ($mandatoryKeys as $key) {
-            $this->copyKeyToEntity($card, 'AppBundle\Entity\Card', $data, $key, true);
-        }
-    }
-
-    protected function importAssetData(Card $card, array $data)
-    {
-        $mandatoryKeys = [
-            'cost',
-            'faction_cost',
-            'trash_cost',
-        ];
-
-        foreach ($mandatoryKeys as $key) {
-            $this->copyKeyToEntity($card, 'AppBundle\Entity\Card', $data, $key, true);
-        }
-    }
-
     protected function importEventData(Card $card, array $data)
     {
         $mandatoryKeys = [
             'cost',
-            'faction_cost',
+            'standing',
+            'standing_req',
         ];
 
         foreach ($mandatoryKeys as $key) {
             $this->copyKeyToEntity($card, 'AppBundle\Entity\Card', $data, $key, true);
         }
     }
-
-    protected function importHardwareData(Card $card, array $data)
+    protected function importFollowerData(Card $card, array $data)
     {
         $mandatoryKeys = [
             'cost',
-            'faction_cost',
-        ];
-
-        foreach ($mandatoryKeys as $key) {
-            $this->copyKeyToEntity($card, 'AppBundle\Entity\Card', $data, $key, true);
-        }
-    }
-
-    protected function importICEData(Card $card, array $data)
-    {
-        $mandatoryKeys = [
-            'cost',
-            'faction_cost',
+            'health',
+            'standing',
+            'standing_req',
             'strength',
         ];
 
@@ -729,73 +642,22 @@ class ImportStdCommand extends ContainerAwareCommand
             $this->copyKeyToEntity($card, 'AppBundle\Entity\Card', $data, $key, true);
         }
     }
+    protected function importLocationData(Card $card, array $data)
+    {
+        $mandatoryKeys = [
+            'cost',
+            'stages',
+            'standing',
+            'standing_req',
+        ];
 
+        foreach ($mandatoryKeys as $key) {
+            $this->copyKeyToEntity($card, 'AppBundle\Entity\Card', $data, $key, true);
+        }
+    }
     protected function importIdentityData(Card $card, array $data)
     {
         $mandatoryKeys = [
-            'minimum_deck_size',
-        ];
-
-        if ($card->getPack()->getCode() !== 'draft') {
-            $mandatoryKeys[] = 'influence_limit';
-        }
-
-        if ($card->getSide()->getCode() === 'runner') {
-            $mandatoryKeys[] = 'base_link';
-        }
-
-        foreach ($mandatoryKeys as $key) {
-            $this->copyKeyToEntity($card, 'AppBundle\Entity\Card', $data, $key, true);
-        }
-    }
-
-    protected function importOperationData(Card $card, array $data)
-    {
-        $mandatoryKeys = [
-            'cost',
-            'faction_cost',
-        ];
-
-        foreach ($mandatoryKeys as $key) {
-            $this->copyKeyToEntity($card, 'AppBundle\Entity\Card', $data, $key, true);
-        }
-    }
-
-    protected function importProgramData(Card $card, array $data)
-    {
-        $mandatoryKeys = [
-            'cost',
-            'memory_cost',
-            'faction_cost',
-        ];
-
-        if (strstr($card->getKeywords(), 'Icebreaker') !== false) {
-            $mandatoryKeys[] = 'strength';
-        }
-
-        foreach ($mandatoryKeys as $key) {
-            $this->copyKeyToEntity($card, 'AppBundle\Entity\Card', $data, $key, true);
-        }
-    }
-
-    protected function importResourceData(Card $card, array $data)
-    {
-        $mandatoryKeys = [
-            'cost',
-            'faction_cost',
-        ];
-
-        foreach ($mandatoryKeys as $key) {
-            $this->copyKeyToEntity($card, 'AppBundle\Entity\Card', $data, $key, true);
-        }
-    }
-
-    protected function importUpgradeData(Card $card, array $data)
-    {
-        $mandatoryKeys = [
-            'cost',
-            'faction_cost',
-            'trash_cost',
         ];
 
         foreach ($mandatoryKeys as $key) {

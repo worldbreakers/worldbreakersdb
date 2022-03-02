@@ -268,7 +268,6 @@ function do_action_deck(event) {
     case 'btn-export-bbcode': export_bbcode(deck); break;
     case 'btn-export-markdown': export_markdown(deck); break;
     case 'btn-export-plaintext': export_plaintext(deck); break;
-    case 'btn-export-jintekinet': export_jintekinet(deck); break;
   }
   return false;
 }

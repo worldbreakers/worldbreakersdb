@@ -7,14 +7,8 @@ AppBundle\Entity\Card:
             columns: [ title ]
         cost_index:
             columns: [ cost ]
-        advancement_cost_index:
-            columns: [ advancement_cost ]
         strength_index:
             columns: [ strength ]
-        agenda_points_index:
-            columns: [ agenda_points ]
-        trash_cost_index:
-            columns: [ trash_cost ]
     manyToOne:
         pack:
             targetEntity: Pack
@@ -33,12 +27,6 @@ AppBundle\Entity\Card:
             inversedBy: cards
             joinColumn:
                 name: faction_id
-                referencedColumnName: id
-        side:
-            targetEntity: Side
-            inversedBy: cards
-            joinColumn:
-                name: side_id
                 referencedColumnName: id
     oneToMany:
         decklists:
@@ -96,24 +84,8 @@ AppBundle\Entity\Card:
             type: string
             length: '1024'
             nullable: true
-        advancementCost:
-            type: smallint
-            column: advancement_cost
-            nullable: true
-        agendaPoints:
-            type: smallint
-            column: agenda_points
-            nullable: true
-        baseLink:
-            type: smallint
-            column: base_link
-            nullable: true
         cost:
             type: smallint
-            nullable: true
-        factionCost:
-            type: smallint
-            column: faction_cost
             nullable: true
         flavor:
             type: string
@@ -123,38 +95,30 @@ AppBundle\Entity\Card:
             type: string
             length: 255
             nullable: true
-        influenceLimit:
-            type: smallint
-            column: influence_limit
-            nullable: true
-        memoryCost:
-            type: smallint
-            column: memory_cost
-            nullable: true
-        minimumDeckSize:
-            type: smallint
-            column: minimum_deck_size
-            nullable: true
         position:
-            type: smallint
-            nullable: false
-        quantity:
             type: smallint
             nullable: false
         strength:
             type: smallint
             nullable: true
-        trashCost:
+        health:
             type: smallint
-            column: trash_cost
             nullable: true
-        uniqueness:
-            type: boolean
-            nullable: false
-        deckLimit:
+        stages:
+            type: array
+            nullable: true
+        standing:
+            type: json
+            column: 'standing'
+            nullable: true
+        standingReq:
             type: smallint
-            column: deck_limit
-            nullable: false
+            column: 'standing_req'
+            nullable: true
+        signature:
+            type: string
+            length: 255
+            nullable: true
         imageUrl:
             type: string
             column: image_url

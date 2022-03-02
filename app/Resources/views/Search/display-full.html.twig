@@ -11,30 +11,48 @@
               <div class="panel panel-default">
                 <div class="panel-heading">
                   <h3 class="panel-title card-title">
-                    {% if card.uniqueness == true %}&diams;{% endif %}
                     <a href="{{ card.url }}" class="card-title{% if card.available == false %} card-preview{% endif %}">{{ card.title }}</a>
                   </h3>
                   </div>
                 <div class="panel-body">
                   <div class="card-info">
-                    <span class="card-type">{{ card.type_name }}</span>{% if card.subtype %}<span class="card-keywords">: {{ card.subtype }}</span>{% endif %}
-                    <span class="card-prop">&bull;
-                    {% if card.type_code == "agenda" %} {{ card.advancementcost }}/{{ card.agendapoints }} {% endif %}
-                    {% if card.type_code == "identity" and card.side_code == "corp" %}Deck: {{ card.minimumdecksize }} &bull; Influence: {% if card.influencelimit ?? 0 == 0 %} &#8734; {% else %} {{ card.influencelimit }} {% endif %} {% endif %}
-                    {% if card.type_code == "identity" and card.side_code == "runner" %}Link: {{ card.baselink }} &bull; Deck: {{ card.minimumdecksize }} &bull; Influence: {% if card.influencelimit ?? 0 == 0 %} &#8734; {% else %} {{ card.influencelimit }} {% endif %} {% endif %}
-                    {% if card.type_code == "operation" or card.type_code == "event" %}Cost: {{ card.cost }} {% if card.trash is not null %}&bull; Trash: {{ card.trash }} {% endif %} &bull; Influence: {{ card.factioncost }}{% endif %}
-                    {% if card.type_code == "resource" or card.type_code == "hardware" %}Install: {{ card.cost }} &bull; Influence: {{ card.factioncost }}{% endif %}
-                    {% if card.type_code == "program" %}Install: {{ card.cost }} &bull; Memory: {{ card.memoryunits }} {% if card.strength is not null %}&bull; Strength: {{ card.strength }}{% endif %} &bull; Influence: {{ card.factioncost }}{% endif %}
-                    {% if card.type_code == "asset" or card.type_code == "upgrade" %}Rez: {{ card.cost }} &bull; Trash: {{ card.trash }} &bull; Influence: {{ card.factioncost }}{% endif %}
-                    {% if card.type_code == "ice" %}Rez: {{ card.cost }} &bull; Strength: {{ card.strength }} {% if card.trash is not null %}&bull; Trash: {{ card.trash }} {% endif %}&bull; Influence: {{ card.factioncost }}{% endif %}
+                    <span class="card-type">{{ card.type_name }}</span>
+                    <span class="card-prop">
+
+                        {% if card.type_code == "event" or card.type_code == "follower" or card.type_code == "location" %}
+                            <span>
+                                Cost: {{ card.cost }}
+                                <svg class="icon-wb icon-mythium"><use xlink:href="#icon-mythium"></use></svg>
+                                <span class="icon-fallback">Mythium</span>
+
+                                {{ include('/Search/standing_requirements.html.twig') }}
+                            </span>
+                        {% endif %}
+
+                        {% if card.type_code == "follower" %}
+                            <span>Strength: {{ card.strength }} &bull; Health: {{ card.health }}</span>
+                        {% endif %}
+
                     </span>
                   </div>
                   <div class="card-text border-{{ card.faction_code }}">
-                    {{ card.text|raw }}
+                      {{ card.text|raw }}
+
+                      {% if card.stages %}
+                          <div class="card-location-stages">
+                              <ol class="stages">
+                                  {% for stage in card.stages %}
+                                      <li>{{stage|raw}}</li>
+                                  {% endfor %}
+                              </ol>
+                          </div>
+                      {% endif %}
                   </div>
+                  {% if card.flavor %}
                   <div class="card-flavor">
                     <small>{{ card.flavor|raw|nl2br }}</small>
                   </div>
+                  {% endif %}
                   <div class="card-illustrator">
                     <small>
                     {{ card.faction_name }} &bull;

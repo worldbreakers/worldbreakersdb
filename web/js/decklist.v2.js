@@ -10,11 +10,9 @@ NRDB.data.promise.then(function () {
     $('.change_mwl').on('click', on_mwl_click);
     update_mwl(MWL);
     update_deck();
-    NRDB.draw_simulator.init();
 
     $('a[href="#tools"]').on('shown.bs.tab', function (e) {
         make_cost_graph();
-        make_strength_graph();
     });
 });
 
@@ -144,8 +142,8 @@ function setup_comment_form() {
             match: /\$([\-+\w]*)$/,
             search: function (term, callback) {
                 var regexp = new RegExp('^' + term);
-                callback($.grep(['credit', 'recurring-credit', 'click', 'link', 'trash', 'subroutine', 'mu', '1mu', '2mu', '3mu',
-                    'anarch', 'criminal', 'shaper', 'haas-bioroid', 'weyland-consortium', 'jinteki', 'nbn'],
+                // TODO: was passiert hier?
+                callback($.grep(['mythium', 'earth', 'moon', 'stars', 'void'],
                         function (symbol) {
                             return regexp.test(symbol);
                         }
@@ -155,7 +153,7 @@ function setup_comment_form() {
                 return value;
             },
             replace: function (value) {
-                return '<span class="icon icon-' + value + '"></span>';
+                return '<svg class="icon-wb icon-' + value + '"><use xlink:href="#icon-' + value + '"></use></svg>';
             },
             index: 1
         }]);
@@ -292,7 +290,6 @@ $(function () {
     $(document).on('click', '#btn-export-bbcode', export_bbcode);
     $(document).on('click', '#btn-export-markdown', export_markdown);
     $(document).on('click', '#btn-export-plaintext', export_plaintext);
-    $(document).on('click', '#btn-export-jintekinet', export_jintekinet);
     $(document).on('click', '#btn-compare', compare_form);
     $(document).on('click', '#btn-compare-submit', compare_submit);
     $(document).on('click', '#btn-copy-decklist', copy_decklist);
@@ -405,8 +402,8 @@ function edit_form() {
     match : /\$([\-+\w]*)$/,
     search : function(term, callback) {
       var regexp = new RegExp('^' + term);
-      callback($.grep(['credit', 'recurring-credit', 'click', 'link', 'trash', 'subroutine', 'mu', '1mu', '2mu', '3mu',
-        'anarch', 'criminal', 'shaper', 'haas-bioroid', 'weyland-consortium', 'jinteki', 'nbn'],
+      // TODO:
+      callback($.grep(['mythium', 'earth', 'moon', 'stars', 'void'],
         function(symbol) { return regexp.test(symbol); }
       ));
     },
@@ -414,7 +411,7 @@ function edit_form() {
       return value;
     },
     replace : function(value) {
-      return '<span class="icon icon-' + value + '"></span>';
+      return '<svg class="icon-wb icon-' + value + '"><use xlink:href="#icon-' + value + '"></use></svg>';
     },
     index : 1
   }]);

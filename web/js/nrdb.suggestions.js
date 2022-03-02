@@ -106,9 +106,6 @@
 
   suggestions.div = function(card) {
     var faction = card.faction_code;
-    var influ = "";
-    for (var i = 0; i < card.factioncost; i++)
-      influ += "●";
 
     var radios = '';
     for (var i = 0; i <= card.maxqty; i++) {
@@ -118,9 +115,6 @@
           + '" value="' + i + '">' + i + '</label>';
     }
 
-    var imgsrc = card.faction_code.substr(0,7) === "neutral" ? "" : '<img data-src="'
-          + Url_FactionImage.replace('xxx', card.faction_code)
-          + '" class="lazyload" alt="'+card.title+'">';
     var div = $('<tr class="card-container" data-index="'
           + card.code
           + '"><td><button type="button" class="close"><span aria-hidden="true">&times;</span><span class="sr-only">Remove</span></button></td>'
@@ -129,12 +123,11 @@
           + '</div></td><td><a class="card" href="'
           + Routing.generate('cards_zoom', {card_code:card.code})
           + '" data-target="#cardModal" data-remote="false" data-toggle="modal">'
-          + card.title + '</a></td><td class="influence influence-' + faction
-          + '">' + influ + '</td><td class="type" title="' + card.type.name
+          + card.title + '</a></td><td></td><td class="type" title="' + card.type.name
           + '"><img data-src="/images/types/'
           + card.type_code + '.png" class="lazyload" alt="'+card.type.name+'">'
           + '</td><td class="faction" title="' + card.faction.name + '">'
-          + imgsrc + '</td></tr>');
+          + card.faction.name + '</td></tr>');
 
     return div;
   };

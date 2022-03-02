@@ -60,13 +60,11 @@ class DeckManager
               f.code faction_code,
               LPAD(y.position * 10 + p.position, 6, '0') lastpack_global_position,
               p.cycle_id cycle_id,
-              p.position pack_number,
-              s.name side
+              p.position pack_number
             FROM deck d
               LEFT JOIN mwl m ON d.mwl_id=m.id
               LEFT JOIN card c ON d.identity_id=c.id
               LEFT JOIN faction f ON c.faction_id=f.id
-              LEFT JOIN side s ON d.side_id=s.id
               LEFT JOIN pack p ON d.last_pack_id=p.id
               LEFT JOIN cycle y ON p.cycle_id=y.id
             WHERE d.user_id=?
@@ -179,12 +177,10 @@ class DeckManager
               c.title identity_title,
               c.code identity_code,
               f.code faction_code,
-              s.name side
             FROM deck d
               LEFT JOIN mwl m ON d.mwl_id=m.id
               LEFT JOIN card c ON d.identity_id=c.id
               LEFT JOIN faction f ON c.faction_id=f.id
-              LEFT JOIN side s ON d.side_id=s.id
             WHERE d.id=?",
             [
                 $deck_id,
@@ -324,13 +320,10 @@ class DeckManager
             $deck->setLastPack($latestPack);
         }
         if ($identity) {
-            $deck->setSide($identity->getSide());
             $deck->setIdentity($identity);
         } else {
-            $deck->setSide(current($cards)->getSide());
             /** @var Card $identity */
             $identity = $this->entityManager->getRepository('AppBundle:Card')->findOneBy([
-                "side" => $deck->getSide(),
             ]);
             $cards[$identity->getCode()] = $identity;
             $content[$identity->getCode()] = 1;
@@ -370,10 +363,6 @@ class DeckManager
 
         foreach ($content as $card_code => $qty) {
             $card = $cards[$card_code];
-            if ($card->getSide()->getId() != $deck->getSide()->getId()) {
-                continue;
-            }
-            $card = $cards[$card_code];
             $slot = new Deckslot();
             $slot->setQuantity($qty);
             $slot->setCard($card);
@@ -390,8 +379,6 @@ class DeckManager
         } else {
             $deck->setProblem(null);
             $deck->setDeckSize($analyse['deckSize']);
-            $deck->setInfluenceSpent($analyse['influenceSpent']);
-            $deck->setAgendaPoints($analyse['agendaPoints']);
         }
         $deck->setDateUpdate(new \DateTime());
         $this->entityManager->flush();

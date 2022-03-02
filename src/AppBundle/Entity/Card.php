@@ -53,29 +53,9 @@ class Card implements NormalizableInterface, TimestampableInterface
     private $strippedText;
 
     /**
-     * @var integer
-     */
-    private $advancementCost;
-
-    /**
-     * @var integer
-     */
-    private $agendaPoints;
-
-    /**
-     * @var integer
-     */
-    private $baseLink;
-
-    /**
      * @var integer|null
      */
     private $cost;
-
-    /**
-     * @var integer|null
-     */
-    private $factionCost;
 
     /**
      * @var string|null
@@ -88,49 +68,39 @@ class Card implements NormalizableInterface, TimestampableInterface
     private $illustrator;
 
     /**
-     * @var integer|null
-     */
-    private $influenceLimit;
-
-    /**
-     * @var integer
-     */
-    private $memoryCost;
-
-    /**
-     * @var integer
-     */
-    private $minimumDeckSize;
-
-    /**
      * @var integer
      */
     private $position;
 
     /**
-     * @var integer
-     */
-    private $quantity;
-
-    /**
-     * @var integer
+     * @var integer|null
      */
     private $strength;
 
     /**
      * @var integer|null
      */
-    private $trashCost;
+    private $health;
 
     /**
-     * @var boolean
+     * @var array|null
      */
-    private $uniqueness;
+    private $standing;
 
     /**
-     * @var integer
+     * @var integer|null
      */
-    private $deckLimit;
+    private $standingReq;
+
+    /**
+     * @var string
+     */
+    private $signature;
+
+    /**
+     * @var string[]
+     */
+    private $stages;
 
     /**
      * @var Collection
@@ -151,11 +121,6 @@ class Card implements NormalizableInterface, TimestampableInterface
      * @var Faction
      */
     private $faction;
-
-    /**
-     * @var Side
-     */
-    private $side;
 
     /**
      * @var string|null
@@ -181,11 +146,6 @@ class Card implements NormalizableInterface, TimestampableInterface
      * @var int|null
      */
     private $globalPenalty;
-
-    /**
-     * @var int|null
-     */
-    private $universalFactionCost;
 
     /**
      * @var bool
@@ -225,13 +185,7 @@ class Card implements NormalizableInterface, TimestampableInterface
                 'title',
                 'stripped_title',
                 'position',
-                'uniqueness',
-                'deck_limit',
-                'quantity',
         ];
-        if (substr($this->faction->getCode(), 0, 7) === 'neutral' && $this->type->getCode() !== 'identity') {
-            $mandatoryFields[] = 'faction_cost';
-        }
 
         $optionalFields = [
                 'illustrator',
@@ -240,57 +194,20 @@ class Card implements NormalizableInterface, TimestampableInterface
                 'text',
                 'stripped_text',
                 'cost',
-                'faction_cost',
-                'trash_cost',
-                'image_url'
+                'image_url',
+                'stages',
+                'standing',
+                'standing_req',
+                'strength',
+                'health',
+                'signature',
         ];
 
         $externalFields = [
                 'faction',
                 'pack',
-                'side',
                 'type'
         ];
-
-        switch ($this->type->getCode()) {
-            case 'identity':
-                $mandatoryFields[] = 'influence_limit';
-                $mandatoryFields[] = 'minimum_deck_size';
-                if ($this->side->getCode() === 'runner') {
-                    $mandatoryFields[] = 'base_link';
-                }
-                break;
-            case 'agenda':
-                $mandatoryFields[] = 'advancement_cost';
-                $mandatoryFields[] = 'agenda_points';
-                break;
-            case 'asset':
-            case 'upgrade':
-                $mandatoryFields[] = 'cost';
-                $mandatoryFields[] = 'faction_cost';
-                $mandatoryFields[] = 'trash_cost';
-                break;
-            case 'ice':
-                $mandatoryFields[] = 'cost';
-                $mandatoryFields[] = 'faction_cost';
-                $mandatoryFields[] = 'strength';
-                break;
-            case 'operation':
-            case 'event':
-            case 'hardware':
-            case 'resource':
-                $mandatoryFields[] = 'cost';
-                $mandatoryFields[] = 'faction_cost';
-                break;
-            case 'program':
-                $mandatoryFields[] = 'cost';
-                $mandatoryFields[] = 'faction_cost';
-                $mandatoryFields[] = 'memory_cost';
-                if (strstr($this->keywords, 'Icebreaker') !== false) {
-                    $mandatoryFields[] = 'strength';
-                }
-                break;
-        }
 
         foreach ($optionalFields as $optionalField) {
             $getter = $this->snakeToCamel('get_' . $optionalField);
@@ -467,63 +384,6 @@ class Card implements NormalizableInterface, TimestampableInterface
     }
 
     /**
-     * @return int
-     */
-    public function getAdvancementCost()
-    {
-        return $this->advancementCost;
-    }
-
-    /**
-     * @param int $advancementCost
-     * @return $this
-     */
-    public function setAdvancementCost(int $advancementCost)
-    {
-        $this->advancementCost = $advancementCost;
-
-        return $this;
-    }
-
-    /**
-     * @return int
-     */
-    public function getAgendaPoints()
-    {
-        return $this->agendaPoints;
-    }
-
-    /**
-     * @param int $agendaPoints
-     * @return $this
-     */
-    public function setAgendaPoints(int $agendaPoints)
-    {
-        $this->agendaPoints = $agendaPoints;
-
-        return $this;
-    }
-
-    /**
-     * @return int
-     */
-    public function getBaseLink()
-    {
-        return $this->baseLink;
-    }
-
-    /**
-     * @param int $baseLink
-     * @return $this
-     */
-    public function setBaseLink(int $baseLink)
-    {
-        $this->baseLink = $baseLink;
-
-        return $this;
-    }
-
-    /**
      * @return int|null
      */
     public function getCost()
@@ -538,25 +398,6 @@ class Card implements NormalizableInterface, TimestampableInterface
     public function setCost(int $cost = null)
     {
         $this->cost = $cost;
-
-        return $this;
-    }
-
-    /**
-     * @return int|null
-     */
-    public function getFactionCost()
-    {
-        return $this->factionCost === null ? 0 : $this->factionCost;
-    }
-
-    /**
-     * @param int|null $factionCost
-     * @return $this
-     */
-    public function setFactionCost(int $factionCost = null)
-    {
-        $this->factionCost = $factionCost;
 
         return $this;
     }
@@ -600,63 +441,6 @@ class Card implements NormalizableInterface, TimestampableInterface
     }
 
     /**
-     * @return int|null
-     */
-    public function getInfluenceLimit()
-    {
-        return $this->influenceLimit;
-    }
-
-    /**
-     * @param int|null $influenceLimit
-     * @return $this
-     */
-    public function setInfluenceLimit(int $influenceLimit = null)
-    {
-        $this->influenceLimit = $influenceLimit;
-
-        return $this;
-    }
-
-    /**
-     * @return int
-     */
-    public function getMemoryCost()
-    {
-        return $this->memoryCost;
-    }
-
-    /**
-     * @param int $memoryCost
-     * @return $this
-     */
-    public function setMemoryCost(int $memoryCost)
-    {
-        $this->memoryCost = $memoryCost;
-
-        return $this;
-    }
-
-    /**
-     * @return int
-     */
-    public function getMinimumDeckSize()
-    {
-        return $this->minimumDeckSize;
-    }
-
-    /**
-     * @param int $minimumDeckSize
-     * @return $this
-     */
-    public function setMinimumDeckSize(int $minimumDeckSize)
-    {
-        $this->minimumDeckSize = $minimumDeckSize;
-
-        return $this;
-    }
-
-    /**
      * @return int
      */
     public function getPosition()
@@ -671,25 +455,6 @@ class Card implements NormalizableInterface, TimestampableInterface
     public function setPosition(int $position)
     {
         $this->position = $position;
-
-        return $this;
-    }
-
-    /**
-     * @return int
-     */
-    public function getQuantity()
-    {
-        return $this->quantity;
-    }
-
-    /**
-     * @param int $quantity
-     * @return $this
-     */
-    public function setQuantity(int $quantity)
-    {
-        $this->quantity = $quantity;
 
         return $this;
     }
@@ -714,39 +479,39 @@ class Card implements NormalizableInterface, TimestampableInterface
     }
 
     /**
-     * @return int|null
+     * @return int
      */
-    public function getTrashCost()
+    public function getHealth()
     {
-        return $this->trashCost;
+        return $this->health;
     }
 
     /**
-     * @param int|null $trashCost
+     * @param int $health
      * @return $this
      */
-    public function setTrashCost(int $trashCost = null)
+    public function setHealth(int $health)
     {
-        $this->trashCost = $trashCost;
+        $this->health = $health;
 
         return $this;
     }
 
     /**
-     * @return bool
+     * @return array
      */
-    public function getUniqueness()
+    public function getStanding()
     {
-        return $this->uniqueness;
+        return $this->standing;
     }
 
     /**
-     * @param bool $uniqueness
+     * @param array $standing
      * @return $this
      */
-    public function setUniqueness(bool $uniqueness)
+    public function setStanding(array $standing)
     {
-        $this->uniqueness = $uniqueness;
+        $this->standing = $standing;
 
         return $this;
     }
@@ -754,20 +519,81 @@ class Card implements NormalizableInterface, TimestampableInterface
     /**
      * @return int
      */
-    public function getDeckLimit()
+    public function getStandingReq()
     {
-        return $this->deckLimit;
+        return $this->standingReq;
     }
 
     /**
-     * @param int $deckLimit
+     * @param int $standingReq
      * @return $this
      */
-    public function setDeckLimit(int $deckLimit)
+    public function setStandingReq(int $standingReq)
     {
-        $this->deckLimit = $deckLimit;
+        $this->standingReq = $standingReq;
 
         return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getStages()
+    {
+        return $this->stages;
+    }
+
+    /**
+     * @param array $stages
+     * @return $this
+     */
+    public function setStages(array $stages)
+    {
+        $this->stages = $stages;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSignature()
+    {
+        return $this->signature;
+    }
+
+    /**
+     * @param string $signature
+     * @return $this
+     */
+    public function setSignature(string $signature)
+    {
+        $this->signature = $signature;
+
+        return $this;
+    }
+
+    /**
+     * @return Card[]
+     */
+    public function getSignatureCards()
+    {
+        if ($this->getType()->getCode() !== 'identity') {
+            return [];
+        }
+
+    }
+
+    /**
+     * @return bool
+     */
+    public function isSignatureCard()
+    {
+        if ($this->getType()->getCode() === 'identity') {
+            return false;
+        }
+
+        return is_string($this->signature) && strlen($this->signature);
     }
 
     /**
@@ -890,22 +716,11 @@ class Card implements NormalizableInterface, TimestampableInterface
     }
 
     /**
-     * @return Side
+     * @return bool
      */
-    public function getSide()
+    public function isIdentity()
     {
-        return $this->side;
-    }
-
-    /**
-     * @param Side $side
-     * @return $this
-     */
-    public function setSide(Side $side)
-    {
-        $this->side = $side;
-
-        return $this;
+        return $this->getType()->getCode() === 'identity';
     }
 
     /**
@@ -925,18 +740,6 @@ class Card implements NormalizableInterface, TimestampableInterface
         $this->faction = $faction;
 
         return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getIdentityShortTitle()
-    {
-        $parts = explode(': ', $this->title);
-        if (count($parts) > 1 && $parts[0] === $this->faction->getName()) {
-            return $parts[1];
-        }
-        return $parts[0];
     }
 
     /**
@@ -973,25 +776,6 @@ class Card implements NormalizableInterface, TimestampableInterface
     public function setGlobalPenalty(int $globalPenalty = null)
     {
         $this->globalPenalty = $globalPenalty;
-
-        return $this;
-    }
-
-    /**
-     * @return int|null
-     */
-    public function getUniversalFactionCost()
-    {
-        return $this->universalFactionCost;
-    }
-
-    /**
-     * @param int|null $universalFactionCost
-     * @return $this
-     */
-    public function setUniversalFactionCost(int $universalFactionCost = null)
-    {
-        $this->universalFactionCost = $universalFactionCost;
 
         return $this;
     }
@@ -1084,32 +868,12 @@ class Card implements NormalizableInterface, TimestampableInterface
     /**
      * @return string
      */
-    public function getFactionCostDots()
-    {
-        if ($this->getType()->getName() == "Identity") {
-            return "";
-        }
-
-        if ($this->getType()->getName() == "Agenda" and !in_array($this->getFaction()->getCode(), ["neutral-corp", "neutral-runner"])) {
-            return "";
-        }
-
-        $factionCost = $this->getFactionCost();
-        $inf = "<span class=\"" . $this->faction->getCode() . "\">";
-        $inf .= str_repeat("&#9679;", $factionCost) . "</span>";
-        $inf .= str_repeat("&#9675;", 5 - $factionCost);
-        return $inf;
-    }
-
-    /**
-     * @return string
-     */
     public function getFormattedCost()
     {
         $cost = $this->getCost();
-        if (is_null($cost) && !($this->getType()->getName() == "Identity" || $this->getType()->getName() == "Agenda")) {
+        if (is_null($cost) && $this->getType()->getCode() != "identity") {
             $cost = 'X';
         }
-        return $cost . "<span class=\"icon icon-credit\" aria-hidden=\"true\"></span><span class=\"icon-fallback\">[credit]</span>";
+        return $cost . '<svg class="icon-wb icon-mythium" aria-hidden="true"><use xlink:href="#icon-mythium"></use></svg><span class="icon-fallback">Mythium</span>';
     }
 }

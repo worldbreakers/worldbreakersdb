@@ -20,29 +20,12 @@ use Symfony\Component\Routing\RouterInterface;
 class CardsData
 {
     public static $faction_shortcuts = [
-        'neutral' => ['neutral-runner', 'neutral-corp'],
-        '-'       => ['neutral-runner', 'neutral-corp'],
-        'nc'      => 'neutral-corp',
-        'nr'      => 'neutral-runner',
+        '-'       => 'neutral',
 
-        'h'       => 'haas-bioroid',
-        'hb'      => 'haas-bioroid',
-        'j'       => 'jinteki',
-        'n'       => 'nbn',
-        'w'       => 'weyland-consortium',
-        'weyland' => 'weyland-consortium',
-
-        'a'       => 'anarch',
-        'c'       => 'criminal',
-        's'       => 'shaper',
-
-        'mini'    => ['apex', 'adam', 'sunny-lebeau'],
-        'p'       => 'apex',
-        'ap'       => 'apex',
-        'd'       => 'adam',
-        'ad'       => 'adam',
-        'u'       => 'sunny-lebeau',
-        'su'       => 'sunny-lebeau',
+        'e'       => 'earth',
+        'm'       => 'moon',
+        's'       => 'stars',
+        'v'       => 'void',
     ];
 
     /** @var EntityManagerInterface $entityManager */
@@ -97,21 +80,11 @@ class CardsData
     public function replaceSymbols(string $text)
     {
         $map = [
-            '[subroutine]'         => '<span class="icon icon-subroutine" aria-hidden="true"></span><span class="icon-fallback">subroutine</span>',
-            '[credit]'             => '<span class="icon icon-credit" aria-hidden="true"></span><span class="icon-fallback">credit</span>',
-            '[trash]'              => '<span class="icon icon-trash" aria-hidden="true"></span><span class="icon-fallback">trash</span>',
-            '[click]'              => '<span class="icon icon-click" aria-hidden="true"></span><span class="icon-fallback">click</span>',
-            '[recurring-credit]'   => '<span class="icon icon-recurring-credit" aria-hidden="true"></span><span class="icon-fallback">recurring credit</span>',
-            '[mu]'                 => '<span class="icon icon-mu" aria-hidden="true"></span><span class="icon-fallback">memory unit</span>',
-            '[link]'               => '<span class="icon icon-link" aria-hidden="true"></span><span class="icon-fallback">link</span>',
-            '[anarch]'             => '<span class="icon icon-anarch" aria-hidden="true"></span><span class="icon-fallback">anarch</span>',
-            '[criminal]'           => '<span class="icon icon-criminal" aria-hidden="true"></span><span class="icon-fallback">criminal</span>',
-            '[shaper]'             => '<span class="icon icon-shaper" aria-hidden="true"></span><span class="icon-fallback">shaper</span>',
-            '[jinteki]'            => '<span class="icon icon-jinteki" aria-hidden="true"></span><span class="icon-fallback">jinteki</span>',
-            '[haas-bioroid]'       => '<span class="icon icon-haas-bioroid" aria-hidden="true"></span><span class="icon-fallback">haas bioroid</span>',
-            '[nbn]'                => '<span class="icon icon-nbn" aria-hidden="true"></span><span class="icon-fallback">nbn</span>',
-            '[weyland-consortium]' => '<span class="icon icon-weyland-consortium" aria-hidden="true"></span><span class="icon-fallback">weyland consortium</span>',
-            '[interrupt]'          => '<span class="icon icon-interrupt" aria-hidden="true"></span><span class="icon-fallback">interrupt</span>',
+            '[mythium]' => '<svg class="icon-wb icon-mythium" aria-hidden="true"><use xlink:href="#icon-mythium"></use></svg><span class="icon-fallback">Mythium</span>',
+            '[earth]' => '<svg class="icon-wb icon-earth"><use xlink:href="#icon-earth"></use></svg><span class="icon-fallback">Earth Guild</span>',
+            '[moon]' => '<svg class="icon-wb icon-moon"><use xlink:href="#icon-moon"></use></svg><span class="icon-fallback">Moon Guild</span>',
+            '[stars]' => '<svg class="icon-wb icon-stars"><use xlink:href="#icon-stars"></use></svg><span class="icon-fallback">Stars Guild</span>',
+            '[void]' => '<svg class="icon-wb icon-void"><use xlink:href="#icon-void"></use></svg><span class="icon-fallback">Void Guild</span>',
         ];
 
         return str_replace(array_keys($map), array_values($map), $text);
@@ -223,13 +196,12 @@ class CardsData
 
         // Construction of the sql request
         $init = $this->entityManager->createQueryBuilder();
-        $qb = $init->select('c', 'p', 'y', 't', 'f', 's')
+        $qb = $init->select('c', 'p', 'y', 't', 'g')
            ->from(Card::class, 'c')
            ->leftJoin('c.pack', 'p')
            ->leftJoin('p.cycle', 'y')
            ->leftJoin('c.type', 't')
-           ->leftJoin('c.faction', 'f')
-           ->leftJoin('c.side', 's');
+           ->leftJoin('c.faction', 'g');
 
         $qb2 = null;
         $qb3 = null;
@@ -362,15 +334,15 @@ class CardsData
                     }
                     $clauses[] = implode($operator == '!' ? " and " : " or ", $or);
                     break;
-                case 'f': // faction
+                case 'g': // guild
                     $or = [];
                     foreach ($condition as $arg) {
                         switch ($operator) {
                             case ':':
-                                $or[] = "(f.code = ?$i)";
+                                $or[] = "(g.code = ?$i)";
                                 break;
                             case '!':
-                                $or[] = "(f.code != ?$i)";
+                                $or[] = "(g.code != ?$i)";
                                 break;
                         }
                         $parameters[$i++] = $arg;
@@ -399,21 +371,6 @@ class CardsData
                     }
                     $clauses[] = implode($operator == '!' ? " and " : " or ", $or);
                     break;
-                case 'd': // side
-                    $or = [];
-                    foreach ($condition as $arg) {
-                        switch ($operator) {
-                            case ':':
-                                $or[] = "(SUBSTRING(s.code,1,1) = SUBSTRING(?$i,1,1))";
-                                break;
-                            case '!':
-                                $or[] = "(SUBSTRING(s.code,1,1) != SUBSTRING(?$i,1,1))";
-                                break;
-                        }
-                        $parameters[$i++] = $arg;
-                    }
-                    $clauses[] = implode($operator == '!' ? " and " : " or ", $or);
-                    break;
                 case 'i': // illustrator
                     $or = [];
                     foreach ($condition as $arg) {
@@ -435,7 +392,7 @@ class CardsData
                         if (($arg === 'x') or ($arg === 'X')) {
                             switch ($operator) {
                                 case ':':
-                                    $or[] = "(c.cost is null and (t.code not in ('agenda', 'identity')))";
+                                    $or[] = "(c.cost is null and (t.code not in ('identity')))";
                                     break;
                                 case '!':
                                     $or[] = "(c.cost is not null)";
@@ -458,69 +415,6 @@ class CardsData
                             }
                             $parameters[$i++] = $arg;
                         }
-                    }
-                    $clauses[] = implode($operator == '!' ? " and " : " or ", $or);
-                    break;
-                case 'g': // advancementcost
-                    $or = [];
-                    foreach ($condition as $arg) {
-                        switch ($operator) {
-                            case ':':
-                                $or[] = "(c.advancementCost = ?$i)";
-                                break;
-                            case '!':
-                                $or[] = "(c.advancementCost != ?$i)";
-                                break;
-                            case '<':
-                                $or[] = "(c.advancementCost < ?$i)";
-                                break;
-                            case '>':
-                                $or[] = "(c.advancementCost > ?$i)";
-                                break;
-                        }
-                        $parameters[$i++] = $arg;
-                    }
-                    $clauses[] = implode($operator == '!' ? " and " : " or ", $or);
-                    break;
-                case 'm': // memoryunits
-                    $or = [];
-                    foreach ($condition as $arg) {
-                        switch ($operator) {
-                            case ':':
-                                $or[] = "(c.memoryCost = ?$i)";
-                                break;
-                            case '!':
-                                $or[] = "(c.memoryCost != ?$i)";
-                                break;
-                            case '<':
-                                $or[] = "(c.memoryCost < ?$i)";
-                                break;
-                            case '>':
-                                $or[] = "(c.memoryCost > ?$i)";
-                                break;
-                        }
-                        $parameters[$i++] = $arg;
-                    }
-                    $clauses[] = implode($operator == '!' ? " and " : " or ", $or);
-                    break;
-                case 'n': // influence or influenceLimit
-                    $or = [];
-                    foreach ($condition as $arg) {
-                        switch ($operator) {
-                            case ':':
-                                $or[] = "(c.factionCost = ?$i or c.influenceLimit =?$i)";
-                                break;
-                            case '!':
-                                $or[] = "(c.factionCost != ?$i or c.influenceLimit != ?$i)";
-                                break;
-                            case '<':
-                                $or[] = "(c.factionCost < ?$i or c.influenceLimit < ?$i)";
-                                break;
-                            case '>':
-                                $or[] = "(c.factionCost > ?$i or c.influenceLimit > ?$i)";
-                                break;
-                        }
-                        $parameters[$i++] = $arg;
                     }
                     $clauses[] = implode($operator == '!' ? " and " : " or ", $or);
                     break;
@@ -560,49 +454,6 @@ class CardsData
                         }
                     }
                     $clauses[] = implode($operator == '!' ? " and " : " or ", $or);
-                    break;
-                case 'v': // agendapoints
-                    $or = [];
-                    foreach ($condition as $arg) {
-                        switch ($operator) {
-                            case ':':
-                                $or[] = "(c.agendaPoints = ?$i)";
-                                break;
-                            case '!':
-                                $or[] = "(c.agendaPoints != ?$i)";
-                                break;
-                            case '<':
-                                $or[] = "(c.agendaPoints < ?$i)";
-                                break;
-                            case '>':
-                                $or[] = "(c.agendaPoints > ?$i)";
-                                break;
-                        }
-                        $parameters[$i++] = $arg;
-                    }
-                    $clauses[] = implode($operator == '!' ? " and " : " or ", $or);
-                    break;
-                case 'h': // trashcost
-                    $or = [];
-                    foreach ($condition as $arg) {
-                        switch ($operator) {
-                            case ':':
-                                $or[] = "(c.trashCost = ?$i)";
-                                break;
-                            case '!':
-                                $or[] = "(c.trashCost != ?$i)";
-                                break;
-                            case '<':
-                                $or[] = "(c.trashCost < ?$i)";
-                                break;
-                            case '>':
-                                $or[] = "(c.trashCost > ?$i)";
-                                break;
-                        }
-                        $parameters[$i++] = $arg;
-                    }
-                    $clauses[] = implode($operator == '!' ? " and " : " or ", $or);
-                    break;
                 case 'y': // quantity
                     $or = [];
                     foreach ($condition as $arg) {
@@ -643,14 +494,6 @@ class CardsData
                     }
                     $clauses[] = implode(" or ", $or);
                     break;
-                case 'u': // unique
-                    if (($operator == ':' && $condition[0]) || ($operator == '!' && !$condition[0])) {
-                        $clauses[] = "(c.uniqueness = 1)";
-                    } else {
-                        $clauses[] = "(c.uniqueness = 0)";
-                    }
-                    $i++;
-                    break;
                 case 'b': // ban list
                     $mwl = null;
                     if ($condition[0] == "active") {
@@ -668,40 +511,28 @@ class CardsData
                     $i++;
                     break;
                 case 'z': // rotation
-                    if ($condition[0] == "startup") {
-                        // Add the valid cycles for startup and add them to the WHERE clause for the query.
-                        $cycles = ['ashes', 'system-gateway', 'system-update-2021'];
+                    // Instantiate the service only when its needed.
+                    $rotationservice = new RotationService($this->entityManager);
+                    $rotation = null;
+                    if ($condition[0] == "current") {
+                        $rotation = $rotationservice->findCurrentRotation();
+                    } elseif ($condition[0] == "latest") {
+                        $rotation = $rotationservice->findLatestRotation();
+                    } else {
+                        $rotation = $rotationservice->findRotationByCode($condition[0]);
+                    }
+                    if ($rotation) {
+                        // Add the valid cycles for the requested rotation and add them to the WHERE clause for the query.
+                        $cycles = $rotation->normalize()["rotated"];
                         $placeholders = array();
                         foreach($cycles as $cycle) {
                             array_push($placeholders, "?$i");
                             $parameters[$i++] = $cycle;
                         }
-                        $cond = $operator == ":" ? "in" : "not in";
-                        $clauses[] = "(y.code $cond (" . implode(", ", $placeholders) . "))";
-                    } else {
-                        // Instantiate the service only when its needed.
-                        $rotationservice = new RotationService($this->entityManager);
-                        $rotation = null;
-                        if ($condition[0] == "current") {
-                            $rotation = $rotationservice->findCurrentRotation();
-                        } elseif ($condition[0] == "latest") {
-                            $rotation = $rotationservice->findLatestRotation();
+                        if ($operator == ":") {
+                            $clauses[] = "(y.code not in (" . implode(", ", $placeholders) . ") and y.code != 'draft')";
                         } else {
-                            $rotation = $rotationservice->findRotationByCode($condition[0]);
-                        }
-                        if ($rotation) {
-                            // Add the valid cycles for the requested rotation and add them to the WHERE clause for the query.
-                            $cycles = $rotation->normalize()["rotated"];
-                            $placeholders = array();
-                            foreach($cycles as $cycle) {
-                                array_push($placeholders, "?$i");
-                                $parameters[$i++] = $cycle;
-                            }
-                            if ($operator == ":") {
-                                $clauses[] = "(y.code not in (" . implode(", ", $placeholders) . ") and y.code != 'draft')";
-                            } else {
-                                $clauses[] = "(y.code in (" . implode(", ", $placeholders) . "))";
-                            }
+                            $clauses[] = "(y.code in (" . implode(", ", $placeholders) . "))";
                         }
                     }
                     $i++;
@@ -733,16 +564,16 @@ class CardsData
                 $qb->orderBy('y.position')->addOrderBy('p.position')->addOrderBy('c.position');
                 break;
             case 'faction':
-                $qb->orderBy('c.side', 'DESC')->addOrderBy('c.faction')->addOrderBy('c.type');
+                $qb->addOrderBy('c.faction')->addOrderBy('c.type');
                 break;
             case 'type':
-                $qb->orderBy('c.side', 'DESC')->addOrderBy('c.type')->addOrderBy('c.faction');
+                $qb->addOrderBy('c.type')->addOrderBy('c.faction');
                 break;
             case 'cost':
-                $qb->orderBy('c.type')->addOrderBy('c.cost')->addOrderBy('c.advancementCost');
+                $qb->orderBy('c.type')->addOrderBy('c.cost');
                 break;
             case 'strength':
-                $qb->orderBy('c.type')->addOrderBy('c.strength')->addOrderBy('c.agendaPoints')->addOrderBy('c.trashCost');
+                $qb->orderBy('c.type')->addOrderBy('c.strength');
                 break;
         }
         $query = $qb->getQuery();
@@ -773,31 +604,23 @@ class CardsData
             "subtype"           => $card->getKeywords(),
             "formatted_type"    => $card->getFormattedType(),
             "text"              => $card->getText(),
-            "advancementcost"   => $card->getAdvancementCost(),
-            "agendapoints"      => $card->getAgendaPoints(),
-            "baselink"          => $card->getBaseLink(),
             "cost"              => $card->getCost(),
             "formatted_cost"    => $card->getFormattedCost(),
             "faction_name"      => $card->getFaction()->getName(),
             "faction_code"      => $card->getFaction()->getCode(),
-            "factioncost"       => $card->getFactionCost(),
-            "faction_cost_dots" => $card->getFactionCostDots(),
             "flavor"            => $card->getFlavor(),
             "illustrator"       => $card->getIllustrator(),
             "illustrators"      => $this->illustrators->split($card->getIllustrator()),
-            "influencelimit"    => $card->getInfluenceLimit(),
-            "memoryunits"       => $card->getMemoryCost(),
-            "minimumdecksize"   => $card->getMinimumDeckSize(),
             "position"          => $card->getPosition(),
-            "quantity"          => $card->getQuantity(),
             "pack_name"         => $card->getPack()->getName(),
             "pack_code"         => $card->getPack()->getCode(),
-            "side_name"         => $card->getSide()->getName(),
-            "side_code"         => $card->getSide()->getCode(),
             "strength"          => $card->getStrength(),
-            "trash"             => $card->getTrashCost(),
-            "uniqueness"        => $card->getUniqueness(),
-            "limited"           => $card->getDeckLimit(),
+            "health"            => $card->getHealth(),
+            "stages"            => $card->getStages(),
+            "signature"         => $card->getSignature(),
+            "is_signature_card" => $card->isSignatureCard(),
+            "standing"          => $card->getStanding(),
+            "standing_req"      => $card->getStandingReq(),
             "cycle_name"        => $card->getPack()->getCycle()->getName(),
             "cycle_code"        => $card->getPack()->getCycle()->getCode(),
             "imageUrl"          => $card->getImageUrl(),
@@ -808,15 +631,8 @@ class CardsData
         ];
 
         // setting the card cost to X if the cost is null and the card is not of a costless type
-        if ($cardinfo['cost'] === null && !in_array($cardinfo['type_code'], ['agenda', 'identity'])) {
+        if ($cardinfo['cost'] === null && !in_array($cardinfo['type_code'], ['identity'])) {
             $cardinfo['cost'] = 'X';
-        }
-
-        // setting the card strength to X if the strength is null and the card is ICE or Program - Icebreaker
-        if ($cardinfo['strength'] === null &&
-            ($cardinfo['type_code'] === 'ice' ||
-             strstr($cardinfo['subtype'], 'Icebreaker') !== false)) {
-            $cardinfo['strength'] = 'X';
         }
 
         $cardinfo['url'] = $this->router->generate('cards_zoom', ['card_code' => $card->getCode(), '_locale' => $locale], UrlGeneratorInterface::ABSOLUTE_URL);
@@ -824,17 +640,27 @@ class CardsData
 
         // If the card has text
         if (strlen($cardinfo['text']) > 0) {
-            // replacing <trace>
-            $cardinfo['text'] = preg_replace('/<trace>([^<]+) ([X\d]+)<\/trace>/', '<strong>\1 [\2]</strong>–', $cardinfo['text']);
-
-            // replacing <errata>
-            $cardinfo['text'] = preg_replace('/<errata>(.+)<\/errata>/', '<em><span class="glyphicon glyphicon-alert"></span> \1</em>', $cardinfo['text']);
-
             $cardinfo['text'] = $this->replaceSymbols($cardinfo['text']);
             $cardinfo['text'] = str_replace('&', '&amp;', $cardinfo['text']);
             $cardinfo['text'] = implode(array_map(function ($l) {
                 return "<p>$l</p>";
             }, explode("\n", $cardinfo['text'])));
+        }
+
+        // If the card has stages
+        if ($cardinfo['stages']) {
+            $cardinfo['stages'] = array_map(
+                function ($stage) {
+                    return implode(array_map(function ($l) {
+                        return "<p>$l</p>";
+                    }, explode("\n", str_replace(
+                        '&',
+                        '&amp;',
+                        $this->replaceSymbols($stage)
+                    ))));
+                },
+                array_filter($cardinfo['stages'])
+            );
         }
 
         if (strlen($cardinfo['flavor']) > 0) {
@@ -843,6 +669,34 @@ class CardsData
 
             $cardinfo['flavor'] = $this->replaceSymbols($cardinfo['flavor']);
             $cardinfo['flavor'] = str_replace('&', '&amp;', $cardinfo['flavor']);
+        }
+
+        if ($card->isSignatureCard()) {
+            $worldbreakers = array_filter(
+                $this->entityManager->getRepository('AppBundle:Card')->findBy(
+                    ['signature' => $card->getSignature()],
+                    ['position' => 'ASC']
+                ),
+                function ($card) {
+                    return $card->isIdentity();
+                }
+            );
+            $cardinfo['worldbreaker'] = current($worldbreakers)->getCode();
+        } elseif ($card->isIdentity()) {
+            $signatureCards = array_map(
+                function ($card) {
+                    return [$card->getCode(), $card->getStrippedTitle()];
+                },
+                array_filter(
+                    $this->entityManager
+                        ->getRepository('AppBundle:Card')
+                        ->findBy(['signature' => $card->getSignature()], ['position' => 'ASC']),
+                    function ($card) {
+                        return !$card->isIdentity();
+                    }
+                )
+            );
+            $cardinfo['signature_cards'] = $signatureCards;
         }
 
         $cardinfo['cssfaction'] = str_replace(" ", "-", mb_strtolower($card->getFaction()->getName()));
@@ -932,7 +786,7 @@ class CardsData
             if (in_array($l[1], $numeric) && !in_array($l[0], $canDoNumeric)) {
                 unset($conditions[$i]);
             }
-            if ($l[0] == 'f') {
+            if ($l[0] == 'g') {
                 $factions = [];
                 for ($j = 2; $j < count($l); ++$j) {
                     if (array_key_exists($l[$j], self::$faction_shortcuts)) {
@@ -945,7 +799,7 @@ class CardsData
                         array_push($factions, $l[$j]);
                     }
                 }
-                array_unshift($factions, 'f', $l[1]);
+                array_unshift($factions, 'g', $l[1]);
                 $conditions[$i] = $factions;
             }
         }
@@ -1053,7 +907,6 @@ class CardsData
                 'author_id'         => $user->getId(),
                 'author_name'       => $user->getUsername(),
                 'author_reputation' => $user->getReputation(),
-                'author_donation'   => $user->getDonation(),
                 'author_color'      => $user->getFaction(),
                 'date_creation'     => $review->getDateCreation(),
                 'nbvotes'           => $review->getNbvotes(),

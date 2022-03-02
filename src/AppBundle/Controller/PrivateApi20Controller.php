@@ -317,7 +317,6 @@ class PrivateApi20Controller extends FOSRestController
         $decklist->setSignature($new_signature);
         $decklist->setIdentity($deck->getIdentity());
         $decklist->setFaction($deck->getIdentity()->getFaction());
-        $decklist->setSide($deck->getSide());
         $decklist->setLastPack($deck->getLastPack());
         $decklist->setNbvotes(0);
         $decklist->setNbfavorites(0);

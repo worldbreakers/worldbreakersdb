@@ -1,7 +1,6 @@
 {% extends '/layout.html.twig' %}
 
 {% block head %}
-<script src="{{ asset('/js/nrdb.draw_simulator.js') }}"></script>
 <script src="{{ asset('/js/nrdb.card_modal.js') }}"></script>
 <script src="{{ asset('/js/publish_deck_form.v2.js') }}"></script>
 <script src="{{ asset('/js/decklist.v2.js') }}"></script>
@@ -47,15 +46,6 @@ NRDB.user.params.decklist_id = Decklist.id;
                 <a id="social-icon-comment" href="#comments" class="social-icon-comment" data-toggle="tooltip" data-placement="bottom" title="Comment">
                   <span class="glyphicon glyphicon-comment"></span> <span class="num">{{ decklist.nbcomments }}</span>
                 </a>
-                |
-                <input type="hidden" id="legacy_decklist_url" value="{{ app.request.getSchemeAndHttpHost() }}{{ path('legacy_decklist', { decklist_id: decklist.id }) }}" />
-                <a href=""
-                   onClick="navigator.clipboard.writeText($('#legacy_decklist_url').val()).then(function() {
-                       alert('Copied ' + $('#legacy_decklist_url').val());
-                   }, function() {
-                       alert('Copy to clipboard failed. Sorry!');
-                   });
-                   return false;">Copy Legacy URL for Jinteki.net</a>
             </div>
             {% if duplicate %}
             | <small>Duplicate of <a href="{{ path('decklist_view', { 'decklist_uuid': duplicate.uuid, 'decklist_name': duplicate.prettyname|e('url') }) }}">{{ duplicate.name }}</a></small>
@@ -85,7 +75,6 @@ NRDB.user.params.decklist_id = Decklist.id;
         <li><a href="#" id="btn-export-bbcode">bbCode</a></li>
         <li><a href="#" id="btn-export-markdown">Markdown (Reddit)</a></li>
         <li><a href="#" id="btn-export-plaintext">Plain text</a></li>
-        <li><a href="#" id="btn-export-jintekinet">Jinteki.net format</a></li>
         <li class="dropdown-header"><span class="glyphicon glyphicon-sort"></span> Sort</li>
         <li><a href="#" id="btn-sort-type">by Type</a></li>
         <li><a href="#" id="btn-sort-number">by Set</a></li>
@@ -106,8 +95,6 @@ NRDB.user.params.decklist_id = Decklist.id;
   </div><!-- /.col-md-3 -->
   <div class="col-sm-9">
     <h3 id="identity"></h3>
-    <div id="influence"></div>
-    <div id="agendapoints"></div>
     <div id="cardcount"></div>
     <div id="latestpack"></div>
     <div id="restricted"></div>
@@ -236,8 +223,6 @@ NRDB.user.params.decklist_id = Decklist.id;
 </div>
 <div role="tabpanel" class="tab-pane" id="tools">
 
-{% include '/Builder/draw-simulator.html.twig' %}
-
 <!-- Graphs -->
 <table class="table table-condensed" id="table-graph-costs">
 <thead>
@@ -245,15 +230,6 @@ NRDB.user.params.decklist_id = Decklist.id;
 </thead>
 <tbody>
 <tr><td><div id="costChart"></div></td></tr>
-</tbody>
-</table>
-
-<table class="table table-condensed" id="table-graph-strengths">
-<thead>
-<tr><th colspan="1"><span class="glyphicon glyphicon-stats"></span> Repartition by Strength</th></tr>
-</thead>
-<tbody>
-<tr><td><div id="strengthChart"></div></td></tr>
 </tbody>
 </table>
 
@@ -322,7 +298,6 @@ NRDB.user.params.decklist_id = Decklist.id;
 
 <h3 class="username">
     <a href="{{ path('user_profile_view', {_locale:app.request.locale,user_id:decklist.user_id,user_name:decklist.username|e('url')}) }}" class="{{ decklist.usercolor }}">{{ decklist.username }}</a>
-    {% if decklist.donation > 0 %}<span class="glyphicon glyphicon-gift donator" title="NetrunnerDB Gracious Donator"></span>{% endif %}
     <small title="User Reputation">{{ decklist.reputation }}</small>
 </h3>
 <div id="deck-description">{{ decklist.description|raw }}</div>
@@ -340,7 +315,6 @@ NRDB.user.params.decklist_id = Decklist.id;
     <div class="collapse{% if not comment.hidden %} in{% endif %}" id="div-comment-{{ comment.id }}">
         <span class="comment-date">{{ comment.date_creation|date('j M Y') }}</span>
         <a href="{{ path('user_profile_view', {_locale:app.request.locale,user_id:comment.user_id,user_name:comment.author|e('url')}) }}" class="comment-author username {{ comment.authorcolor }}">{{ comment.author }}</a>
-        {% if comment.donation > 0 %}<span class="glyphicon glyphicon-gift donator" title="NetrunnerDB Gracious Donator"></span>{% endif %}
         <div class="comment-text">{{ comment.text|raw }}</div>
     </div>
 </td></tr>
@@ -406,57 +380,6 @@ NRDB.user.params.decklist_id = Decklist.id;
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
-<!-- Modal -->
-
-<!-- Modal -->
-<div class="modal" id="oddsModal" tabindex="-1" role="dialog" aria-labelledby="oddsModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h3 class="modal-title" id="oddsModalLabel">Odds Calculator</h3>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-sm-12">
-            <form class="form-horizontal" role="form">
-                <div class="form-group">
-                    <label for="odds-calculator-N" class="col-xs-7 control-label">Number of cards in deck</label>
-                    <div class="col-xs-2">
-                        <input type="number" class="form-control" id="odds-calculator-N" value="0">
-                </div>
-              </div>
-              <div class="form-group">
-                <label for="odds-calculator-K" class="col-xs-7 control-label">Number of <em>desired</em> cards in deck</label>
-                <div class="col-xs-2">
-                  <input type="number" class="form-control" id="odds-calculator-K" value="0">
-                </div>
-              </div>
-              <div class="form-group">
-                <label for="odds-calculator-n" class="col-xs-7 control-label">Number of cards drawn</label>
-                <div class="col-xs-2">
-                  <input type="number" class="form-control" id="odds-calculator-n" value="0">
-                </div>
-              </div>
-              <div class="form-group">
-                <label for="odds-calculator-k" class="col-xs-7 control-label">Number of <em>desired</em> cards in draw (at least)</label>
-                <div class="col-xs-2">
-                  <input type="number" class="form-control" id="odds-calculator-k" value="0">
-                </div>
-              </div>
-              <div class="form-group">
-                <label class="col-xs-7 control-label">Probability of such an outcome</label>
-                <div class="col-xs-2">
-                   <p class="form-control-static"><span id="odds-calculator-p"></span>%</p>
-                </div>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
 <!-- Modal -->
 
 <!-- Modal -->

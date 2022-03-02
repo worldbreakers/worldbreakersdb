@@ -12,13 +12,6 @@ AppBundle\Entity\Faction:
         decklists:
             targetEntity: Decklist
             mappedBy: faction
-    manyToOne:
-        side:
-            targetEntity: Side
-            inversedBy: factions
-            joinColumn:
-                name: side_id
-                referencedColumnName: id
     fields:
         id:
             type: integer

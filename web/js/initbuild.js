@@ -40,17 +40,9 @@ $(function() {
             }
             // Other formats
             let visible = true;
-            // Startup
-            if (format === 'startup') {
-                visible = ['df', 'urbp', 'ur', 'sg', 'su21'].some(p => $(this).hasClass('pack-' + p));
-            }
             // Standard
-            else if (format === 'standard') {
+            if (format === 'standard') {
                 visible = !($(this).hasClass('banned') || $(this).hasClass('rotated'));
-            }
-            // Eternal
-            else if (format === 'eternal') {
-                visible = true
             }
             // Draft
             if ($(this).hasClass('pack-draft')) {
@@ -59,11 +51,7 @@ $(function() {
             else if (format === 'draft') {
                 visible = false
             }
-            // Other (neutral Gateway IDs and the multiplayer NAPD ID)
-            if (['24001', '30076', '30077'].includes($(this).attr('data-code'))) {
-                visible = format === 'other';
-            }
-            else if (format === 'other') {
+            if (format === 'other') {
                 visible = false
             }
             // Apply effect

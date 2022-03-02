@@ -7,7 +7,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
-use AppBundle\Entity\Side;
 
 class SuggestionsCommand extends ContainerAwareCommand
 {
@@ -29,11 +28,6 @@ class SuggestionsCommand extends ContainerAwareCommand
         $this
         ->setName('app:suggestions')
         ->setDescription('Compute and save the suggestions matrix')
-        ->addArgument(
-                'side',
-                InputArgument::REQUIRED,
-                'Which side'
-                )
         ;
     }
 

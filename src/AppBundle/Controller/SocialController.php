@@ -146,7 +146,6 @@ class SocialController extends Controller
         $decklist->setIdentity($deck->getIdentity());
         $decklist->setFaction($deck->getIdentity()
                                    ->getFaction());
-        $decklist->setSide($deck->getSide());
         $decklist->setLastPack($deck->getLastPack());
         $decklist->setNbvotes(0);
         $decklist->setNbfavorites(0);
@@ -199,23 +198,6 @@ class SocialController extends Controller
     }
 
     /**
-     * @param int                    $deck_id
-     * @param EntityManagerInterface $entityManager
-     * @return Response
-     * @throws \Doctrine\DBAL\DBALException
-     */
-    public function legacyViewAction(int $decklist_id, EntityManagerInterface $entityManager) {
-      $decklist = $entityManager->getRepository('AppBundle:Decklist')->find($decklist_id);
-      if ($decklist) {
-        return $this->redirect(
-            $this->generateUrl('decklist_view', ['decklist_uuid' => $decklist->getUuid()]),
-            301);
-      } else {
-        throw $this->createNotFoundException();
-      }
-    }
-
-    /**
      * @param string                    $decklist_uuid
      * @param EntityManagerInterface $entityManager
      * @return Response
@@ -242,7 +224,6 @@ class SocialController extends Controller
                u.username,
                u.faction usercolor,
                u.reputation,
-               u.donation,
                c.code identity_code,
                f.code faction_code,
                d.nbvotes,
@@ -282,7 +263,6 @@ class SocialController extends Controller
                c.user_id,
                u.username author,
                u.faction authorcolor,
-               u.donation,
                c.text,
                c.hidden
              FROM comment c
@@ -576,7 +556,7 @@ class SocialController extends Controller
             ];
             foreach ($spool as $email => $view) {
                 $message = \Swift_Message::newInstance()
-                                         ->setSubject("[NetrunnerDB] New comment")
+                                         ->setSubject("[WorldbreakersDB] New comment")
                                          ->setFrom(["noreply@netrunnerdb.com" => $user->getUsername()])
                                          ->setTo($email)
                                          ->setBody($this->renderView($view, $email_data), 'text/html');
@@ -676,18 +656,9 @@ class SocialController extends Controller
         $lines = [$name];
         $types = [
             "Event",
-            "Hardware",
-            "Resource",
-            "Icebreaker",
-            "Program",
-            "Agenda",
-            "Asset",
-            "Upgrade",
-            "Operation",
-            "Barrier",
-            "Code Gate",
-            "Sentry",
-            "Ice",
+            "Follower",
+            "Location",
+            "Worldbreaker",
         ];
 
         $lines[] = sprintf(
@@ -718,30 +689,12 @@ class SocialController extends Controller
 
                     /** @var Card $card */
                     $card = $slot['card'];
-                    $is_restricted = (
-                        $mwl
-                        && isset($mwl[$card->getCode()])
-                        && isset($mwl[$card->getCode()]['is_restricted'])
-                        && ($mwl[$card->getCode()]['is_restricted'] === 1)
-                    );
-
-                    if ($is_restricted) {
-                        $inf .= "♘";
-                    }
-
-                    for ($i = 0; $i < $slot['influence']; $i++) {
-                        if ($i % 5 == 0) {
-                            $inf .= " ";
-                        }
-                        $inf .= "•";
-                    }
 
                     $lines[] = sprintf(
-                        '%sx %s (%s) %s',
+                        '%sx %s (%s)',
                         $slot['qty'],
                         $card->getTitle(),
-                        $card->getPack()->getName(),
-                        trim($inf)
+                        $card->getPack()->getName()
                     );
                 }
             }
@@ -749,37 +702,9 @@ class SocialController extends Controller
 
         $lines[] = "";
 
-        $influenceSpent = $classement['influenceSpent'];
-        $influenceTotal = $decklist->getIdentity()->getInfluenceLimit();
-        $influenceLeft = 0;
-        if (is_numeric($influenceTotal)) {
-            $influenceLeft = $influenceTotal - $influenceSpent;
-        } else {
-            $influenceTotal = "infinite";
-        }
-
         $lines[] = sprintf(
-            "%s influence spent (max %s, available %s)",
-            $influenceSpent,
-            $influenceTotal,
-            $influenceLeft
-        );
-
-        if ($decklist->getSide()->getCode() == "corp") {
-            $minAgendaPoints = floor($classement['deckSize'] / 5) * 2 + 2;
-
-            $lines[] = sprintf(
-                "%s agenda points (between %s and %s)",
-                $classement['agendaPoints'],
-                $minAgendaPoints,
-                $minAgendaPoints + 1
-            );
-        }
-
-        $lines[] = sprintf(
-            "%s cards (min %s)",
-            $classement['deckSize'],
-            $decklist->getIdentity()->getMinimumDeckSize()
+            "%s cards",
+            $classement['deckSize']
         );
 
         $lines[] = "Cards up to " . $decklist->getLastPack()->getName();
@@ -1245,27 +1170,6 @@ class SocialController extends Controller
             'nexturl'  => $currpage == $nbpages ? null : $this->generateUrl($route, [
                 "page" => $nextpage,
             ]),
-        ], $response);
-    }
-
-    /**
-     * @param EntityManagerInterface $entityManager
-     * @return Response
-     * @throws \Doctrine\DBAL\DBALException
-     */
-    public function donatorsAction(EntityManagerInterface $entityManager)
-    {
-        $response = new Response();
-        $response->setPublic();
-        $response->setMaxAge($this->getParameter('short_cache'));
-
-        $dbh = $entityManager->getConnection();
-
-        $users = $dbh->executeQuery("SELECT * FROM user WHERE donation > 0 OR patreon_pledge_cents > 0 ORDER BY (donation + (patreon_pledge_cents * 100)) DESC, username", [])->fetchAll(\PDO::FETCH_ASSOC);
-
-        return $this->render('/Default/donators.html.twig', [
-            'pagetitle' => 'The Gracious Donators',
-            'donators'  => $users,
         ], $response);
     }
 

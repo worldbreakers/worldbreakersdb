@@ -29,11 +29,6 @@ class Type implements NormalizableInterface, TimestampableInterface, CodeNameInt
     private $name;
 
     /**
-     * @var Side
-     */
-    private $side;
-
-    /**
      * @var boolean
      */
     private $isSubtype;
@@ -78,7 +73,6 @@ class Type implements NormalizableInterface, TimestampableInterface, CodeNameInt
                 'name' => $this->name,
                 'position' => $this->position,
                 'is_subtype' => $this->isSubtype,
-                'side_code' => $this->side ? $this->side->getCode() : null
         ];
     }
 
@@ -200,25 +194,6 @@ class Type implements NormalizableInterface, TimestampableInterface, CodeNameInt
     public function setPosition(int $position)
     {
         $this->position = $position;
-
-        return $this;
-    }
-
-    /**
-     * @return Side
-     */
-    public function getSide()
-    {
-        return $this->side;
-    }
-
-    /**
-     * @param Side $side
-     * @return $this
-     */
-    public function setSide(Side $side)
-    {
-        $this->side = $side;
 
         return $this;
     }

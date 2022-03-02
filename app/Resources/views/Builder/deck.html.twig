@@ -3,7 +3,6 @@
 {% block head %}
 
 <script src="{{ asset('/js/nrdb.settings.js') }}"></script>
-<script src="{{ asset('/js/nrdb.draw_simulator.js') }}"></script>
 <script src="{{ asset('/js/nrdb.card_modal.js') }}"></script>
 <script src="{{ asset('/js/nrdb.smart_filter.js') }}"></script>
 <script src="{{ asset('/js/nrdb.suggestions.js') }}"></script>
@@ -17,17 +16,12 @@ var Filters = {},
   Sort = "title",
   Order = 1,
   Identity = null,
-  InfluenceSpent = 0,
-  InfluenceLimit = 0,
-  MinimumDeckSize = 0,
   DeckSize = 0,
   MWL = null,
         MWL_global_penalty = false,
   Deck = {{ deck.slots|json_encode|raw }},
-  Side = {{ deck.side_name|json_encode|raw }},
   Deck_uuid = {{ deck.uuid|json_encode|raw }},
   History = {{ deck.history|json_encode|raw }},
-  Url_FactionImage = '{{  asset('/images/factions/16px/xxx.png') }}',
   Url_TypeImage = '{{ asset('/images/types/xxx.png') }}',
   DisplaySort = 'type',
   DisplaySortSecondary = 'name',
@@ -56,12 +50,8 @@ var Filters = {},
   </div><!-- /.col-sm-3 -->
   <div class="col-sm-9">
     <h4 id="identity">Identity</h4>
-    <div id="influence"></div>
-    <div id="agendapoints"></div>
     <div id="cardcount"></div>
     <div id="latestpack"></div>
-    <div id="onesies" style="display:none"></div>
-    <div id="cacherefresh" style="display:none"></div>
     <div id="restricted"></div>
     <div id="limited"></div>
         <div id="rotated"></div>
@@ -73,17 +63,6 @@ var Filters = {},
 <div class="row" id="deck-content" style="margin-bottom:1em;min-height:300px">
 </div><!-- /#deck-content -->
 <!-- Deck Content -->
-
-<!-- Suggestions -->
-<table class="table table-condensed" id="table-suggestions">
-<thead>
-<tr><th colspan="6"><span class="glyphicon glyphicon-fast-forward"></span> Card suggestions</th></tr>
-</thead>
-<tbody>
-<tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-</tbody>
-</table>
-<!-- Suggestions -->
 
 <form method="POST" action="{{ path('deck_save') }}" id="save_form" role="form" style="margin-bottom:1em">
   <input type="hidden" id="deck-save-id" name="id" value="{{ deck.id }}">
@@ -126,7 +105,7 @@ var Filters = {},
     <li role="presentation"><a href="#tab-pane-infos" role="tab" data-toggle="tab">Notes</a></li>
     <li role="presentation"><a href="#tab-pane-check" role="tab" data-toggle="tab">Check</a></li>
     <li role="presentation"><a href="#tab-pane-history" role="tab" data-toggle="tab" id="tab-header-history">History</a></li>
-    <li role="presentation"><a href="#tab-pane-collection" role="tab" data-toggle="tab">Collection</a></li>
+    <!-- <li role="presentation"><a href="#tab-pane-collection" role="tab" data-toggle="tab">Collection</a></li> -->
     <li role="presentation"><a href="#tab-pane-settings" role="tab" data-toggle="tab">Settings</a></li>
    </ul>
 
@@ -157,9 +136,9 @@ var Filters = {},
             <tr>
               <th style="min-width:85px"><a href="#" data-sort="indeck">Quantity</a></th>
               <th><a href="#" data-sort="title">Name</a><span class="caret"></span></th>
-              <th><a href="#" data-sort="faction_cost" title="Influence">I.</a></th>
-              <th class="type"><a href="#" data-sort="type_code" title="Type">T.</a></th>
-              <th class="faction"><a href="#" data-sort="faction_code" title="Faction">F.</a></th>
+              <th></th>
+              <th class="type"><a href="#" data-sort="type_code">Type</a></th>
+              <th class="faction"><a href="#" data-sort="faction_code">Guild</a></th>
             </tr>
           </thead>
           <tbody id="collection-table" class="collection"></tbody>
@@ -171,7 +150,6 @@ var Filters = {},
   </div>
   <!-- tabpanel Check -->
   <div role="tabpanel" class="tab-pane" id="tab-pane-check">
-    {% include '/Builder/draw-simulator.html.twig' %}
 
     <!-- Graphs -->
     <table class="table table-condensed" id="table-graph-costs">
@@ -181,17 +159,6 @@ var Filters = {},
     <tbody>
     <tr>
       <td><div id="costChart"></div></td>
-    </tr>
-    </tbody>
-    </table>
-
-    <table class="table table-condensed" id="table-graph-strengths">
-    <thead>
-    <tr><th colspan="1"><span class="glyphicon glyphicon-stats"></span> Repartition by Strength</th></tr>
-    </thead>
-    <tbody>
-    <tr>
-      <td><div id="strengthChart"></div></td>
     </tr>
     </tbody>
     </table>
@@ -259,7 +226,6 @@ var Filters = {},
     <div role="tabpanel" class="tab-pane" id="tab-pane-collection">
     <div class="panel panel-default">
       <div class="panel-heading">Select your packs |
-        <a href="#" id="collection_startup">Startup</a> |
         <a href="#" id="collection_standard">Standard</a> |
         <a href="#" id="collection_all">All</a> |
         <a href="#" id="collection_none">None</a></div>
@@ -271,29 +237,13 @@ var Filters = {},
         <fieldset>
           <div class="checkbox"><label><input type="checkbox" name="show-disabled" data-persistence> Show unusable cards</label></div>
           <div class="checkbox"><label><input type="checkbox" name="only-deck" data-persistence> Show only used cards</label></div>
-      <div class="checkbox"><label><input type="checkbox" name="show-onesies" data-persistence> Show 1.1.1.1 format compliance</label></div>
-      <div class="checkbox"><label><input type="checkbox" name="show-cacherefresh" data-persistence> Show Cache Refresh format compliance</label></div>
-            <div class="checkbox"><label><input type="checkbox" name="check-rotation" data-persistence> Check for Rotation compliance</label></div>
+          <div class="checkbox"><label><input type="checkbox" name="check-rotation" data-persistence> Check for Rotation compliance</label></div>
       </fieldset>
         <fieldset>
           <div class="radio"><label><input type="radio" name="display-columns" value="1" data-persistence> Display on 1 column</label></div>
           <div class="radio"><label><input type="radio" name="display-columns" value="2" data-persistence> Display on 2 columns</label></div>
           <div class="radio"><label><input type="radio" name="display-columns" value="3" data-persistence> Display on 3 columns</label></div>
         </fieldset>
-      <fieldset>
-          <div class="radio"><label><input type="radio" name="core-sets" value="1" data-persistence> Use 1 Core Set</label></div>
-        <div class="radio"><label><input type="radio" name="core-sets" value="2" data-persistence> Use 2 Core Sets</label></div>
-        <div class="radio"><label><input type="radio" name="core-sets" value="3" data-persistence> Use 3 Core Sets</label></div>
-      </fieldset>
-      <fieldset>
-        <div class="radio"><label><input type="radio" name="show-suggestions" value="0" data-persistence> Show no suggestions</label></div>
-        <div class="radio"><label><input type="radio" name="show-suggestions" value="3" data-persistence>Show 3 suggestions</label></div>
-        <div class="radio"><label><input type="radio" name="show-suggestions" value="10" data-persistence> Show 10 suggestions</label></div>
-      </fieldset>
-      <fieldset>
-        <div class="radio"><label><input type="radio" name="buttons-behavior" value="cumulative" data-persistence> Faction/type cumulative</label></div>
-        <div class="radio"><label><input type="radio" name="buttons-behavior" value="exclusive" data-persistence> Faction/type exclusive</label></div>
-      </fieldset>
       <fieldset>
         <div class="radio"><label><input type="radio" name="sort-order" value="type" data-persistence> Sort by Type</label></div>
         <div class="radio"><label><input type="radio" name="sort-order" value="number" data-persistence> Sort by Set</label></div>
@@ -310,56 +260,5 @@ var Filters = {},
 
 </div><!-- .row -->
 </div><!-- .container -->
-
-<!-- Modal -->
-<div class="modal" id="oddsModal" tabindex="-1" role="dialog" aria-labelledby="oddsModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h3 class="modal-title">Odds Calculator</h3>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-sm-12">
-            <form class="form-horizontal" role="form">
-                <div class="form-group">
-                    <label for="inputEmail3" class="col-xs-7 control-label">Number of cards in deck</label>
-                    <div class="col-xs-2">
-                        <input type="number" class="form-control" id="odds-calculator-N" value="0">
-                </div>
-              </div>
-              <div class="form-group">
-                <label for="inputPassword3" class="col-xs-7 control-label">Number of <em>desired</em> cards in deck</label>
-                <div class="col-xs-2">
-                  <input type="number" class="form-control" id="odds-calculator-K" value="0">
-                </div>
-              </div>
-              <div class="form-group">
-                <label for="inputPassword3" class="col-xs-7 control-label">Number of cards drawn</label>
-                <div class="col-xs-2">
-                  <input type="number" class="form-control" id="odds-calculator-n" value="0">
-                </div>
-              </div>
-              <div class="form-group">
-                <label for="inputPassword3" class="col-xs-7 control-label">Number of <em>desired</em> cards in draw (at least)</label>
-                <div class="col-xs-2">
-                  <input type="number" class="form-control" id="odds-calculator-k" value="0">
-                </div>
-              </div>
-              <div class="form-group">
-                <label for="inputPassword3" class="col-xs-7 control-label">Probability of such an outcome</label>
-                <div class="col-xs-2">
-                   <p class="form-control-static"><span id="odds-calculator-p"></span>%</p>
-                </div>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-<!-- Modal -->
 
 {% endblock %}

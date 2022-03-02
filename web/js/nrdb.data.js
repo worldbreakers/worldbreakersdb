@@ -3,7 +3,7 @@
 (function (data, $) {
 
     var force_update = false;
-    var dbNames = ['cycles', 'packs', 'cards', 'factions', 'types', 'sides', 'mwl'];
+    var dbNames = ['cycles', 'packs', 'cards', 'factions', 'types', 'mwl'];
 
     /**
      * Promise interface to forerunnerdb's load method
@@ -120,7 +120,7 @@
                                 });
                             })
                             .catch(function (jqXHR, textStatus, errorThrown) {
-                                console.log('error when requesting packs', errorThrown || jqXHR);
+                                console.log('error when requesting packs:' + dbName, errorThrown || jqXHR);
                                 reject(false);
                             });
                     });
@@ -165,7 +165,6 @@
 
         _.each(data.types.find(), function (type) {
             data.types.updateById(type.code, {
-                side: data.sides.findById(type.side_code)
             });
         });
 
@@ -177,14 +176,12 @@
 
         _.each(data.factions.find(), function (faction) {
             data.factions.updateById(faction.code, {
-                side: data.sides.findById(faction.side_code)
             });
         });
 
         _.each(data.cards.find(), function (card) {
             data.cards.updateById(card.code, {
                 faction: data.masters.factions.findById(card.faction_code),
-                side: data.sides.findById(card.side_code),
                 type: data.types.findById(card.type_code),
                 pack: data.packs.findById(card.pack_code)
             });

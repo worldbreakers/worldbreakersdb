@@ -1,4 +1,4 @@
-netrunnerdb_index:
+worldbreakerdb_index:
     path: /{_locale}
     methods: [GET]
     defaults:
@@ -8,7 +8,7 @@ netrunnerdb_index:
         _locale: \w\w
 
 deck_buildform:
-    path:  /{_locale}/deck/new/{side_text}
+    path:  /{_locale}/deck/new
     methods: [GET]
     defaults:
         _controller: AppBundle:Builder:buildform
@@ -43,16 +43,6 @@ deck_edit:
     requirements:
         _locale: \w\w
         deck_uuid: '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
-
-deck_view_legacy:
-    path: /{_locale}/deck/view/{deck_id}
-    methods: [GET]
-    defaults:
-        _controller: AppBundle:Builder:legacyView
-        _locale: en
-    requirements:
-        _locale: \w\w
-        deck_id: "\\d+"
 
 deck_view:
     path: /{_locale}/deck/view/{deck_uuid}
@@ -131,15 +121,6 @@ deck_fileimport:
     methods: [POST]
     defaults:
         _controller: AppBundle:Builder:fileimport
-        _locale: en
-    requirements:
-        _locale: \w\w
-
-deck_meteorimport:
-    path: /{_locale}/deck/meteorimport
-    methods: [POST]
-    defaults:
-        _controller: AppBundle:Builder:meteorimport
         _locale: en
     requirements:
         _locale: \w\w
@@ -227,17 +208,6 @@ decklists_list:
     requirements:
         _locale: \w\w
         page: \d+
-
-legacy_decklist:
-    path: /{_locale}/decklist/{decklist_id}/{decklist_name}
-    methods: [GET]
-    defaults:
-        _controller: AppBundle:Social:legacyView
-        _locale: en
-        decklist_name: null
-    requirements:
-        _locale: \w\w
-        decklist_id: "\\d+"
 
 decklist_view:
     path: /{_locale}/decklist/{decklist_uuid}/{decklist_name}
@@ -396,16 +366,6 @@ all_comments:
         page: 1
     requirements:
         _locale: \w\w
-
-donators:
-    path: /{_locale}/donators
-    methods: [GET]
-    defaults:
-        _controller: AppBundle:Social:donators
-        _locale: en
-    requirements:
-        _locale: \w\w
-
 
 tools_demo:
     path: /tools/demo
@@ -604,20 +564,6 @@ api_public_factions:
     methods: [GET]
     defaults:
         _controller: AppBundle:PublicApi20:factions
-
-api_public_side:
-    path: /api/2.0/public/side/{side_code}
-    methods: [GET]
-    defaults:
-        _controller: AppBundle:PublicApi20:side
-    requirements:
-        side_code: "[\\w-]+"
-
-api_public_sides:
-    path: /api/2.0/public/sides
-    methods: [GET]
-    defaults:
-        _controller: AppBundle:PublicApi20:sides
 
 api_public_type:
     path: /api/2.0/public/type/{type_code}

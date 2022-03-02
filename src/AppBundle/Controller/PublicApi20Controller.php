@@ -210,42 +210,6 @@ class PublicApi20Controller extends FOSRestController
     }
 
     /**
-     * Get a side
-     *
-     * @ApiDoc(
-     *  section="Side",
-     *  resource=true,
-     *  description="Get one side",
-     *  parameters={
-     *  },
-     * )
-     */
-    public function sideAction(string $side_code, Request $request)
-    {
-      return $this->getSingleEntityFromCache("public-api-side-" . $side_code, function() use ($side_code) {
-        return $this->entityManager->getRepository('AppBundle:Side')->findOneBy(['code' => $side_code]);
-      }, $request);
-    }
-
-    /**
-     * Get all the sides
-     *
-     * @ApiDoc(
-     *  section="Side",
-     *  resource=true,
-     *  description="Get all the sides",
-     *  parameters={
-     *  },
-     * )
-     */
-    public function sidesAction(Request $request)
-    {
-      return $this->getFromCache("public-api-sides", function() {
-        return $this->entityManager->getRepository('AppBundle:Side')->findAll();
-      }, $request);
-    }
-
-    /**
      * Get a faction
      *
      * @ApiDoc(

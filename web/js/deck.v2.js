@@ -8,12 +8,9 @@ var Autosave_period = 60;
 function update_max_qty() {
   NRDB.data.cards.find().forEach(function(card) {
     var modifiedCard = get_mwl_modified_card(card);
-    var max_qty = modifiedCard.deck_limit;
-    if(card.pack_code == 'core' || card.pack_code == 'core2' || card.pack_code == 'sc19') {
-      max_qty = Math.min(card.quantity * NRDB.settings.getItem('core-sets'), max_qty);
-    }
-    if(Identity.pack_code == "draft") {
-      max_qty = 9;
+    var max_qty = 1;
+    if(card.pack_code == 'core') {
+      max_qty = Math.min(NRDB.settings.getItem('core-sets'), max_qty);
     }
     NRDB.data.cards.updateById(card.code, {
       maxqty : max_qty
@@ -23,28 +20,22 @@ function update_max_qty() {
 
 Promise.all([NRDB.data.promise, NRDB.settings.promise]).then(function() {
   NRDB.data.cards.find().forEach(function(card) {
-    // Only cards from the deck's side can be in the deck.
-    if (card.side_code != Side) {
-      return;
-    }
     var indeck = 0;
     if (Deck[card.code]) {
       indeck = parseInt(Deck[card.code], 10);
     }
     NRDB.data.cards.updateById(card.code, {
       indeck : indeck,
-      factioncost : card.faction_cost || 0
     });
   });
 
   find_identity();
 
-  NRDB.draw_simulator.init();
   update_max_qty();
 
   $('#faction_code').empty();
 
-  var factions = NRDB.data.factions.find({side_code: Side}).sort(function(a, b) {
+  var factions = NRDB.data.factions.find().sort(function(a, b) {
     return b.code.substr(0,7) === "neutral"
       ? -1
       : a.code.substr(0,7) === "neutral"
@@ -54,9 +45,7 @@ Promise.all([NRDB.data.promise, NRDB.settings.promise]).then(function() {
   factions.forEach(function(faction) {
     var label = $('<label class="btn btn-default btn-sm" data-code="' + faction.code
         + '" title="'+faction.name+'"><input type="checkbox" name="' + faction.code
-        + '"><img src="'
-        + Url_FactionImage.replace('xxx', faction.code)
-        + '" style="height:12px" alt="'+faction.code+'"></label>');
+        + '">' + faction.code + '</label>');
     label.tooltip({container: 'body'});
     $('#faction_code').append(label);
   });
@@ -67,19 +56,13 @@ Promise.all([NRDB.data.promise, NRDB.settings.promise]).then(function() {
   });
 
   $('#type_code').empty();
-  var types = NRDB.data.types.find({
-    is_subtype:false,
-    '$or': [{
-      side_code: Identity.side_code
-    },{
-      side_code: null
-    }]
-  }).sort();
+    var types = NRDB.data.types.find({
+        'code': { '$ne': 'identity' }
+    }).sort();
   types.forEach(function(type) {
     var label = $('<label class="btn btn-default btn-sm" data-code="'
         + type.code + '" title="'+type.name+'"><input type="checkbox" name="' + type.code
-        + '"><img src="' + Url_TypeImage.replace('xxx', type.code)
-        + '" style="height:12px" alt="'+type.code+'"></label>');
+        + '">'+type.name+'</label>');
     label.tooltip({container: 'body'});
     $('#type_code').append(label);
   });
@@ -90,14 +73,11 @@ Promise.all([NRDB.data.promise, NRDB.settings.promise]).then(function() {
 
 
   $('input[name=Identity]').prop("checked", false);
-  if (Identity.code == "03002") {
-    $('input[name=Jinteki]').prop("checked", false);
-  }
 
   function findMatches(q, cb) {
     if(q.match(/^\w:/)) return;
     // TODO(plural): Make this variable initialized at page load and only updated when the collection changes instead of here on every keypress!
-    var matchingPacks = NRDB.data.cards.find({maxqty: { '$gt': 0 }, side_code: Side, pack_code: Filters.pack_code || []});
+    var matchingPacks = NRDB.data.cards.find({pack_code: Filters.pack_code || []});
     var latestCards = select_only_latest_cards(matchingPacks);
     var regexp = new RegExp(q, 'i');
     var matchingCards = _.filter(latestCards, function (card) {
@@ -116,7 +96,6 @@ Promise.all([NRDB.data.promise, NRDB.settings.promise]).then(function() {
   });
 
   make_cost_graph();
-  make_strength_graph();
 
   $.each(History, function (index, snapshot) {
     add_snapshot(snapshot);
@@ -126,21 +105,14 @@ Promise.all([NRDB.data.promise, NRDB.settings.promise]).then(function() {
 
   $(document).on('persistence:change', function (event, value) {
     switch($(event.target).attr('name')) {
-    case 'core-sets':
-      update_core_sets();
     case 'display-columns':
     case 'show-disabled':
     case 'only-deck':
       refresh_collection();
       break;
-    case 'show-suggestions':
-      NRDB.suggestions.show();
-      break;
     case 'sort-order':
       DisplaySort = value;
-    case 'show-onesies':
-    case 'show-cacherefresh':
-        case 'check-rotation':
+    case 'check-rotation':
       update_deck();
       break;
     }
@@ -177,51 +149,10 @@ function select_only_latest_cards(matchingCards) {
 
 function create_collection_tab(initialPackSelection) {
   var rotated_cycles = Array();
-  rotated_cycles['draft'] = 1;
-  rotated_cycles['napd'] = 1;
   NRDB.data.cycles.find( { "rotated": true } ).forEach(function(cycle) { rotated_cycles[cycle.code] = 1; });
 
   var rotated_packs = Array();
   NRDB.data.packs.find().forEach(function(pack) { if (rotated_cycles[pack.cycle.code]) { rotated_packs[pack.code] = 1; } });
-
-  $('#collection_startup').on('click', function(event) {
-    let startup_cycles = Array();
-    startup_cycles['ashes'] = 1;
-    startup_cycles['system-gateway'] = 1;
-    startup_cycles['system-update-2021'] = 1;
-    let startup_packs = Array();
-    startup_packs['df'] = 1;
-    startup_packs['urbp'] = 1;
-    startup_packs['ur'] = 1;
-    startup_packs['sg'] = 1;
-    startup_packs['su21'] = 1;
-    event.preventDefault();
-    $('#pack_code').find(':checkbox').each(function() {
-      $(this).prop('checked', Boolean(startup_cycles[$(this).prop('name')] || startup_packs[$(this).prop('name')]));
-    });
-    update_collection_packs();
-  });
-  $('#collection_standard').on('click', function(event) {
-    event.preventDefault();
-    $('#pack_code').find(':checkbox').each(function() {
-      $(this).prop('checked', !Boolean(rotated_cycles[$(this).prop('name')] || rotated_packs[$(this).prop('name')]));
-    });
-    update_collection_packs();
-  });
-  $('#collection_all').on('click', function(event) {
-    event.preventDefault();
-    $('#pack_code').find(':checkbox').each(function(){
-      $(this).prop('checked', true);
-    });
-    update_collection_packs();
-  });
-  $('#collection_none').on('click', function(event) {
-    event.preventDefault();
-    $('#pack_code').find(':checkbox').each(function(){
-      $(this).prop('checked', false);
-    });
-    update_collection_packs();
-  });
 
   var sets_in_deck = {};
   NRDB.data.cards.find({indeck:{'$gt':0}}).forEach(function(card) {
@@ -275,8 +206,6 @@ function create_collection_tab(initialPackSelection) {
   $('#mwl_code').trigger('change');
   // triggers a refresh_collection();
   // triggers a update_deck();
-
-  NRDB.suggestions.query(Side);
 }
 
 function get_filter_query(Filters) {
@@ -441,8 +370,7 @@ $(function() {
     match : /\$([\-+\w]*)$/,
     search : function(term, callback) {
       var regexp = new RegExp('^' + term);
-      callback($.grep(['credit', 'recurring-credit', 'click', 'link', 'trash', 'subroutine', 'mu', '1mu', '2mu', '3mu',
-        'anarch', 'criminal', 'shaper', 'haas-bioroid', 'weyland-consortium', 'jinteki', 'nbn'],
+      callback($.grep(['mythium', 'earth', 'moon', 'stars', 'void'],
         function(symbol) { return regexp.test(symbol); }
       ));
     },
@@ -450,7 +378,7 @@ $(function() {
       return value;
     },
     replace : function(value) {
-      return '<span class="icon icon-' + value + '"></span>';
+      return '<svg class="icon-wb icon-' + value + '"><use xlink:href="#icon-' + value + '"></use></svg>';
     },
     index : 1
   }]);
@@ -622,20 +550,20 @@ function handle_quantity_change(event) {
   if (card.type_code == "identity") {
     if (Identity.faction_code != card.faction_code) {
       // change of faction, reset agendas
-      NRDB.data.cards.update({
-        indeck : {
-          '$gt' : 0
-        },
-        type_code : 'agenda'
-      }, {
-        indeck : 0
-      });
+      // NRDB.data.cards.update({
+      //   indeck : {
+      //     '$gt' : 0
+      //   },
+      //   type_code : 'agenda'
+      // }, {
+      //   indeck : 0
+      // });
       // also automatically change tag of deck
-      $('input[name=tags_]').val(
-          $('input[name=tags_]').val().split(' ').map(function (tag) {
-            return tag === Identity.faction_code ? card.faction_code : tag;
-          }).join(' ')
-      );
+      // $('input[name=tags_]').val(
+      //     $('input[name=tags_]').val().split(' ').map(function (tag) {
+      //       return tag === Identity.faction_code ? card.faction_code : tag;
+      //     }).join(' ')
+      // );
     }
     NRDB.data.cards.update({
       indeck : {
@@ -651,7 +579,6 @@ function handle_quantity_change(event) {
   }
   update_deck();
   if (card.type_code == "identity") {
-    NRDB.draw_simulator.reset();
     $.each(CardDivs, function(nbcols, rows) {
       if (rows)
         $.each(rows, function(index, row) {
@@ -688,22 +615,6 @@ function handle_quantity_change(event) {
   Deck_changed_since_last_autosave = true;
 }
 
-function update_core_sets() {
-  CardDivs = [ null, {}, {}, {} ];
-  NRDB.data.cards.find({
-    pack_code : ['core', 'core2','sc19']
-  }).forEach(function(card) {
-        var modifiedCard = get_mwl_modified_card(card);
-    var max_qty = Math.min(card.quantity * NRDB.settings.getItem('core-sets'), modifiedCard.deck_limit);
-    if(Identity.pack_code == "draft") {
-      max_qty = 9;
-    }
-    NRDB.data.cards.updateById(card.code, {
-      maxqty : max_qty
-    });
-  });
-}
-
 function update_mwl(event) {
   var mwl_code = $(this).val();
   MWL = null;
@@ -717,10 +628,6 @@ function update_mwl(event) {
 }
 
 function build_div(record) {
-  var influ = "";
-  for (var i = 0; i < record.faction_cost; i++)
-    influ += "●";
-
   var radios = '';
   for (var i = 0; i <= record.maxqty; i++) {
     if(i && !(i%4)) {
@@ -736,9 +643,6 @@ function build_div(record) {
   switch (Number(NRDB.settings.getItem('display-columns'))) {
   case 1:
 
-    var imgsrc = record.faction_code.substr(0,7) === "neutral" ? "" : '<img src="'
-        + Url_FactionImage.replace('xxx', record.faction_code)
-        + '" alt="'+record.faction.name+'">';
     div = $('<tr class="card-container" data-index="'
         + record.code
         + '"><td><div class="btn-group" data-toggle="buttons">'
@@ -746,12 +650,10 @@ function build_div(record) {
         + '</div></td><td><a class="card" href="'
         + Routing.generate('cards_zoom', {card_code:record.code})
         + '" data-target="#cardModal" data-remote="false" data-toggle="modal">'
-        + record.title + '</a> '+get_influence_penalty_icons(record)+'</td><td class="influence influence-' + record.faction_code
-        + '">' + influ + '</td><td class="type" title="' + record.type.name
-        + '"><img src="/images/types/'
-        + record.type_code + '.png" alt="'+record.type.name+'">'
+        + record.title + '</a> '+'</td><td class=""></td><td class="type" title="' + record.type.name
+        + '">' + record.type.name
         + '</td><td class="faction" title="' + record.faction.name + '">'
-        + imgsrc + '</td></tr>');
+        + record.faction.name + '</td></tr>');
     break;
 
   case 2:
@@ -765,10 +667,9 @@ function build_div(record) {
         + '    <h4 class="media-heading"><a class="card" href="'
         + Routing.generate('cards_zoom', {card_code:record.code})
         + '" data-target="#cardModal" data-remote="false" data-toggle="modal">'
-        + record.title + '</a> '+get_influence_penalty_icons(record)+'</h4>'
+        + record.title + '</a></h4>'
         + '    <div class="btn-group" data-toggle="buttons">' + radios
-        + '</div>' + '    <span class="influence influence-' + record.faction_code + '">'
-        + influ + '</span>' + '</div>' + '</div>' + '</div>');
+        + '</div>' + '</div>' + '</div>' + '</div>');
     break;
 
   case 3:
@@ -782,10 +683,9 @@ function build_div(record) {
         + '    <h5 class="media-heading"><a class="card" href="'
         + Routing.generate('cards_zoom', {card_code:record.code})
         + '" data-target="#cardModal" data-remote="false" data-toggle="modal">'
-        + record.title + '</a> '+get_influence_penalty_icons(record)+'</h5>'
+        + record.title + '</a></h5>'
         + '    <div class="btn-group" data-toggle="buttons">' + radios
-        + '</div>' + '    <span class="influence influence-' + record.faction_code + '">'
-        + influ + '</span>' + '</div>' + '</div>' + '</div>');
+        + '</div>' + '</div>' + '</div>' + '</div>');
     break;
 
   }
@@ -794,14 +694,6 @@ function build_div(record) {
 }
 
 function is_card_usable(record) {
-  if (Identity.code == "03002"
-      && record.faction_code == "jinteki")
-    return false;
-  if (record.type_code === "agenda"
-      && record.faction_code !== "neutral-corp"
-      && record.faction_code !== Identity.faction_code
-      && Identity.faction_code !== "neutral-corp")
-    return false;
   return true;
 }
 

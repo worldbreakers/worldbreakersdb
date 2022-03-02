@@ -21,8 +21,9 @@ class RedirectAfterLogout implements LogoutSuccessHandlerInterface
         if ($request->query->get('redirect_to')) {
             $response = new RedirectResponse($request->query->get('redirect_to'));
         } else {
-            $response = new RedirectResponse($this->generateUrl('netrunnerdb_index'));
+            $response = new RedirectResponse('/');
+            #$response = new RedirectResponse($this->generateUrl('worldbreakerdb_index'));
         }
         return $response;
     }
-} 
+}

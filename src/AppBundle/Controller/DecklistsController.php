@@ -113,7 +113,7 @@ class DecklistsController extends Controller
                 f.name,
                 f.code
                 FROM faction f
-                ORDER BY f.side_id ASC, f.name ASC"
+                ORDER BY f.name ASC"
         )->fetchAll();
 
         $packs = $dbh->executeQuery(
@@ -189,7 +189,7 @@ class DecklistsController extends Controller
                 f.name,
                 f.code
                 FROM faction f
-                ORDER BY f.side_id ASC, f.name ASC"
+                ORDER BY f.name ASC"
         )->fetchAll();
 
         $cycles_and_packs = $cardsData->getCyclesAndPacks();

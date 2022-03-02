@@ -53,11 +53,6 @@ class Prebuilt implements NormalizableInterface, TimestampableInterface
     private $slots;
 
     /**
-     * @var Side
-     */
-    private $side;
-
-    /**
      * @var Card
      */
     private $identity;
@@ -245,25 +240,6 @@ class Prebuilt implements NormalizableInterface, TimestampableInterface
     public function getSlots()
     {
         return $this->slots;
-    }
-
-    /**
-     * @return Side
-     */
-    public function getSide()
-    {
-        return $this->side;
-    }
-
-    /**
-     * @param Side $side
-     * @return $this
-     */
-    public function setSide(Side $side)
-    {
-        $this->side = $side;
-
-        return $this;
     }
 
     /**

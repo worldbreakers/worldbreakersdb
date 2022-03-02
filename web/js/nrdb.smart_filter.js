@@ -23,13 +23,10 @@
       case "e":
         add_string_sf('pack_code', operator, values);
         break;
-/*      case "c":
-        add_integer_sf('cyclenumber', operator, values);
-        break;
       case "f":
         add_string_sf('faction_letter', operator, values);
         break;
-*/      case "t":
+      case "t":
         add_string_sf('type_code', operator, values);
         break;
       case "":
@@ -48,26 +45,8 @@
       case "o":
         add_integer_sf('cost', operator, values);
         break;
-      case "v":
-        add_integer_sf('agenda_points', operator, values);
-        break;
-      case "n":
-        add_integer_sf('faction_cost', operator, values);
-        break;
       case "p":
         add_integer_sf('strength', operator, values);
-        break;
-      case "g":
-        add_integer_sf('advancement_cost', operator, values);
-        break;
-      case "h":
-        add_integer_sf('trash_cost', operator, values);
-        break;
-      case "y":
-        add_integer_sf('quantity', operator, values);
-        break;
-      case "u":
-        add_boolean_sf('uniqueness', operator, values);
         break;
       }
     }

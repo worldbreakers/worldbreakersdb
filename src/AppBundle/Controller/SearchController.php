@@ -85,7 +85,7 @@ class SearchController extends Controller
         $list_keywords = $dbh->executeQuery("SELECT DISTINCT c.keywords FROM card c WHERE c.keywords != ''")->fetchAll();
         $keywords = [];
         foreach ($list_keywords as $keyword) {
-            $subs = explode(' - ', $keyword ["keywords"]);
+            $subs = explode(' · ', $keyword ["keywords"]);
             foreach ($subs as $sub) {
                 $keywords [$sub] = 1;
             }
@@ -135,7 +135,7 @@ class SearchController extends Controller
         if (!$card instanceof Card) {
             throw $this->createNotFoundException();
         }
-        $meta = $card->getTitle() . ", a " . $card->getFaction()->getName() . " " . $card->getType()->getName() . " card for Android: Netrunner from the set " . $card->getPack()->getName() . " published by Fantasy Flight Games.";
+        $meta = $card->getTitle() . ", a " . $card->getFaction()->getName() . " " . $card->getType()->getName() . " card for Worldbreakers from the set " . $card->getPack()->getName() . " published by TODO:???.";
 
         return $this->forward(
             'AppBundle:Search:display',
@@ -167,7 +167,7 @@ class SearchController extends Controller
         if (!$pack instanceof Pack) {
             throw $this->createNotFoundException();
         }
-        $meta = $pack->getName() . ", a set of cards for Android: Netrunner"
+        $meta = $pack->getName() . ", a set of cards for Worldbreakers"
             . ($pack->getDateRelease() ? " published on " . $pack->getDateRelease()->format('Y/m/d') : "")
             . " by Fantasy Flight Games.";
 
@@ -222,7 +222,7 @@ class SearchController extends Controller
         if (!$cycle instanceof Cycle) {
             throw $this->createNotFoundException();
         }
-        $meta = $cycle->getName() . ", a cycle of datapack for Android: Netrunner published by Fantasy Flight Games.";
+        $meta = $cycle->getName() . ", a cycle of datapack for Worldbreakers published by TODO:???.";
 
         return $this->forward(
             'AppBundle:Search:display',
@@ -511,21 +511,11 @@ class SearchController extends Controller
                     $standard_legal = true;
                     $all_versions_rotated = true;
 
-                    // Startup legality is currently hard-coded since the DB doesn't know anything about it.
-                    $startupCycles = ['ashes' => true, 'system-gateway' => true, 'system-update-2021' => true];
-                    $startup_legal = false;
-
                     $rotated_count = 0;
 
                     foreach ($cardVersions as $version) {
                         $v = $cardsData->getCardInfo($version, $locale);
                         $cardinfo['versions'][] = $v;
-                        // The 2 tutorial-only identity cards are invalid for startup and standard formats.
-                        if ($v['code'] == '30077' || $v['code'] == '30076') {
-                            $standard_legal = false;
-                            $startup_legal = false;
-                            continue;
-                        }
                         // Draft and terminal directive campaign cards are not legal in standard.
                         if ($v['cycle_code'] == 'draft' || $v['pack_code'] == 'tdc') {
                             $standard_legal = false;
@@ -533,10 +523,6 @@ class SearchController extends Controller
                         // Count the card's occurence in the rotated cycle(s)
                         if (array_key_exists($v['cycle_code'], $currentRotationCycles)) {
                             ++$rotated_count;
-                        }
-                        // Any printing of this card in a valid Startup cycle means the card is Startup legal.
-                        if (array_key_exists($v['cycle_code'], $startupCycles)) {
-                          $startup_legal = true;
                         }
                     }
 
@@ -546,7 +532,6 @@ class SearchController extends Controller
                     $cardinfo['reviews'] = $cardsData->get_reviews($cardVersions);
                     $cardinfo['rulings'] = $cardsData->get_rulings($cardVersions);
                     $cardinfo['mwl_info'] = $cardsData->get_mwl_info($cardVersions);
-                    $cardinfo['startup_legality'] = $startup_legal ? 'legal' : 'banned';
 
                     if ($standard_legal) {
                         $cardinfo['standard_legality'] = $all_versions_rotated ? 'rotated' : 'legal';

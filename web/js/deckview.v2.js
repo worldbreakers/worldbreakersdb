@@ -10,18 +10,15 @@ $(document).on('data.app', function() {
     }
     NRDB.data.cards.updateById(card.code, {
       indeck : indeck,
-      factioncost : card.factioncost || 0
     });
   });
 
   MWL = SelectedDeck.code && NRDB.data.mwl.findById(SelectedDeck.code);
 
   update_deck();
-  NRDB.draw_simulator.init();
   NRDB.deck_gallery.update();
 
   make_cost_graph();
-  make_strength_graph();
 });
 
 
@@ -44,7 +41,6 @@ function do_action_deck(event) {
     case 'btn-display-plain': export_plaintext(); break;
     case 'btn-display-bbcode': export_bbcode(); break;
     case 'btn-display-markdown': export_markdown(); break;
-    case 'btn-display-jintekinet': export_jintekinet(); break;
   }
 }
 
@@ -74,6 +70,6 @@ function confirm_delete() {
 }
 
 function switch_to_web_view() {
-  $('#deck').html('<div class="row"><div class="col-sm-12"><h3 id="identity"></h3><div id="influence"></div><div id="agendapoints"></div><div id="cardcount"></div><div id="latestpack"></div><div id="restricted"></div><div id="limited"></div></div></div><div class="row" id="deck-content" style="margin-bottom:10px"></div>');
+  $('#deck').html('<div class="row"><div class="col-sm-12"><h3 id="identity"></h3><div id="cardcount"></div><div id="latestpack"></div><div id="restricted"></div><div id="limited"></div></div></div><div class="row" id="deck-content" style="margin-bottom:10px"></div>');
   update_deck();
 }

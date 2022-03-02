@@ -25,27 +25,22 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 class BuilderController extends Controller
 {
     /**
-     * @param string                 $side_text
      * @param EntityManagerInterface $entityManager
      * @return Response
      *
      * @IsGranted("IS_AUTHENTICATED_REMEMBERED")
      */
-    public function buildformAction(string $side_text, EntityManagerInterface $entityManager, CardsData $cardsData, LoggerInterface $logger)
+    public function buildformAction(EntityManagerInterface $entityManager, CardsData $cardsData, LoggerInterface $logger)
     {
         $response = new Response();
         $response->setPublic();
         $response->setMaxAge($this->getParameter('long_cache'));
 
-        $side = $entityManager->getRepository('AppBundle:Side')->findOneBy([
-            "name" => $side_text,
-        ]);
         $type = $entityManager->getRepository('AppBundle:Type')->findOneBy([
             "code" => "identity",
         ]);
 
         $identities = $entityManager->getRepository('AppBundle:Card')->findBy([
-            "side" => $side,
             "type" => $type,
         ], [
             "faction" => "ASC",
@@ -53,7 +48,6 @@ class BuilderController extends Controller
         ]);
 
         $factions = $entityManager->getRepository('AppBundle:Faction')->findBy([
-            "side" => $side,
         ], [
             "name" => "ASC",
         ]);
@@ -117,11 +111,8 @@ class BuilderController extends Controller
             [
                 'pagetitle'           => "Deckbuilder",
                 'deck'                => [
-                    'side_name'   => mb_strtolower($card->getSide()
-                                                        ->getName()),
                     "slots"       => $arr,
-                    "name"        => "New " . $card->getSide()
-                                                   ->getName() . " Deck",
+                    "name"        => "New Deck",
                     "description" => "",
                     "tags"        => $card->getFaction()->getCode(),
                     "id"          => "",
@@ -289,120 +280,6 @@ class BuilderController extends Controller
     }
 
     /**
-     * @param Request                $request
-     * @param EntityManagerInterface $entityManager
-     * @param DeckManager            $deckManager
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse
-     *
-     * @IsGranted("IS_AUTHENTICATED_REMEMBERED")
-     */
-    public function meteorimportAction(Request $request, EntityManagerInterface $entityManager, DeckManager $deckManager)
-    {
-        // first build an array to match meteor card names with our card codes
-        $glossary = [];
-        $cards = $entityManager->getRepository('AppBundle:Card')->findAll();
-        /** @var Card $card */
-        foreach ($cards as $card) {
-            $title = $card->getTitle();
-            $replacements = [
-                'Alix T4LB07'          => 'Alix T4LBO7',
-                'Planned Assault'      => 'Planned Attack',
-                'Security Testing'     => 'Security Check',
-                'Mental Health Clinic' => 'Psychiatric Clinic',
-                'Shi.Kyū'              => 'Shi Kyu',
-                'NeoTokyo Grid'        => 'NeoTokyo City Grid',
-                'Push Your Luck'       => 'Double or Nothing',
-            ];
-            if (isset($replacements[$title])) {
-                $title = $replacements[$title];
-            }
-            // rule to cut the subtitle of an identity
-            if ($card->getPack()
-                     ->getCycle()
-                     ->getPosition() < 2 || ($card->getPack()
-                                                  ->getCycle()
-                                                  ->getPosition() == 2 && $card->getSide()->getName() == "Runner")) {
-                $title = preg_replace('~:.*~', '', $title);
-            }
-
-            $pack = $card->getPack()->getName();
-            if ($pack == "Core Set") {
-                $pack = "Core";
-            }
-
-            $str = $title . " " . $pack;
-
-            $str = str_replace('\'', '', $str);
-            $str = strtr(
-                utf8_decode($str),
-                utf8_decode('ŠŒŽšœžŸ¥µÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýÿō'),
-                'SOZsozYYuAAAAAAACEEEEIIIIDNOOOOOOUUUUYsaaaaaaaceeeeiiiionoooooouuuuyyo'
-            );
-            $str = strtolower($str);
-            $str = preg_replace('~\W+~', '-', $str);
-            $glossary[$str] = $card->getCode();
-        }
-
-        $url = $request->request->get('urlmeteor');
-        $matches = [];
-        if (!preg_match('~http://netrunner.meteor.com/users/([^/]+)~', $url, $matches)) {
-            $this->addFlash('error', "Wrong URL. Please go to \"Your decks\" on Meteor DeckManager and copy the content of the address bar into the required field.");
-
-            return $this->redirect($this->generateUrl('decks_list'));
-        }
-        $meteor_id = $matches[1];
-        $meteor_json = file_get_contents("http://netrunner.meteor.com/api/decks/$meteor_id");
-        $meteor_data = json_decode($meteor_json, true);
-
-        // check to see if the user has enough available deck slots
-        /** @var User $user */
-        $user = $this->getUser();
-        $slots_left = $user->getMaxNbDecks() - $user->getDecks()->count();
-        $slots_required = count($meteor_data);
-        if ($slots_required > $slots_left) {
-            $this->addFlash(
-                     'error',
-                     "You don't have enough available deck slots to import the $slots_required decks from Meteor (only $slots_left slots left). You must either delete some decks here or on Meteor DeckManager."
-                 );
-
-            return $this->redirect($this->generateUrl('decks_list'));
-        }
-
-        foreach ($meteor_data as $meteor_deck) {
-            // add a tag for side and faction of deck
-            $identity_code = $glossary[$meteor_deck['identity']];
-            /** @var Card $identity */
-            $identity = $entityManager->getRepository('AppBundle:Card')->findOneBy(['code' => $identity_code]);
-            if (!$identity) {
-                continue;
-            }
-            $faction_code = $identity->getFaction()->getCode();
-            $side_code = $identity->getSide()->getCode();
-            $tags = [$faction_code, $side_code];
-
-            $content = [
-                $identity_code => 1,
-            ];
-            foreach ($meteor_deck['entries'] as $entry => $qty) {
-                if (!isset($glossary[$entry])) {
-                    $this->addFlash('error', "Error importing a deck. The name \"$entry\" doesn't match any known card. Please contact the administrator.");
-
-                    return $this->redirect($this->generateUrl('decks_list'));
-                }
-                $content[$glossary[$entry]] = $qty;
-            }
-
-            /** @var Deck $deck */
-            $deck = new Deck();
-            $deckManager->saveDeck($this->getUser(), $deck, null, $meteor_deck['name'], "", $tags, null, $content, null);
-        }
-
-        $this->addFlash('notice', "Successfully imported $slots_required decks from Meteor DeckManager.");
-
-        return $this->redirect($this->generateUrl('decks_list'));
-    }
-
-    /**
      * @param Deck $deck
      * @param Judge $judge
      * @param CardsData $cardsData
@@ -427,18 +304,9 @@ class BuilderController extends Controller
         $lines = [$name];
         $types = [
             "Event",
-            "Hardware",
-            "Resource",
-            "Icebreaker",
-            "Program",
-            "Agenda",
-            "Asset",
-            "Upgrade",
-            "Operation",
-            "Barrier",
-            "Code Gate",
-            "Sentry",
-            "Ice",
+            "Follower",
+            "Location",
+            "Worldbreaker",
         ];
 
         $lines[] = sprintf(
@@ -465,34 +333,15 @@ class BuilderController extends Controller
                 $lines[] = "";
                 $lines[] = $type . " (" . $classement[$type]['qty'] . ")";
                 foreach ($classement[$type]['slots'] as $slot) {
-                    $inf = "";
 
                     /** @var Card $card */
                     $card = $slot['card'];
-                    $is_restricted = (
-                        $mwl
-                        && isset($mwl[$card->getCode()])
-                        && isset($mwl[$card->getCode()]['is_restricted'])
-                        && ($mwl[$card->getCode()]['is_restricted'] === 1)
-                    );
-
-                    if ($is_restricted) {
-                        $inf .= "♘";
-                    }
-
-                    for ($i = 0; $i < $slot['influence']; $i++) {
-                        if ($i % 5 == 0) {
-                            $inf .= " ";
-                        }
-                        $inf .= "•";
-                    }
 
                     $lines[] = sprintf(
-                        '%sx %s (%s) %s',
+                        '%sx %s (%s)',
                         $slot['qty'],
                         $card->getTitle(),
-                        $card->getPack()->getName(),
-                        trim($inf)
+                        $card->getPack()->getName()
                     );
                 }
             }
@@ -500,37 +349,9 @@ class BuilderController extends Controller
 
         $lines[] = "";
 
-        $influenceSpent = $classement['influenceSpent'];
-        $influenceTotal = $deck->getIdentity()->getInfluenceLimit();
-        $influenceLeft = 0;
-        if (is_numeric($influenceTotal)) {
-            $influenceLeft = $influenceTotal - $influenceSpent;
-        } else {
-            $influenceTotal = "infinite";
-        }
-
         $lines[] = sprintf(
-            "%s influence spent (max %s, available %s)",
-            $influenceSpent,
-            $influenceTotal,
-            $influenceLeft
-        );
-
-        if ($deck->getSide()->getCode() == "corp") {
-            $minAgendaPoints = floor($deck->getDeckSize() / 5) * 2 + 2;
-
-            $lines[] = sprintf(
-                "%s agenda points (between %s and %s)",
-                $classement['agendaPoints'],
-                $minAgendaPoints,
-                $minAgendaPoints + 1
-            );
-        }
-
-        $lines[] = sprintf(
-            "%s cards (min %s)",
-            $classement['deckSize'],
-            $deck->getIdentity()->getMinimumDeckSize()
+            "%s cards",
+            $classement['deckSize']
         );
 
         $lines[] = "Cards up to " . $deck->getLastPack()->getName();
@@ -748,12 +569,10 @@ class BuilderController extends Controller
               d.description,
               d.tags,
               u.id user_id,
-              (SELECT count(*) FROM deckchange c WHERE c.deck_id=d.id AND c.saved=0) unsaved,
-              s.name side_name
+              (SELECT count(*) FROM deckchange c WHERE c.deck_id=d.id AND c.saved=0) unsaved
             FROM deck d
               LEFT JOIN mwl m ON d.mwl_id=m.id
               LEFT JOIN user u ON d.user_id=u.id
-              LEFT JOIN side s ON d.side_id=s.id
             WHERE
               d.uuid = ?", [$deck_uuid])->fetchAll();
         $deck = $rows[0];
@@ -761,8 +580,6 @@ class BuilderController extends Controller
         if ($this->getUser()->getId() != $deck['user_id']) {
             throw $this->createAccessDeniedException();
         }
-
-        $deck['side_name'] = mb_strtolower($deck['side_name']);
 
         $rows = $dbh->executeQuery("
             SELECT
@@ -916,23 +733,6 @@ class BuilderController extends Controller
     }
 
     /**
-     * @param int                    $deck_id
-     * @param EntityManagerInterface $entityManager
-     * @return Response
-     * @throws \Doctrine\DBAL\DBALException
-     */
-    public function legacyViewAction(int $deck_id, EntityManagerInterface $entityManager) {
-      $deck = $entityManager->getRepository('AppBundle:Deck')->find($deck_id);
-      if ($deck) {
-        return $this->redirect(
-            $this->generateUrl('deck_view', ['deck_uuid' => $deck->getUuid()]),
-            301);
-      } else {
-        throw $this->createNotFoundException();
-      }
-    }
-
-    /**
      * @param string                 $deck_uuid
      * @param EntityManagerInterface $entityManager
      * @param Judge                  $judge
@@ -950,14 +750,12 @@ class BuilderController extends Controller
               m.code,
               d.problem,
               d.date_update,
-              s.name side_name,
               c.code identity_code,
               f.code faction_code,
               CASE WHEN u.id=? THEN 1 ELSE 0 END is_owner
             FROM deck d
               LEFT JOIN mwl m  ON d.mwl_id=m.id
               LEFT JOIN user u ON d.user_id=u.id
-              LEFT JOIN side s ON d.side_id=s.id
               LEFT JOIN card c ON d.identity_id=c.id
               LEFT JOIN faction f ON c.faction_id=f.id
             WHERE (u.id=? OR u.share_decks=1) AND d.uuid = ?",
@@ -973,8 +771,6 @@ class BuilderController extends Controller
         }
 
         $deck = $rows[0];
-
-        $deck['side_name'] = mb_strtolower($deck['side_name']);
 
         $rows = $dbh->executeQuery("
             SELECT
@@ -1201,7 +997,7 @@ class BuilderController extends Controller
         $response = new Response();
         $response->headers->set('Content-Type', 'application/zip');
         $response->headers->set('Content-Length', filesize($file));
-        $response->headers->set('Content-Disposition', 'attachment; filename="netrunnerdb.zip"');
+        $response->headers->set('Content-Disposition', 'attachment; filename="worldbreakersdb.zip"');
         $response->setContent(file_get_contents($file));
         unlink($file);
 

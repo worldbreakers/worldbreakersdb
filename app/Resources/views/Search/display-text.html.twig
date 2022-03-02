@@ -8,9 +8,7 @@
 {% if row*3+col < cards|length %}
 {% set card = cards[row*3+col] %}
 <div class="col-sm-4" style="margin-bottom:1.5em">
-    <h4>{% if card.uniqueness == true %}
-      &diams;
-    {% endif %}
+    <h4>
     <a href="{{ card.url }}" class="card-title{% if card.available == false %} card-preview{% endif %}">{{ card.title }}</a>
     </h4>
   <div class="card-info">
@@ -18,18 +16,34 @@
     <span class="card-type">{{ card.type_name }}</span><span class="card-keywords">{% if card.subtype %}: {{ card.subtype }}{% endif %}</span>
   </p>
   <p class="card-props">
-    {% if card.type_code == "agenda" %} Adv: {{ card.advancementcost }} &bull; Score: {{ card.agendapoints }} {% endif %}
-    {% if card.type_code == "identity" and card.side_code == "corp" %}Deck: {{ card.minimumdecksize }} &bull; Influence: {% if card.influencelimit ?? 0 == 0 %} &#8734; {% else %} {{ card.influencelimit }} {% endif %} {% endif %}
-    {% if card.type_code == "identity" and card.side_code == "runner" %}Link: {{ card.baselink }} &bull; Deck: {{ card.minimumdecksize }} &bull; Influence: {% if card.influencelimit ?? 0 == 0 %} &#8734; {% else %} {{ card.influencelimit }} {% endif %} {% endif %}
-    {% if card.type_code == "operation" or card.type_code == "event" %}Cost: {{ card.cost }} {% if card.trash is not null %}&bull; Trash: {{ card.trash }} {% endif %}&bull; Influence: {{ card.factioncost }}{% endif %}
-    {% if card.type_code == "resource" or card.type_code == "hardware" %}Install: {{ card.cost }} &bull; Influence: {{ card.factioncost }}{% endif %}
-    {% if card.type_code == "program" %}Install: {{ card.cost }} &bull; Memory: {{ card.memoryunits }} {% if card.strength %}&bull; Strength: {{ card.strength }}{% endif %} &bull; Influence: {{ card.factioncost }}{% endif %}
-    {% if card.type_code == "asset" or card.type_code == "upgrade" %}Rez: {{ card.cost }} &bull; Trash: {{ card.trash }} &bull; Influence: {{ card.factioncost }}{% endif %}
-    {% if card.type_code == "ice" %}Rez: {{ card.cost }} &bull; Strength: {{ card.strength }} {% if card.trash is not null %}&bull; Trash: {{ card.trash }} {% endif %}&bull; Influence: {{ card.factioncost }}{% endif %}
+      {% if card.type_code == "event" or card.type_code == "follower" or card.type_code == "location" %}
+          <span>
+              Cost: {{ card.cost }}
+              <svg class="icon-wb icon-mythium"><use xlink:href="#icon-mythium"></use></svg>
+              <span class="icon-fallback">Mythium</span>
+
+              {{ include('/Search/standing_requirements.html.twig') }}
+          </span>
+      {% endif %}
+
+      {% if card.type_code == "follower" %}
+          <span>Strength: {{ card.strength }} &bull; Health: {{ card.health }}</span>
+      {% endif %}
   </p>
   </div>
   <div class="card-text border-{{ card.faction_code }}">
-    {{ card.text|raw }}
+      {{ card.text|raw }}
+
+      {% if card.stages %}
+          <div class="card-location-stages">
+              <ol class="stages">
+                  {% for stage in card.stages %}
+                      <li>{{stage|raw}}</li>
+                  {% endfor %}
+              </ol>
+          </div>
+      {% endif %}
+
   </div>
   <p class="card-flavor" style="font-size:86.5%">
     {{ card.flavor|raw|nl2br }}

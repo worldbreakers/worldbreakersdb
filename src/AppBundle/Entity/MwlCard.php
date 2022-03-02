@@ -82,25 +82,6 @@ class MwlCard implements NormalizableInterface
     }
 
     /**
-     * @return integer|null
-     */
-    public function getUniversalFactionCost()
-    {
-        return $this->universal_faction_cost;
-    }
-
-    /**
-     * @param integer|null $universal_faction_cost
-     * @return MwlCard
-     */
-    public function setUniversalFactionCost(int $universal_faction_cost = null)
-    {
-        $this->universal_faction_cost = $universal_faction_cost;
-
-        return $this;
-    }
-
-    /**
      * @return bool|null
      */
     public function getIsRestricted()

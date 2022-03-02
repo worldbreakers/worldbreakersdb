@@ -50,10 +50,6 @@ class User extends BaseUser
      */
     private $avatar;
 
-    private $donation;
-
-    private $patreon_pledge_cents;
-
     /**
      * @var Collection|Deck[]
      */
@@ -160,10 +156,8 @@ class User extends BaseUser
         $this->following = new ArrayCollection();
         $this->followers = new ArrayCollection();
         $this->reputation = 1;
-        $this->faction = 'neutral-runner';
+        $this->faction = 'earth';
         $this->creation = new \DateTime();
-        $this->donation = 0;
-        $this->patreon_pledge_cents = 0;
 
         parent::__construct();
     }
@@ -280,52 +274,6 @@ class User extends BaseUser
         $this->avatar = $avatar;
 
         return $this;
-    }
-
-    /**
-     * @return integer
-     */
-    public function getDonation()
-    {
-        return $this->donation;
-    }
-
-    /**
-     * @param integer $donation
-     * @return User
-     */
-    public function setDonation(int $donation)
-    {
-        $this->donation = $donation;
-
-        return $this;
-    }
-
-    /**
-     * @return integer
-     */
-    public function getPatreonPledgeCents()
-    {
-        return $this->patreon_pledge_cents;
-    }
-
-    /**
-     * @param integer $pledge_cents
-     * @return User
-     */
-    public function setPatreonPledgeCents(int $pledge_cents)
-    {
-        $this->patreon_pledge_cents = $pledge_cents;
-
-        return $this;
-    }
-
-    /**
-     * @return boolean
-     */
-    public function isSupporter()
-    {
-        return ($this->donation > 0 || $this->patreon_pledge_cents > 0);
     }
 
     /**

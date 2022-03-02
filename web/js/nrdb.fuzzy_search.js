@@ -1,5 +1,5 @@
 (function(fuzzy_search, $) {
-  var types = ['agenda','asset','operation','upgrade','operation','barrier','code gate','sentry','other','event','hardware','resource','icebreaker','program'];
+  var types = ['event','follower','location','worldbreaker'];
     // takes a card name and fuzzy-searches it in the card db
     // the input can include a qty indicator like 3x
     // returns an array of objects Card with an additional key "qty"
@@ -13,7 +13,7 @@
         qty = parseInt(RegExp.$2, 10);
         name = RegExp.$1;
       }
-      if(name == "" || name == 'influence spent' || name == 'agenda points' || name == 'cards') return;
+      if(name == "" || name == 'cards') return;
       if(types.indexOf(name) > -1) return;
 
       var options = [];

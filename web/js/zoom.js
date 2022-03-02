@@ -66,8 +66,7 @@ function add_ruling(event) {
             match: /\$([\-+\w]*)$/,
             search: function (term, callback) {
                 var regexp = new RegExp('^' + term);
-                callback($.grep(['credit', 'recurring-credit', 'click', 'link', 'trash', 'subroutine', 'mu', '1mu', '2mu', '3mu',
-                    'anarch', 'criminal', 'shaper', 'haas-bioroid', 'weyland-consortium', 'jinteki', 'nbn'],
+                callback($.grep(['mythium', 'earth', 'moon', 'stars', 'void'],
                         function (symbol) {
                             return regexp.test(symbol);
                         }
@@ -77,7 +76,7 @@ function add_ruling(event) {
                 return value;
             },
             replace: function (value) {
-                return '<span class="icon icon-' + value + '"></span>';
+                return '<svg class="icon-wb icon-' + value + '"><use xlink:href="#icon-' + value + '"></use></svg>';
             },
             index: 1
         }]);
@@ -127,8 +126,7 @@ function edit_ruling(event) {
             match: /\$([\-+\w]*)$/,
             search: function (term, callback) {
                 var regexp = new RegExp('^' + term);
-                callback($.grep(['credit', 'recurring-credit', 'click', 'link', 'trash', 'subroutine', 'mu', '1mu', '2mu', '3mu',
-                    'anarch', 'criminal', 'shaper', 'haas-bioroid', 'weyland-consortium', 'jinteki', 'nbn'],
+                callback($.grep(['mythium', 'earth', 'moon', 'stars', 'void'],
                         function (symbol) {
                             return regexp.test(symbol);
                         }
@@ -138,7 +136,7 @@ function edit_ruling(event) {
                 return value;
             },
             replace: function (value) {
-                return '<span class="icon icon-' + value + '"></span>';
+                return '<svg class="icon-wb icon-' + value + '"><use xlink:href="#icon-' + value + '"></use></svg>';
             },
             index: 1
         }]);
@@ -193,8 +191,7 @@ function write_comment(event) {
             match: /\$([\-+\w]*)$/,
             search: function (term, callback) {
                 var regexp = new RegExp('^' + term);
-                callback($.grep(['credit', 'recurring-credit', 'click', 'link', 'trash', 'subroutine', 'mu', '1mu', '2mu', '3mu',
-                    'anarch', 'criminal', 'shaper', 'haas-bioroid', 'weyland-consortium', 'jinteki', 'nbn'],
+                callback($.grep(['mythium', 'earth', 'moon', 'stars', 'void'],
                         function (symbol) {
                             return regexp.test(symbol);
                         }
@@ -204,7 +201,7 @@ function write_comment(event) {
                 return value;
             },
             replace: function (value) {
-                return '<span class="icon icon-' + value + '"></span>';
+                return '<svg class="icon-wb icon-' + value + '"><use xlink:href="#icon-' + value + '"></use></svg>';
             },
             index: 1
         }]);
@@ -329,8 +326,7 @@ function write_review_open(event) {
             match: /\$([\-+\w]*)$/,
             search: function (term, callback) {
                 var regexp = new RegExp('^' + term);
-                callback($.grep(['credit', 'recurring-credit', 'click', 'link', 'trash', 'subroutine', 'mu', '1mu', '2mu', '3mu',
-                    'anarch', 'criminal', 'shaper', 'haas-bioroid', 'weyland-consortium', 'jinteki', 'nbn'],
+                callback($.grep(['mythium', 'earth', 'moon', 'stars', 'void'],
                         function (symbol) {
                             return regexp.test(symbol);
                         }
@@ -340,7 +336,7 @@ function write_review_open(event) {
                 return value;
             },
             replace: function (value) {
-                return '<span class="icon icon-' + value + '"></span>';
+                return '<svg class="icon-wb icon-' + value + '"><use xlink:href="#icon-' + value + '"></use></svg>';
             },
             index: 1
         }]);

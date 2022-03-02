@@ -53,16 +53,6 @@ class Deck implements NormalizableInterface, TimestampableInterface
     private $deckSize;
 
     /**
-     * @var integer
-     */
-    private $influenceSpent;
-
-    /**
-     * @var integer
-     */
-    private $agendaPoints;
-
-    /**
      * @var string
      */
     private $tags;
@@ -81,11 +71,6 @@ class Deck implements NormalizableInterface, TimestampableInterface
      * @var User
      */
     private $user;
-
-    /**
-     * @var Side
-     */
-    private $side;
 
     /**
      * @var Card
@@ -326,25 +311,6 @@ class Deck implements NormalizableInterface, TimestampableInterface
     }
 
     /**
-     * @return Side
-     */
-    public function getSide()
-    {
-        return $this->side;
-    }
-
-    /**
-     * @param Side $side
-     * @return $this
-     */
-    public function setSide(Side $side)
-    {
-        $this->side = $side;
-
-        return $this;
-    }
-
-    /**
      * @return Card
      */
     public function getIdentity()
@@ -397,44 +363,6 @@ class Deck implements NormalizableInterface, TimestampableInterface
     public function setDeckSize(int $deckSize)
     {
         $this->deckSize = $deckSize;
-
-        return $this;
-    }
-
-    /**
-     * @return int
-     */
-    public function getInfluenceSpent()
-    {
-        return $this->influenceSpent;
-    }
-
-    /**
-     * @param int $influenceSpent
-     * @return $this
-     */
-    public function setInfluenceSpent(int $influenceSpent)
-    {
-        $this->influenceSpent = $influenceSpent;
-
-        return $this;
-    }
-
-    /**
-     * @return int
-     */
-    public function getAgendaPoints()
-    {
-        return $this->agendaPoints;
-    }
-
-    /**
-     * @param int $agendaPoints
-     * @return $this
-     */
-    public function setAgendaPoints(int $agendaPoints)
-    {
-        $this->agendaPoints = $agendaPoints;
 
         return $this;
     }

@@ -93,11 +93,6 @@ class Decklist implements NormalizableInterface, TimestampableInterface
     private $user;
 
     /**
-     * @var Side
-     */
-    private $side;
-
-    /**
      * @var Card
      */
     private $identity;
@@ -495,25 +490,6 @@ class Decklist implements NormalizableInterface, TimestampableInterface
     public function setUser(User $user)
     {
         $this->user = $user;
-
-        return $this;
-    }
-
-    /**
-     * @return Side
-     */
-    public function getSide()
-    {
-        return $this->side;
-    }
-
-    /**
-     * @param Side $side
-     * @return $this
-     */
-    public function setSide(Side $side)
-    {
-        $this->side = $side;
 
         return $this;
     }

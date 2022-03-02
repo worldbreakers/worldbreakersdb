@@ -15,7 +15,7 @@ Promise.all([NRDB.data.promise]).then(function() {
     label.tooltip({container: 'body'});
     $('#type_code').append(label);
   };
-  addTypeButton({code: 'identity', name: 'Identity'});
+  addTypeButton({code: 'identity', name: 'Worldbreaker'});
 
   ['corp', 'runner'].forEach(Side => {
     var factions = NRDB.data.factions.find({side_code: Side}).sort(function(a, b) {
@@ -28,9 +28,7 @@ Promise.all([NRDB.data.promise]).then(function() {
     factions.forEach(function(faction) {
       var label = $('<label class="btn btn-default btn-sm" data-code="' + faction.code
           + '" title="'+faction.name+'"><input type="checkbox" name="' + faction.code
-          + '"><img src="'
-          + Url_FactionImage.replace('xxx', faction.code)
-          + '" style="height:12px" alt="'+faction.code+'"></label>');
+          + '">' + faction.name + '</label>');
       label.tooltip({container: 'body'});
       $('#faction_code').append(label);
     });
@@ -39,7 +37,6 @@ Promise.all([NRDB.data.promise]).then(function() {
 
     var types = NRDB.data.types.find({
         is_subtype:false,
-        '$or': [{side_code: Side }, {side_code: null}]
     }).sort();
     types.forEach(function(type) {
       if (type.code !== 'identity') {
@@ -118,9 +115,6 @@ Promise.all([NRDB.data.promise]).then(function() {
   
     // Sort by Side, Faction, type (identity forced first), title
     let sorter = function(a, b) {
-      if (a.side.code < b.side.code) return -1;
-      if (a.side.code > b.side.code) return 1;
-  
     let factionA = (a.faction.code == 'neutral-corp' || a.faction.code == 'neutral-runner') ? a.faction.code : 'z' + a.faction.code;
     let factionB = (b.faction.code == 'neutral-corp' || b.faction.code == 'neutral-runner') ? b.faction.code : 'z' + b.faction.code;
       if (factionA < factionB) return -1;
@@ -159,7 +153,7 @@ Promise.all([NRDB.data.promise]).then(function() {
       let visible = false;
       $('#diffs').append(
         $('<div style="display:' + (visible ? 'block' : 'none') + '" data-title="' + card.title.replaceAll('"', '') + '" data-faction="' + card.faction.code + '" data-type="' + card.type.code + '">' +
-            '<span class="icon icon-' + card.faction.code + ' influence-' + card.faction.code + '"></span>' + 
+            '<span class="icon icon-' + card.faction.code + '"></span>' + 
             ' <img src="' + Url_TypeImage.replace('xxx', card.type.code) + '" style="height:12px" alt="'+card.type.code+'">' +
             ' <a href="' + Routing.generate('cards_zoom', {card_code:card.code}) + '">' + card.title + '</a> <span class="legality-' + card['diff'] + '"></span></div>')
       );
