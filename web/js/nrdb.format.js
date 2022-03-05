@@ -14,7 +14,7 @@
       card.type_code == "follower"
     ) {
       type +=
-        ' &middot; <span class="card-prop">' +
+        ' &middot; <span>' +
         format.cost(card) +
         '<svg class="icon-wb icon-mythium"><use xlink:href="#icon-mythium"></use></svg><span class="icon-fallback">Mythium</span>' +
         "</span>";
