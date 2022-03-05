@@ -628,6 +628,7 @@ function update_mwl(event) {
 }
 
 function build_div(record) {
+  var recordIsSignatureCard = record.signature === Identity.signature;
   var radios = '';
   for (var i = 0; i <= record.maxqty; i++) {
     if(i && !(i%4)) {
@@ -635,8 +636,11 @@ function build_div(record) {
     }
     radios += '<label class="btn btn-xs btn-default'
         + (i == record.indeck ? ' active' : '')
+        + (recordIsSignatureCard ? ' disabled' : '')
         + '"><input type="radio" name="qty-' + record.code
-        + '" value="' + i + '">' + i + '</label>';
+        + '" value="' + i + '"'
+        + (recordIsSignatureCard ? ' disabled' : '')
+        + '>' + i + '</label>';
   }
 
   var div = '';

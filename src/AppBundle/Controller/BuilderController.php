@@ -98,20 +98,30 @@ class BuilderController extends Controller
             return new Response('card not found.');
         }
 
+        $slots = array_reduce(
+            $entityManager->getRepository('AppBundle:Card')->findBy([
+                "signature" => $card->getSignature(),
+            ]),
+            function ($slots, $signatureCard) {
+                if (!$signatureCard->isIdentity()) {
+                    $slots[$signatureCard->getCode()] = 1;
+                }
+
+                return $slots;
+            },
+            [ $card_code => 1 ]
+        );
+
         $list_mwl = $entityManager->getRepository('AppBundle:Mwl')->findBy([], ['dateStart' => 'DESC']);
         /** @var Mwl|null $active_mwl */
         $active_mwl = $entityManager->getRepository('AppBundle:Mwl')->findOneBy(['active' => true]);
-
-        $arr = [
-            $card_code => 1,
-        ];
 
         return $this->render(
             '/Builder/deck.html.twig',
             [
                 'pagetitle'           => "Deckbuilder",
                 'deck'                => [
-                    "slots"       => $arr,
+                    "slots"       => $slots,
                     "name"        => "New Deck",
                     "description" => "",
                     "tags"        => $card->getFaction()->getCode(),

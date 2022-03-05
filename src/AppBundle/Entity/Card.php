@@ -574,17 +574,6 @@ class Card implements NormalizableInterface, TimestampableInterface
     }
 
     /**
-     * @return Card[]
-     */
-    public function getSignatureCards()
-    {
-        if ($this->getType()->getCode() !== 'identity') {
-            return [];
-        }
-
-    }
-
-    /**
      * @return bool
      */
     public function isSignatureCard()
