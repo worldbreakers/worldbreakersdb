@@ -548,23 +548,6 @@ function handle_quantity_change(event) {
   });
   var card = NRDB.data.cards.findById(index);
   if (card.type_code == "identity") {
-    if (Identity.faction_code != card.faction_code) {
-      // change of faction, reset agendas
-      // NRDB.data.cards.update({
-      //   indeck : {
-      //     '$gt' : 0
-      //   },
-      //   type_code : 'agenda'
-      // }, {
-      //   indeck : 0
-      // });
-      // also automatically change tag of deck
-      // $('input[name=tags_]').val(
-      //     $('input[name=tags_]').val().split(' ').map(function (tag) {
-      //       return tag === Identity.faction_code ? card.faction_code : tag;
-      //     }).join(' ')
-      // );
-    }
     NRDB.data.cards.update({
       indeck : {
         '$gt' : 0
@@ -628,7 +611,6 @@ function update_mwl(event) {
 }
 
 function build_div(record) {
-  var recordIsSignatureCard = record.signature === Identity.signature;
   var radios = '';
   for (var i = 0; i <= record.maxqty; i++) {
     if(i && !(i%4)) {
@@ -643,6 +625,8 @@ function build_div(record) {
         + '>' + i + '</label>';
   }
 
+  var title = record.title + (record.signature ? '<span class="card-is-signature glyphicon glyphicon-star" title="Signature Card"></span>' : '');
+
   var div = '';
   switch (Number(NRDB.settings.getItem('display-columns'))) {
   case 1:
@@ -654,7 +638,7 @@ function build_div(record) {
         + '</div></td><td><a class="card" href="'
         + Routing.generate('cards_zoom', {card_code:record.code})
         + '" data-target="#cardModal" data-remote="false" data-toggle="modal">'
-        + record.title + '</a> '+'</td><td class=""></td><td class="type" title="' + record.type.name
+        + title + '</a> '+'</td><td class=""></td><td class="type" title="' + record.type.name
         + '">' + record.type.name
         + '</td><td class="faction" title="' + record.faction.name + '">'
         + record.faction.name + '</td></tr>');
@@ -671,7 +655,7 @@ function build_div(record) {
         + '    <h4 class="media-heading"><a class="card" href="'
         + Routing.generate('cards_zoom', {card_code:record.code})
         + '" data-target="#cardModal" data-remote="false" data-toggle="modal">'
-        + record.title + '</a></h4>'
+        + title + '</a></h4>'
         + '    <div class="btn-group" data-toggle="buttons">' + radios
         + '</div>' + '</div>' + '</div>' + '</div>');
     break;
@@ -687,7 +671,7 @@ function build_div(record) {
         + '    <h5 class="media-heading"><a class="card" href="'
         + Routing.generate('cards_zoom', {card_code:record.code})
         + '" data-target="#cardModal" data-remote="false" data-toggle="modal">'
-        + record.title + '</a></h5>'
+        + title + '</a></h5>'
         + '    <div class="btn-group" data-toggle="buttons">' + radios
         + '</div>' + '</div>' + '</div>' + '</div>');
     break;

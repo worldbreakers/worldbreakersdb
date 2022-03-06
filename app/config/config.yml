@@ -49,6 +49,7 @@ twig:
     globals:
         texts: '@AppBundle\Service\TextProcessor'
         supported_locales: "%supported_locales%"
+        card_image_url: "%card_image_url%"
     form_themes:
         - 'bootstrap_3_layout.html.twig'
 

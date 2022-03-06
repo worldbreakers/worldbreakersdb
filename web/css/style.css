@@ -574,3 +574,7 @@ ol.stages {
     display: flex;
     justify-content: space-between;
 }
+
+.card-is-signature {
+    margin-left: 0.25em;
+}

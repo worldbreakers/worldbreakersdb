@@ -33,8 +33,7 @@
         }
         var image_svg = '';
         if($('#nrdb_svg_hex').length) {
-            image_svg = '<div class="card-image card-image-' + card.type_code + '"' + (card.imageUrl ? ' style="background-image:url(/card_image/small/' + card.code+ '.jpg)"' : '')
-                    + '><svg width="103px" height="90px" viewBox="0 0 677 601" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><mask id="mask"><use xlink:href="#rect" style="fill:white" /><use xlink:href="#hex" style="fill:black"/></mask><use xlink:href="#rect" mask="url(#mask)"/><use xlink:href="#hex" style="stroke:black;fill:none;stroke-width:15" /></svg></div>';
+            image_svg = '<div class="card-image card-image-' + card.type_code + '" style="background-image:url(' + NRDB.card_image_url + '/small/' + card.code + '.jpg)"><svg width="103px" height="90px" viewBox="0 0 677 601" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><mask id="mask"><use xlink:href="#rect" style="fill:white" /><use xlink:href="#hex" style="fill:black"/></mask><use xlink:href="#rect" mask="url(#mask)"/><use xlink:href="#hex" style="stroke:black;fill:none;stroke-width:15" /></svg></div>';
         }
 
         $('.qtip').each(function(){
@@ -46,7 +45,9 @@
                     content: {
                         text: image_svg
                                 + '<h4 class="card-title">'
-                                + card.title + '</h4>' + type
+                                + card.title
+                                + (card.signature && card.type_code !== 'identity' ? '<span class="card-is-signature glyphicon glyphicon-star" title="Signature Card"></span>' : '')
+                                + '</h4>' + type
                                 + '<div class="card-text border-' + card.faction_code + '">' + NRDB.format.text(card) + '</div>'
                                 + '<p class="card-faction" style="text-align:right;clear:right">' + card.faction.name + ' &ndash; ' + card.pack.name + (card.pack.cycle.size !== 1 ? ' (' + card.pack.cycle.name + ')' : '') + '</p>'
                     },
