@@ -611,6 +611,8 @@ function update_mwl(event) {
 }
 
 function build_div(record) {
+  var isSignatureCard = !!record.signature;
+  var isOtherSignatureCard = isSignatureCard && Identity && record.signature !== Identity.signature;
   var radios = '';
   for (var i = 0; i <= record.maxqty; i++) {
     if(i && !(i%4)) {
@@ -618,14 +620,15 @@ function build_div(record) {
     }
     radios += '<label class="btn btn-xs btn-default'
         + (i == record.indeck ? ' active' : '')
-        + (recordIsSignatureCard ? ' disabled' : '')
-        + '"><input type="radio" name="qty-' + record.code
+        + (isOtherSignatureCard ? ' disabled' : '')
+        + '"'+ (isOtherSignatureCard ? ' title="Signature cards of other Worldbreakers cannot be added."' : '')
+        + '><input type="radio" name="qty-' + record.code
         + '" value="' + i + '"'
-        + (recordIsSignatureCard ? ' disabled' : '')
+        + (isOtherSignatureCard ? ' disabled' : '')
         + '>' + i + '</label>';
   }
 
-  var title = record.title + (record.signature ? '<span class="card-is-signature glyphicon glyphicon-star" title="Signature Card"></span>' : '');
+  var title = record.title + (isSignatureCard ? '<span class="card-is-signature glyphicon glyphicon-star" title="Signature Card"></span>' : '');
 
   var div = '';
   switch (Number(NRDB.settings.getItem('display-columns'))) {
