@@ -228,9 +228,9 @@ class BuilderController extends Controller
             } elseif (preg_match('/^([^\(]+).*x(\d)/', $line, $matches)) {
                 $quantity = intval($matches[2]);
                 $name = trim($matches[1]);
-            } elseif (empty($identity) && preg_match('/([^\(]+):([^\(]+)/', $line, $matches)) {
+            } elseif (empty($identity) && preg_match('/([^\(]+),([^\(]+)/', $line, $matches)) {
                 $quantity = 1;
-                $name = trim($matches[1] . ":" . $matches[2]);
+                $name = trim($matches[1] . "," . $matches[2]);
                 $identity = $name;
             } else {
                 continue;
