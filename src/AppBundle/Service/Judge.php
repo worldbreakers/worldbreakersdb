@@ -161,6 +161,10 @@ class Judge
                 }
                 $restricted = true;
             }
+
+            if ($card->isSignatureCard() && $card->getSignature() !== $identity->getSignature()) {
+                $problem = 'signature';
+            }
         }
 
         $result = [
@@ -191,6 +195,9 @@ class Judge
                 break;
             case 'copies':
                 return "The deck has too many copies of a card.";
+                break;
+            case 'signature':
+                return "The deck contains signature cards not belonging to the this deck's Worldbreaker.";
                 break;
         }
 
