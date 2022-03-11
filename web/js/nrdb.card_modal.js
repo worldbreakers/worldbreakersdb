@@ -24,7 +24,7 @@
     modal.data('index', code);
     modal.find('.card-modal-link').attr('href', Routing.generate('cards_zoom',{card_code:card.code}));
     modal.find('h3.modal-title').html(card.title + (card.signature && card.type_code !== 'identity' ? '<span class="card-is-signature glyphicon glyphicon-star" title="Signature Card"></span>' : ''));
-    modal.find('.modal-image').html('<img class="img-responsive" src="'+card.imageUrl+'" alt="'+card.title+'">');
+    modal.find('.modal-image').html('<img class="img-responsive" src="'+card.images.large[0]+'" alt="'+card.title+'">');
 
     var modalText = NRDB.format.text(card);
     if (card.type_code === 'location') {

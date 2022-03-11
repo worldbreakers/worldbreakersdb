@@ -13,6 +13,9 @@
         <div class="card-image">
             {% if card.imageUrl %}
                 <img data-src="{{ card_image_url }}{{ card.large_image_paths[0] }}" alt="{{ card.title }}" class="img-responsive lazyload" style="margin:auto">
+                {% if card.large_image_paths[1] %}
+                    <img data-src="{{ card_image_url }}{{ card.large_image_paths[1] }}" alt="{{ card.title }}" class="img-responsive lazyload card-back" style="margin:auto">
+                {% endif %}
             {% else %}
             <div class="no-image" style="margin:auto"><div class="no-image-text">No image</div></div>
             {% endif %}
