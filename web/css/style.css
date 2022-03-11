@@ -555,10 +555,6 @@ ul.rulings-list blockquote {
     vertical-align: text-bottom;
 }
 
-.border-moon {
-    border-color: darkblue;
-}
-
 ol.stages {
     list-style-type: upper-roman;
 }
@@ -577,4 +573,32 @@ ol.stages {
 
 .card-is-signature {
     margin-left: 0.25em;
+}
+
+/*** guild specifics ***/
+
+.border-earth {
+    border-color: #c98161;
+}
+.border-moon {
+    border-color: #476a89;
+}
+.border-stars {
+    border-color: #aba58b;
+}
+.border-void {
+    border-color: #48375b;
+}
+
+.background-earth {
+    background-color: #ffece6;
+}
+.background-moon {
+    background-color: #ecf0fc;
+}
+.background-stars {
+    background-color: #fff3e6;
+}
+.background-void {
+    background-color: #f3eafc;
 }
