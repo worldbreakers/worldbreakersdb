@@ -3,7 +3,7 @@
 
   deck_gallery.update = function() {
 
-    images = [ Identity.imageUrl ];
+    images = [ Identity.images.large[0] ];
     qtys = [ 1 ];
     NRDB.data.cards.find({
       indeck : {
@@ -18,7 +18,7 @@
         title: 1
       }
     }).forEach(function(card) {
-      images.push(card.imageUrl);
+      images.push(card.images.large[0]);
       qtys.push(card.indeck);
     });
     for (var i = 0; i < images.length; i++) {

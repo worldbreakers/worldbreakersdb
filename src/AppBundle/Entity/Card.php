@@ -789,35 +789,49 @@ class Card implements NormalizableInterface, TimestampableInterface
     }
 
     /**
-     * @return string
+     * @return string[]
      */
-    public function getTinyImagePath()
+    public function getTinyImagePaths()
     {
-      return '/tiny/' . $this->code . '.jpg';
+        return $this->getImagePaths('tiny');
     }
 
     /**
-     * @return string
+     * @return string[]
      */
-    public function getSmallImagePath()
+    public function getSmallImagePaths()
     {
-      return '/small/' . $this->code . '.jpg';
+        return $this->getImagePaths('small');
     }
 
     /**
-     * @return string
+     * @return string[]
      */
-    public function getMediumImagePath()
+    public function getMediumImagePaths()
     {
-      return '/medium/' . $this->code . '.jpg';
+        return $this->getImagePaths('medium');
     }
 
     /**
-     * @return string
+     * @return string[]
      */
-    public function getLargeImagePath()
+    public function getLargeImagePaths()
     {
-      return '/large/' . $this->code . '.jpg';
+        return $this->getImagePaths('large');
+    }
+
+    private function getImagePaths($size)
+    {
+        if ($this->isIdentity()) {
+            return [ $this->getImagePath($size, '_front'), $this->getImagePath($size, '_back') ];
+        }
+
+        return [ $this->getImagePath($size, ''), null ];
+    }
+
+    private function getImagePath($size, $side)
+    {
+        return '/' . $size . '/' . $this->code . $side . '.jpg';
     }
 
     /**

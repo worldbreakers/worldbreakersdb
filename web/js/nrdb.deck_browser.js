@@ -43,7 +43,7 @@
 
   deck_browser.update = function() {
 
-    images = [ Identity.imageUrl ];
+    images = [ Identity.images.large[0] ];
     NRDB.data.cards.find({
       indeck : {
         '$gt' : 0
@@ -58,7 +58,7 @@
       }
     }).forEach(function(card) {
       for (var i = 0; i < card.indeck; i++) {
-        images.push(card.imageUrl);
+        images.push(card.images.large[0]);
       }
     });
     for (var i = 0; i < images.length; i++) {

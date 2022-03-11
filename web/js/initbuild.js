@@ -3,7 +3,7 @@ $(function() {
     $('.list-group').on('mouseenter touchstart', 'a', function(event) {
         let card_code = $(this).data('code');
         let card = NRDB.data.cards.findById(card_code);
-        $('#cardimg').prop('src', card.imageUrl)
+        $('#cardimg').prop('src', card.images.large[0])
                      .attr('data-code', card_code)
                      .show();
     });

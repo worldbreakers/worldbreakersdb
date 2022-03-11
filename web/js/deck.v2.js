@@ -653,7 +653,7 @@ function build_div(record) {
         + record.code
         + '">'
         + '<div class="media"><div class="media-left">'
-        + '<img class="media-object" src="'+record.imageUrl+'" alt="'+record.title+'">'
+        + '<img class="media-object" src="'+record.images.small[0]+'" alt="'+record.title+'">'
         + '</div><div class="media-body">'
         + '    <h4 class="media-heading"><a class="card" href="'
         + Routing.generate('cards_zoom', {card_code:record.code})
@@ -669,7 +669,7 @@ function build_div(record) {
         + record.code
         + '">'
         + '<div class="media"><div class="media-left">'
-        + '<img class="media-object" src="'+record.imageUrl+'" alt="'+record.title+'">'
+        + '<img class="media-object" src="'+record.images.small[0]+'" alt="'+record.title+'">'
         + '</div><div class="media-body">'
         + '    <h5 class="media-heading"><a class="card" href="'
         + Routing.generate('cards_zoom', {card_code:record.code})

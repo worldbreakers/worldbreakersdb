@@ -624,10 +624,10 @@ class CardsData
             "cycle_name"        => $card->getPack()->getCycle()->getName(),
             "cycle_code"        => $card->getPack()->getCycle()->getCode(),
             "imageUrl"          => $card->getImageUrl(),
-            "tiny_image_path"   => $card->getTinyImagePath(),
-            "small_image_path"  => $card->getSmallImagePath(),
-            "medium_image_path" => $card->getMediumImagePath(),
-            "large_image_path"  => $card->getLargeImagePath(),
+            "tiny_image_pats"   => $card->getTinyImagePaths(),
+            "small_image_paths"  => $card->getSmallImagePaths(),
+            "medium_image_paths" => $card->getMediumImagePaths(),
+            "large_image_paths"  => $card->getLargeImagePaths(),
         ];
 
         // setting the card cost to X if the cost is null and the card is not of a costless type

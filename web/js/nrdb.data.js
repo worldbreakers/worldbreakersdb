@@ -90,12 +90,6 @@
                                 var lastLocale = master.metaData().locale;
                                 var isCollectionUpdated = false;
 
-                                if (dbName === 'cards') {
-                                    response.data.forEach(function (card) {
-                                        card.imageUrl = card.image_url || response.imageUrlTemplate.replace(/{code}/, card.code);
-                                    });
-                                }
-
                                 /*
                                  * if we decided to force the update,
                                  * or if the database is fresh,
@@ -179,11 +173,38 @@
             });
         });
 
+        var imageUrlTemplate = NRDB.card_image_url + '/{size}/{code}{side}.jpg';
+        var image = function (card, size, side) {
+            return imageUrlTemplate
+                .replace(/{size}/, size)
+                .replace(/{code}/, card.code)
+                .replace(/{side}/, side);
+        };
+        var images = function (card, size) {
+            if (card.type_code === 'identity') {
+                return [
+                    image(card, size, '_front'),
+                    image(card, size, '_back'),
+                ];
+            }
+
+            return [
+                image(card, size, ''),
+                null,
+            ];
+        }
+
         _.each(data.cards.find(), function (card) {
             data.cards.updateById(card.code, {
                 faction: data.masters.factions.findById(card.faction_code),
                 type: data.types.findById(card.type_code),
-                pack: data.packs.findById(card.pack_code)
+                pack: data.packs.findById(card.pack_code),
+                images: {
+                    large: images(card, 'large'),
+                    medium: images(card, 'medium'),
+                    small: images(card, 'small'),
+                    tiny: images(card, 'tiny'),
+                }
             });
         });
 
