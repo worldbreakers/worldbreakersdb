@@ -287,6 +287,7 @@ $(function () {
     $(document).on('click', '#social-icon-favorite', send_favorite);
     $(document).on('click', '#btn-download-text', do_action_decklist);
     $(document).on('click', '#btn-download-octgn', do_action_decklist);
+    $(document).on('click', '#btn-download-tts', download_tts);
     $(document).on('click', '#btn-export-bbcode', export_bbcode);
     $(document).on('click', '#btn-export-markdown', export_markdown);
     $(document).on('click', '#btn-export-plaintext', export_plaintext);

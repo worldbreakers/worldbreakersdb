@@ -31,6 +31,7 @@ function do_action_deck(event) {
     case 'btn-delete': confirm_delete(); break;
     case 'btn-download-text': location.href=Routing.generate('deck_export_text', {deck_uuid:SelectedDeck.uuid}); break;
     case 'btn-download-octgn': location.href=Routing.generate('deck_export_octgn', {deck_uuid:SelectedDeck.uuid}); break;
+    case 'btn-download-tts': download_tts(); break;
     case 'btn-print': window.print(); break;
     case 'btn-sort-type': DisplaySort = 'type'; DisplaySortSecondary = null; switch_to_web_view(); break;
     case 'btn-sort-number': DisplaySort = 'number'; DisplaySortSecondary = null; switch_to_web_view(); break;

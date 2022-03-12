@@ -84,17 +84,21 @@ function process_deck_by_type() {
     }
 
     NRDB.data.cards.find({ indeck: { '$gt': 0 }, type_code: { '$ne': 'identity' } }, {
+        indeck: 1,
         type: 1,
         title: 1,
+        faction: 1,
     }).forEach(function (card) {
-        var type = card.type_code, keywords = card.keywords ? card.keywords.toLowerCase().split(" - ") : [];
+        var type = card.type.code;
         var faction_code = '';
-        if (card.faction_code != Identity.faction_code) {
-            faction_code = card.faction_code;
+
+        if (card.faction.code != Identity.faction_code) {
+            faction_code = card.faction.code;
         }
 
-        if (bytype[type] == null)
+        if (bytype[type] == null) {
             bytype[type] = [];
+        }
         bytype[type].push({
             card: card,
             qty: card.indeck,
@@ -594,6 +598,70 @@ function export_plaintext() {
     $('#exportModal').modal('show');
 }
 
+function build_tts(deck) {
+    var deck = process_deck_by_type(deck || SelectedDeck);
+    delete deck.identity;
+    var lines = []
+    lines = lines.concat.apply(lines, Object.values(deck)).map(function (item) {
+        return item.card.code;
+    });
+    lines.sort();
+
+    var $canvas = $('<canvas></canvas>').appendTo(document.body);
+    $canvas.attr({ width: 10 * 300, height: 3 * 419 })//.css({ display: 'none' });
+    var canvas = $canvas.get(0);
+    var ctx = canvas.getContext('2d');
+
+    var imagesReady = lines.length;
+    var decImages = function () {
+        imagesReady--;
+    }
+
+    var images = lines.map(function (code, index) {
+        return new Promise(function (resolve, reject) {
+            var img = new Image();
+            img.crossOrigin = "Anonymous";
+            img.onload = function () {
+                ctx.drawImage(img, 300 * (index % 10), 419 * Math.floor(index / 10));
+                resolve(img);
+            };
+            img.src = NRDB.card_image_url + '/large/' + code + '.jpg';
+        });
+    });
+
+    return Promise.all(images)
+        .then(function (images) {
+
+            var link = document.createElement("a");
+            link.innerText = "Download deck";
+            link.download = "deck.jpeg";
+
+            return new Promise(function (resolve) {
+                canvas.toBlob(function (blob) {
+                    link.href = URL.createObjectURL(blob);
+                    resolve(link);
+                }, 'image/png');
+            });
+        });
+}
+
+function download_tts(deck) {
+    var content = $('#export-deck').parent().html();
+
+    // show loading message
+    var $modalBody = $('#export-deck').parent();
+    $modalBody.html("<p>Loading …</p>");
+    $('#exportModal').modal('show');
+
+    build_tts(deck).then((link) => {
+        $modalBody.html(link);
+        $(link).on("click", function () {
+            $('#exportModal').modal('hide');
+            $modalBody.html(content);
+        });
+    });
+}
+
 function make_cost_graph() {
     var costs = [];
 
@@ -660,111 +728,6 @@ function make_cost_graph() {
     });
 
 }
-
-//binomial coefficient module, shamelessly ripped from https://github.com/pboyer/binomial.js
-var binomial = {};
-(function (binomial) {
-    var memo = [];
-    binomial.get = function (n, k) {
-        if (k === 0) {
-            return 1;
-        }
-        if (n === 0 || k > n) {
-            return 0;
-        }
-        if (k > n - k) {
-            k = n - k;
-        }
-        if (memo_exists(n, k)) {
-            return get_memo(n, k);
-        }
-        var r = 1,
-            n_o = n;
-        for (var d = 1; d <= k; d++) {
-            if (memo_exists(n_o, d)) {
-                n--;
-                r = get_memo(n_o, d);
-                continue;
-            }
-            r *= n--;
-            r /= d;
-            memoize(n_o, d, r);
-        }
-        return r;
-    };
-
-    function memo_exists(n, k) {
-        return (memo[n] != undefined && memo[n][k] != undefined);
-    }
-
-    function get_memo(n, k) {
-        return memo[n][k];
-    }
-
-    function memoize(n, k, val) {
-        if (memo[n] === undefined) {
-            memo[n] = [];
-        }
-        memo[n][k] = val;
-    }
-})(binomial);
-
-// hypergeometric distribution module, homemade
-var hypergeometric = {};
-(function (hypergeometric) {
-    var memo = [];
-    hypergeometric.get = function (k, N, K, n) {
-        if (!k || !N || !K || !n)
-            return 0;
-        if (memo_exists(k, N, K, n)) {
-            return get_memo(k, N, K, n);
-        }
-        if (memo_exists(n - k, N, N - K, n)) {
-            return get_memo(n - k, N, N - K, n);
-        }
-        if (memo_exists(K - k, N, K, N - n)) {
-            return get_memo(K - k, N, K, N - n);
-        }
-        if (memo_exists(k, N, n, K)) {
-            return get_memo(k, N, n, K);
-        }
-        var d = binomial.get(N, n);
-        if (d === 0)
-            return 0;
-        var r = binomial.get(K, k) * binomial.get(N - K, n - k) / d;
-        memoize(k, N, K, n, r);
-        return r;
-    };
-    hypergeometric.get_cumul = function (k, N, K, n) {
-        var r = 0;
-        for (; k <= n; k++) {
-            r += hypergeometric.get(k, N, K, n);
-        }
-        return r;
-    };
-
-    function memo_exists(k, N, K, n) {
-        return (memo[k] != undefined && memo[k][N] != undefined && memo[k][N][K] != undefined && memo[k][N][K][n] != undefined);
-    }
-
-    function get_memo(k, N, K, n) {
-        return memo[k][N][K][n];
-    }
-
-    function memoize(k, N, K, n, val) {
-        if (memo[k] === undefined) {
-            memo[k] = [];
-        }
-        if (memo[k][N] === undefined) {
-            memo[k][N] = [];
-        }
-        if (memo[k][N][K] === undefined) {
-            memo[k][N][K] = [];
-        }
-        memo[k][N][K][n] = val;
-    }
-})(hypergeometric);
-
 
 /* my version of button.js, overriding twitter's */
 
