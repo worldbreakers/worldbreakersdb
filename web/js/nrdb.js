@@ -465,7 +465,7 @@ function build_bbcode(deck) {
     var lines = [];
     lines.push("[b]" + SelectedDeck.name + "[/b]");
     lines.push("");
-    lines.push('[url=https://netrunnerdb.com/' + NRDB.locale + '/card/'
+    lines.push('[url=' + NRDB.worldbreakersdb_url + '/' + NRDB.locale + '/card/'
         + Identity.code
         + ']'
         + Identity.title
@@ -483,7 +483,7 @@ function build_bbcode(deck) {
                 var qty = $(line).ignore("a, span, small").text().trim().replace(/x.*/, "x");
                 var inf = $(line).find("span").text().trim();
                 var card = NRDB.data.cards.findById($(line).find('a.card').data('index'));
-                lines.push(qty + ' [url=https://netrunnerdb.com/' + NRDB.locale + '/card/'
+                lines.push(qty + ' [url=' NRDB.worldbreakersdb_url + '/' + NRDB.locale + '/card/'
                     + card.code
                     + ']'
                     + card.title
@@ -501,7 +501,7 @@ function build_bbcode(deck) {
     if (typeof Decklist != "undefined" && Decklist != null) {
         lines.push("Decklist [url=" + location.href + "]published on WorldbreakersDB[/url].");
     } else {
-        lines.push("Deck built on [url=https://netrunnerdb.com]WorldbreakersDB[/url].");
+        lines.push("Deck built on [url=" + NRDB.worldbreakersdb_url + "]WorldbreakersDB[/url].");
     }
     return lines;
 }
@@ -518,7 +518,7 @@ function build_markdown(deck) {
     lines.push("");
     lines.push('['
         + Identity.title
-        + '](https://netrunnerdb.com/' + NRDB.locale + '/card/'
+        + '](' + NRDB.worldbreakersdb_url + '/' + NRDB.locale + '/card/'
         + Identity.code
         + ') _('
         + Identity.pack.name
@@ -536,7 +536,7 @@ function build_markdown(deck) {
                 var card = NRDB.data.cards.findById($(line).find('a.card').data('index'));
                 lines.push('* ' + qty + ' ['
                     + card.title
-                    + '](https://netrunnerdb.com/' + NRDB.locale + '/card/'
+                    + '](' + NRDB.worldbreakersdb_url + '/' + NRDB.locale + '/card/'
                     + card.code
                     + ') _('
                     + card.pack.name
@@ -553,7 +553,7 @@ function build_markdown(deck) {
     if (typeof Decklist != "undefined" && Decklist != null) {
         lines.push("Decklist [published on WorldbreakersDB](" + location.href + ").");
     } else {
-        lines.push("Deck built on [WorldbreakersDB](https://netrunnerdb.com).");
+        lines.push("Deck built on [WorldbreakersDB](" + NRDB.worldbreakersdb_url + ").");
     }
     return lines;
 }
@@ -586,9 +586,9 @@ function build_plaintext(deck) {
     lines.push($('#latestpack').text());
     lines.push("");
     if (typeof Decklist != "undefined" && Decklist != null) {
-        lines.push("Decklist published on https://netrunnerdb.com.");
+        lines.push("Decklist published on " + NRDB.worldbreakersdb_url + ".");
     } else {
-        lines.push("Deck built on https://netrunnerdb.com.");
+        lines.push("Deck built on " + NRDB.worldbreakersdb_url + ".");
     }
     return lines;
 }

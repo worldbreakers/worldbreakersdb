@@ -44,5 +44,6 @@ parameters:
     oauth_test_redirect_uri: ~
     images_path: ~
     card_image_url: 'https://netrunnerdb.com/card_image'
+    worldbreakersdb_url: 'https://worldbreakersdb.com'
     slack_webhook_url: ~
     slack_webhook_channel: ~
