@@ -22,7 +22,7 @@ class RedirectAfterLogout implements LogoutSuccessHandlerInterface
             $response = new RedirectResponse($request->query->get('redirect_to'));
         } else {
             $response = new RedirectResponse('/');
-            #$response = new RedirectResponse($this->generateUrl('worldbreakerdb_index'));
+            #$response = new RedirectResponse($this->generateUrl('worldbreakersdb_index'));
         }
         return $response;
     }

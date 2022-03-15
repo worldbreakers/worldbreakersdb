@@ -32,6 +32,6 @@ class SecurityController extends Controller
             'Registration is currently disabled.'
         );
 
-        return $this->redirectToRoute('worldbreakerdb_index');
+        return $this->redirectToRoute('worldbreakersdb_index');
     }
 }

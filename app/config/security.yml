@@ -40,7 +40,7 @@ security:
             pattern: ^/
             form_login:
                 provider: fos_userbundle
-                default_target_path: worldbreakerdb_index
+                default_target_path: worldbreakersdb_index
                 use_referer: true
             anonymous: ~
             logout:

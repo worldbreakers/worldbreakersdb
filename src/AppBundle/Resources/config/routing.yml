@@ -1,4 +1,4 @@
-worldbreakerdb_index:
+worldbreakersdb_index:
     path: /{_locale}
     methods: [GET]
     defaults:
