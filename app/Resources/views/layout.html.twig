@@ -167,13 +167,19 @@
               <li><a href="{{ path('search_syntax') }}">Syntax</a></li>
               <li><a href="{{ path('advanced_search') }}">Advanced</a></li>
               <li id="login">
-                <a href="#" class="dropdown-toggle loginname" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span><b class="caret"></b></a>
+                  <a href="#" class="dropdown-toggle loginname" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span><b class="caret"></b></a>
               </li>
             </ul>
           </div><!--/.navbar-collapse -->
           {% endblock %}
         </div>
       </nav>
+
+      <div class="container">
+          <div class="alert alert-info" role="alert">
+              WorldbreakersDB is in an early state of development. If you encounter any problems, please report it via <a href="https://github.com/worldbreakers/worldbreakersdb/issues" rel="noreferrer noopener">Github</a> or tell us via <a href="https://discord.com/invite/as32bEvqgG" rel="noreferrer noopener">Discord</a>.
+          </div>
+      </div>
 
       <div class="container">
         {% for flashMessage in app.session.flashbag.get('error') %}
