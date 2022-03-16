@@ -607,8 +607,11 @@ function build_tts(deck) {
     });
     lines.sort();
 
+    var CARD_WIDTH = 300;
+    var CARD_HEIGHT = 419;
+
     var $canvas = $('<canvas></canvas>').appendTo(document.body);
-    $canvas.attr({ width: 10 * 300, height: 3 * 419 })//.css({ display: 'none' });
+    $canvas.attr({ width: 10 * CARD_WIDTH, height: 3 * CARD_HEIGHT }).css({ display: 'none' });
     var canvas = $canvas.get(0);
     var ctx = canvas.getContext('2d');
 
