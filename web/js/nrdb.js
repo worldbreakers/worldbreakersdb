@@ -483,7 +483,7 @@ function build_bbcode(deck) {
                 var qty = $(line).ignore("a, span, small").text().trim().replace(/x.*/, "x");
                 var inf = $(line).find("span").text().trim();
                 var card = NRDB.data.cards.findById($(line).find('a.card').data('index'));
-                lines.push(qty + ' [url=' NRDB.worldbreakersdb_url + '/' + NRDB.locale + '/card/'
+                lines.push(qty + ' [url=' + NRDB.worldbreakersdb_url + '/' + NRDB.locale + '/card/'
                     + card.code
                     + ']'
                     + card.title

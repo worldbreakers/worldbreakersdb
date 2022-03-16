@@ -2,9 +2,15 @@
 <html>
   <head>
     <title>{{ pagetitle|default('Deckbuilder') }} &middot; WorldbreakersDB</title>
-    <link rel="icon" sizes="16x16" href="/favicon.png" />
-    <link rel="icon" sizes="196x196" href="/icon.png" />
-    <link rel="apple-touch-icon" sizes="129x129" href="/apple-touch-icon.png" />
+
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+
     {% if app.request.locale != "en" and app.request.attributes.get('_route') != "" %}
     {% set _route_params = app.request.attributes.get('_route_params')|default({}) %}
     {% set _get_params = app.request.query.all()|default({}) %}
@@ -100,8 +106,7 @@
               <span class="icon-bar"></span>
             </button>
             <a class="navbar-brand" href="{{ path('worldbreakersdb_index') }}">
-              <span class="icon icon-link-half-top"></span>
-              <span class="icon icon-link-half-bottom"></span>
+              <img src="/wb.icon.inverse.png" style="display: inline; height: 16px;">
               WorldbreakersDB
             </a>
           </div>
