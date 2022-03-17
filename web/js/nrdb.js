@@ -607,8 +607,8 @@ function build_tts(deck) {
     });
     lines.sort();
 
-    var CARD_WIDTH = 300;
-    var CARD_HEIGHT = 419;
+    var CARD_WIDTH = 744;
+    var CARD_HEIGHT = 1039;
 
     var $canvas = $('<canvas></canvas>').appendTo(document.body);
     $canvas.attr({ width: 10 * CARD_WIDTH, height: 3 * CARD_HEIGHT }).css({ display: 'none' });
@@ -625,7 +625,7 @@ function build_tts(deck) {
             var img = new Image();
             img.crossOrigin = "Anonymous";
             img.onload = function () {
-                ctx.drawImage(img, 300 * (index % 10), 419 * Math.floor(index / 10));
+                ctx.drawImage(img, CARD_WIDTH * (index % 10), CARD_HEIGHT * Math.floor(index / 10));
                 resolve(img);
             };
             img.src = NRDB.card_image_url + '/large/' + code + '.jpg';
