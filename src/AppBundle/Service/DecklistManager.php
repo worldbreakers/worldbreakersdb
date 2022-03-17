@@ -866,7 +866,7 @@ class DecklistManager
         $countDql = "SELECT COUNT(DISTINCT s)"
             . " FROM AppBundle:Decklistslot s"
             . " JOIN AppBundle:Card c WITH s.card=c"
-            . " WHERE s.decklist=?1";
+            . " WHERE s.quantity>1 AND s.decklist=?1";
         $countQuery = $this->entityManager->createQuery($countDql)->setParameter(1, $decklist);
         $count = $countQuery->getSingleResult()[1];
         if ($count) {
