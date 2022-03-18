@@ -300,9 +300,11 @@ function update_deck(options) {
         var standingReq = [];
         if (card.standing !== null) {
             Object.entries(card.standing).forEach(function (standing) {
-                standingReq.push('<span class="decklist-standing-req standing-req-' + standing[0] + '">');
+                standingReq.push('<span class="decklist-standing-req">');
                 for (var j = 0; j < standing[1]; j++) {
-                    standingReq.push('●');
+                    standingReq.push('<svg class="icon-wb icon-' + standing[0] +
+                                     '" aria-hidden="true"><use xlink:href="#icon-' + standing[0] +
+                                     '"></use></svg><span class="icon-fallback">' + standing[0] + '</span>');
                 }
                 standingReq.push('</span>');
             });
