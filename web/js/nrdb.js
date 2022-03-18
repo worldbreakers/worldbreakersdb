@@ -292,7 +292,21 @@ function update_deck(options) {
         }
 
         var cardTitle = card.title + (card.signature && card.type_code !== 'identity' ? '<span class="card-is-signature glyphicon glyphicon-star" title="Signature Card"></span>' : '');
-        var item = $('<div>' + card.indeck + 'x <a href="' + Routing.generate('cards_zoom', { card_code: card.code }) + '" class="card" data-toggle="modal" data-remote="false" data-target="#cardModal" data-index="' + card.code + '">' + cardTitle + '</a>' + get_card_legality_icons(card) + '</div>');
+
+        var standingReq = [];
+        if (card.standing !== null) {
+            Object.entries(card.standing).forEach(function (standing) {
+                standingReq.push('<span class="decklist-standing-req">');
+                for (var j = 0; j < standing[1]; j++) {
+                    standingReq.push('<svg class="icon-wb icon-' + standing[0] +
+                                     '" aria-hidden="true"><use xlink:href="#icon-' + standing[0] +
+                                     '"></use></svg><span class="icon-fallback">' + standing[0] + '</span>');
+                }
+                standingReq.push('</span>');
+            });
+        }
+
+        var item = $('<div>' + card.indeck + 'x <a href="' + Routing.generate('cards_zoom', { card_code: card.code }) + '" class="card" data-toggle="modal" data-remote="false" data-target="#cardModal" data-index="' + card.code + '">' + cardTitle + standingReq.join('') + '</a>' + get_card_legality_icons(card) + '</div>');
         item.appendTo($('#deck-content .deck-' + criteria));
 
         cabinet[criteria] |= 0;

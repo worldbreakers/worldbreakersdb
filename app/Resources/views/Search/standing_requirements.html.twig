@@ -1,6 +1,6 @@
 {% if card.standing is not null %}
     {% for faction_code, standing in card.standing %}
-        {% for j in 0..standing %}
+        {% for j in 1..standing %}
             <svg class="icon-wb icon-{{faction_code}}" aria-hidden="true"><use xlink:href="#icon-{{faction_code}}"></use></svg><span class="icon-fallback">{{faction_code}}</span>
         {% endfor %}
     {% endfor %}

@@ -575,6 +575,13 @@ ol.stages {
     margin-left: 0.25em;
 }
 
+/*** decklists ***/
+.decklist-standing-req {
+    margin-left: 0.5em;
+    font-size: 0.8em;
+    vertical-align: middle;
+}
+
 /*** guild specifics ***/
 
 .border-earth {
