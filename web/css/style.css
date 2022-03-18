@@ -573,18 +573,19 @@ ol.stages {
 
 .card-is-signature {
     margin-left: 0.25em;
-    font-size: 0.7em;
+    font-size: 0.8em;
 }
 
 /*** decklists ***/
 .decklist-standing-req {
     margin-left: 0.5em;
-    font-size: 0.8em;
+    font-size: 0.75em;
     white-space: nowrap;
 }
 
 .decklist-standing-req svg {
     margin-left: 1px;
+    vertical-align: -1px;
 }
 
 /*** guild specifics ***/
