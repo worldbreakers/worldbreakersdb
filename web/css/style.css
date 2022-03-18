@@ -573,13 +573,27 @@ ol.stages {
 
 .card-is-signature {
     margin-left: 0.25em;
+    font-size: 0.7em;
 }
 
 /*** decklists ***/
 .decklist-standing-req {
+    font-family: Arial;
+    font-size: 0.9em;
     margin-left: 0.5em;
-    font-size: 0.8em;
-    vertical-align: middle;
+}
+
+.decklist-standing-req.standing-req-earth {
+    color: #c98161;
+}
+.decklist-standing-req.standing-req-moon {
+    color: #476a89;
+}
+.decklist-standing-req.standing-req-stars {
+    color: #aba58b;
+}
+.decklist-standing-req.standing-req-void {
+    color: #48375b;
 }
 
 /*** guild specifics ***/
