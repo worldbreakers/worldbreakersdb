@@ -863,6 +863,8 @@ class DecklistManager
     public function isDecklistLegal(Decklist $decklist)
     {
         // card limits
+        // TODO: This does only work for constructed and 2p draft. In 4p draft
+        // up to 2 copies of a single card will be found in a deck.
         $countDql = "SELECT COUNT(DISTINCT s)"
             . " FROM AppBundle:Decklistslot s"
             . " JOIN AppBundle:Card c WITH s.card=c"
