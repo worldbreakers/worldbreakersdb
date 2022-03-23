@@ -361,7 +361,7 @@ class SocialController extends Controller
                JOIN card c ON c.pack_id=p.id
                JOIN decklistslot s ON s.card_id=c.id
              WHERE s.decklist_id=?
-             ORDER BY y.position ASC, p.position ASC", [$decklist_id])->fetchAll();
+             ORDER BY p.position ASC", [$decklist_id])->fetchAll();
 
         return $this->render('/Decklist/decklist.html.twig', [
             'pagetitle'           => $decklist['name'],

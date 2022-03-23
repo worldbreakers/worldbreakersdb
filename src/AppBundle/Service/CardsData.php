@@ -399,7 +399,7 @@ class CardsData
                 $qb->orderBy('p.name')->addOrderBy('c.position');
                 break;
             case 'release-date':
-                $qb->orderBy('y.position')->addOrderBy('p.position')->addOrderBy('c.position');
+                $qb->orderBy('p.position')->addOrderBy('c.position');
                 break;
             case 'faction':
                 $qb->addOrderBy('c.faction')->addOrderBy('c.type');
