@@ -28,10 +28,6 @@ function getDisplayDescriptions(sort) {
                     label: 'Event',
                     // image: '/images/types/event.png',
                 }, {
-                    id: 'follower',
-                    label: 'Follower',
-                    // image: '/images/types/follower.png',
-                }, {
                     id: 'location',
                     label: 'Location',
                     // image: '/images/types/location.png',
@@ -42,26 +38,38 @@ function getDisplayDescriptions(sort) {
                 },
             ],
             [// second column
+                {
+                    id: 'follower',
+                    label: 'Follower',
+                    // image: '/images/types/follower.png',
+                },
             ],
         ],
         'faction': [
-            [],
-            [{
-                id: 'earth',
-                label: 'Earth Guild',
-            }, {
-                id: 'moon',
-                label: 'Moon Guild',
-            }, {
-                id: 'stars',
-                label: 'Stars Guild',
-            }, {
-                id: 'void',
-                label: 'Void Guild',
-            }, {
-                id: 'neutral',
-                label: 'Neutral',
-            }],
+            [
+                {
+                    id: 'earth',
+                    label: 'Earth Guild',
+                },
+                {
+                    id: 'moon',
+                    label: 'Moon Guild',
+                },
+            ],
+            [
+                {
+                    id: 'stars',
+                    label: 'Stars Guild',
+                },
+                {
+                    id: 'void',
+                    label: 'Void Guild',
+                },
+                {
+                    id: 'neutral',
+                    label: 'Neutral',
+                }
+            ],
         ],
         'number': [],
         'title': [
@@ -175,7 +183,7 @@ function update_deck(options) {
             if (row.image) {
                 $('<img>').addClass(DisplaySort + '-icon').addClass('lazyload').attr('data-src', row.image).attr('alt', row.label).prependTo(item);
             } else if (DisplaySort == "faction") {
-                $('<span class="icon icon-' + row.id + ' ' + row.id + '"></span>').prependTo(item);
+                $('<svg class="icon-wb icon-' + row.id + '" aria-hidden="true"><use xlink:href="#icon-' + row.id + '"></use></svg><span class="icon-fallback">' + row.label + '</span>').prependTo(item);
             }
             var content = $('<div class="deck-' + row.id + '"></div>');
             div.append(item).append(content);
