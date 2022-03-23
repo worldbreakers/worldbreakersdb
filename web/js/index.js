@@ -8,9 +8,6 @@ $(document).on('data.app', function() {
         indeck : parseInt(slot.qty, 10)
       });
     }
-    if(Decklist.mwl_code) {
-        MWL = NRDB.data.mwl.findById(Decklist.mwl_code);
-    }
   }
   update_deck();
 });

@@ -98,11 +98,6 @@ class Deck implements NormalizableInterface, TimestampableInterface
     private $changes;
 
     /**
-     * @var Mwl|null
-     */
-    private $mwl;
-
-    /**
      * Constructor
      */
     public function __construct()
@@ -136,7 +131,6 @@ class Deck implements NormalizableInterface, TimestampableInterface
             'date_update'   => $this->dateUpdate->format('c'),
             'name'          => $this->name,
             'description'   => $this->description,
-            'mwl_code'      => $this->mwl ? $this->mwl->getCode() : null,
             'cards'         => $cards,
             'tags'          => $this->tags,
         ];
@@ -523,24 +517,5 @@ class Deck implements NormalizableInterface, TimestampableInterface
     public function getChanges()
     {
         return $this->changes;
-    }
-
-    /**
-     * @return Mwl|null
-     */
-    public function getMwl()
-    {
-        return $this->mwl;
-    }
-
-    /**
-     * @param Mwl|null $mwl
-     * @return $this
-     */
-    public function setMwl(Mwl $mwl = null)
-    {
-        $this->mwl = $mwl;
-
-        return $this;
     }
 }

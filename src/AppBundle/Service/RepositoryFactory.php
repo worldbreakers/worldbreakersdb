@@ -2,9 +2,7 @@
 
 namespace AppBundle\Service;
 
-use AppBundle\Entity\Cycle;
 use AppBundle\Entity\Pack;
-use AppBundle\Repository\CycleRepository;
 use AppBundle\Repository\PackRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\Common\Persistence\ObjectManager;
@@ -47,20 +45,6 @@ class RepositoryFactory
         $repository = $this->getRepository(Pack::class);
 
         if ($repository instanceof PackRepository) {
-            return $repository;
-        }
-
-        throw new \LogicException('Doctrine manager returned wrong repository.');
-    }
-
-    /**
-     * @return CycleRepository
-     */
-    public function getCycleRepository()
-    {
-        $repository = $this->getRepository(Cycle::class);
-
-        if ($repository instanceof CycleRepository) {
             return $repository;
         }
 

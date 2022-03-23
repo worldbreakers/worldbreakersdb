@@ -8,7 +8,6 @@ use AppBundle\Entity\Deck;
 use AppBundle\Entity\Deckchange;
 use AppBundle\Entity\Decklist;
 use AppBundle\Entity\Deckslot;
-use AppBundle\Entity\Mwl;
 use AppBundle\Entity\Pack;
 use AppBundle\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
@@ -51,22 +50,18 @@ class DeckManager
               DATE_FORMAT(d.date_update, '%Y-%m-%dT%TZ') date_update,
               d.description,
               d.tags,
-              m.code mwl_code,
               (SELECT count(*) FROM deckchange c WHERE c.deck_id=d.id AND c.saved=0) unsaved,
               d.problem,
               c.title identity_title,
               c.code identity_code,
               c.image_url identity_url,
               f.code faction_code,
-              LPAD(y.position * 10 + p.position, 6, '0') lastpack_global_position,
-              p.cycle_id cycle_id,
+              LPAD(p.position, 6, '0') lastpack_global_position,
               p.position pack_number
             FROM deck d
-              LEFT JOIN mwl m ON d.mwl_id=m.id
               LEFT JOIN card c ON d.identity_id=c.id
               LEFT JOIN faction f ON c.faction_id=f.id
               LEFT JOIN pack p ON d.last_pack_id=p.id
-              LEFT JOIN cycle y ON p.cycle_id=y.id
             WHERE d.user_id=?
             ORDER BY date_update DESC",
             [
@@ -171,14 +166,12 @@ class DeckManager
               DATE_FORMAT(d.date_update, '%Y-%m-%dT%TZ') date_update,
               d.description,
               d.tags,
-              m.code mwl_code,
               (SELECT count(*) FROM deckchange c WHERE c.deck_id=d.id AND c.saved=0) unsaved,
               d.problem,
               c.title identity_title,
               c.code identity_code,
               f.code faction_code,
             FROM deck d
-              LEFT JOIN mwl m ON d.mwl_id=m.id
               LEFT JOIN card c ON d.identity_id=c.id
               LEFT JOIN faction f ON c.faction_id=f.id
             WHERE d.id=?",
@@ -251,7 +244,6 @@ class DeckManager
      * @param string      $name
      * @param string      $description
      * @param array       $tags
-     * @param string|null $mwl_code
      * @param array       $content
      * @param Deck|null   $source_deck
      * @return int
@@ -263,7 +255,6 @@ class DeckManager
         string $name,
         string $description,
         array $tags = [],
-        string $mwl_code = null,
         array $content,
         Deck $source_deck = null
     ) {
@@ -273,14 +264,6 @@ class DeckManager
             if ($decklist instanceof Decklist) {
                 $deck->setParent($decklist);
             }
-        }
-        if ($mwl_code) {
-            $mwl = $this->entityManager->getRepository('AppBundle:Mwl')->findOneBy(['code' => $mwl_code]);
-            if ($mwl instanceof Mwl) {
-                $deck->setMwl($mwl);
-            }
-        } else {
-            $deck->setMwl(null);
         }
 
         // Note: We are doing the naive thing and just assuming we won't collide.
@@ -306,9 +289,7 @@ class DeckManager
             $pack = $card->getPack();
             if (!$latestPack instanceof Pack) {
                 $latestPack = $pack;
-            } elseif ($latestPack->getCycle()->getPosition() < $pack->getCycle()->getPosition()) {
-                $latestPack = $pack;
-            } elseif ($latestPack->getCycle()->getPosition() == $pack->getCycle()->getPosition() && $latestPack->getPosition() < $pack->getPosition()) {
+            } elseif ($latestPack->getPosition() < $pack->getPosition()) {
                 $latestPack = $pack;
             }
             if ($card->getType()->getCode() == "identity") {

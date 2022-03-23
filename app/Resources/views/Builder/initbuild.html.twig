@@ -32,18 +32,10 @@
 <div class="col-sm-8">
 <div class="panel panel-default">
   <!-- Default panel contents -->
-  <div class="panel-heading"><b>Choose your identity</b> <span>(🔄  rotated card, 🚫  banned in standard)</span></div>
+  <div class="panel-heading"><b>Choose your identity</b></div>
   <!-- ID filter -->
   <div class="panel-heading">
     <div style="display: flex; flex-wrap: wrap;">
-      <div style="flex-grow: 1;" id="format-options">
-        <div>Format |
-          <a href="#" class="option-format" value="standard">Standard</a> |
-          <a href="#" class="option-format" value="draft">Draft</a> |
-          <a href="#" class="option-format" value="other">Other</a> |
-          <a href="#" class="option-format" value="all">All</a>
-        </div>
-      </div>
       <div style="flex-grow: 1;">
         <select class="form-control" name="faction-filter" id="faction-filter">
           <option value="all">All factions</option>
@@ -62,27 +54,19 @@
   <!-- List group -->
   <div class="list-group">
     {% for identity in identities %}
-    {% set banned = identity.code in banned_cards|keys %}
-    {# Spark Agency's most recent pack was system core 2019, which has rotated
-       Currently IDs are checked for rotation by checking their most recent pack
-       Sparks is hardcoded here to not be rotated
-       TODO - Make the check if ANY packs its in are standard legal #}
-    {% set rotated = identity.pack.cycle.rotated and identity.code != '25105' %}
     <a href="{{ path('deck_initbuild', {card_code:identity.code}) }}"
-       class="identity list-group-item faction-{{ identity.faction.code }} pack-{{ identity.pack.code }} {% if rotated %}rotated{% endif %} {% if banned %}banned{% endif %}"
+       class="identity list-group-item faction-{{ identity.faction.code }} pack-{{ identity.pack.code }}"
        data-code="{{ identity.code }}">
       <span class="icon icon-{{ identity.faction.code }} {{ identity.faction.code }}"></span>
       <span class="name">{{ identity.title(app.request.locale) }}</span>
       <span class="small">({{ identity.pack.name }})</span>
-      {% if rotated %}<span>🔄</span>{% endif %}
-      {% if banned %}<span>🚫</span>{% endif %}
     </a>
     {% endfor %}
   </div>
 </div>
 </div>
 <div id="initIdentity" class="col-sm-4 hidden-xs">
-<img src="#empty" class="img-responsive" id="cardimg" alt="Identity">
+<img src="#empty" class="img-responsive" id="cardimg" alt="Worldbreaker">
 </div>
 
 </div>

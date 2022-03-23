@@ -8,7 +8,6 @@ use AppBundle\Entity\Deck;
 use AppBundle\Entity\Decklist;
 use AppBundle\Entity\Decklistslot;
 use AppBundle\Entity\Deckslot;
-use AppBundle\Entity\Legality;
 use AppBundle\Entity\Tournament;
 use AppBundle\Entity\User;
 use AppBundle\Service\ActivityHelper;
@@ -16,7 +15,6 @@ use AppBundle\Service\CardsData;
 use AppBundle\Service\DecklistManager;
 use AppBundle\Service\Judge;
 use AppBundle\Service\ModerationHelper;
-use AppBundle\Service\RotationService;
 use AppBundle\Service\TextProcessor;
 use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\Uuid;
@@ -99,12 +97,11 @@ class SocialController extends Controller
      * @param DecklistManager        $decklistManager
      * @param Judge                  $judge
      * @param TextProcessor          $textProcessor
-     * @param RotationService        $rotationService
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      *
      * @IsGranted("IS_AUTHENTICATED_REMEMBERED")
      */
-    public function newAction(Request $request, EntityManagerInterface $entityManager, DecklistManager $decklistManager, Judge $judge, TextProcessor $textProcessor, RotationService $rotationService)
+    public function newAction(Request $request, EntityManagerInterface $entityManager, DecklistManager $decklistManager, Judge $judge, TextProcessor $textProcessor)
     {
         /** @var Deck $deck */
         $deck = $entityManager->getRepository('AppBundle:Deck')->findOneBy(['uuid' => $request->request->get('deck_uuid')]);
@@ -154,7 +151,6 @@ class SocialController extends Controller
         $decklist->setModerationStatus(Decklist::MODERATION_PUBLISHED);
         $decklist->setTournament($tournament);
         $decklist->setIsLegal(true);
-        $decklist->setMwl($deck->getMwl());
         foreach ($deck->getSlots() as $slot) {
             $card = $slot->getCard();
             $decklistslot = new Decklistslot();
@@ -169,18 +165,8 @@ class SocialController extends Controller
             $decklist->setPrecedent($deck->getParent());
         }
         $decklist->setParent($deck);
-        $decklist->setRotation($rotationService->findCompatibleRotation($decklist));
 
         $entityManager->persist($decklist);
-
-        $mwls = $entityManager->getRepository('AppBundle:Mwl')->findAll();
-        foreach ($mwls as $mwl) {
-            $legality = new Legality();
-            $legality->setDecklist($decklist);
-            $legality->setMwl($mwl);
-            $judge->computeLegality($legality);
-            $entityManager->persist($legality);
-        }
 
         $entityManager->flush();
         $decklist->setIsLegal($decklistManager->isDecklistLegal($decklist));
@@ -230,8 +216,7 @@ class SocialController extends Controller
                d.nbfavorites,
                d.nbcomments,
                d.moderation_status,
-               d.is_legal,
-               d.rotation_id
+               d.is_legal
              FROM decklist d
                JOIN user u ON d.user_id=u.id
                JOIN card c ON d.identity_id=c.id
@@ -355,30 +340,6 @@ class SocialController extends Controller
              ORDER BY t.description DESC"
         )->fetchAll();
 
-        $legalities = $dbh->executeQuery(
-            "SELECT
-               m.code,
-               m.name,
-               l.is_legal,
-               m.active
-             FROM legality l
-               LEFT JOIN mwl m ON l.mwl_id=m.id
-             WHERE l.decklist_id=?
-             ORDER BY m.date_start DESC",
-            [$decklist_id]
-        )->fetchAll();
-
-        $mwl = $dbh->executeQuery(
-            "SELECT m.code FROM mwl m WHERE m.active=1"
-        )->fetch();
-        if ($mwl) {
-            $mwl = $mwl['code'];
-        }
-
-        $rotation = $decklist['rotation_id']
-            ? $dbh->executeQuery("SELECT r.name FROM rotation r WHERE r.id=?", [$decklist['rotation_id']])->fetch()['name']
-            : null;
-
         $claims = $dbh->executeQuery("SELECT "
             . "c.url, "
             . "c.rank, "
@@ -395,12 +356,8 @@ class SocialController extends Controller
              SELECT DISTINCT
                p.code code,
                p.name name,
-               p.position pack_position,
-               y.code cycle_code,
-               y.name cycle_name,
-               y.position cycle_position
+               p.position pack_position
              FROM pack p
-               JOIN cycle y ON p.cycle_id=y.id
                JOIN card c ON c.pack_id=p.id
                JOIN decklistslot s ON s.card_id=c.id
              WHERE s.decklist_id=?
@@ -414,10 +371,7 @@ class SocialController extends Controller
             'successor_decklists' => $successor_decklists,
             'duplicate'           => $duplicate,
             'tournaments'         => $tournaments,
-            'legalities'          => $legalities,
             'claims'              => $claims,
-            'mwl'                 => $mwl,
-            'rotation'            => $rotation,
             'packs'               => $packs,
         ], $response);
     }
@@ -676,10 +630,6 @@ class SocialController extends Controller
             );
         }
 
-        $mwl = null;
-        if ($decklist->getMWL()) {
-          $mwl = $decklist->getMWL()->getCards();
-        }
         foreach ($types as $type) {
             if (isset($classement[$type]) && $classement[$type]['qty']) {
                 $lines[] = "";
@@ -712,60 +662,6 @@ class SocialController extends Controller
 
         $response->headers->set('Content-Type', 'text/plain');
         $response->headers->set('Content-Disposition', 'attachment;filename=' . $name . ".txt");
-
-        $response->setContent($content);
-
-        return $response;
-    }
-
-    /**
-     * @param Decklist $decklist
-     * @return Response
-     *
-     * @ParamConverter("decklist", class="AppBundle:Decklist", options={"mapping": {"decklist_uuid": "uuid"}})
-     */
-    public function octgnExportAction(Decklist $decklist)
-    {
-        $response = new Response();
-        $response->setPublic();
-        $response->setMaxAge($this->getParameter('long_cache'));
-
-        $rd = [];
-        $identity = null;
-        /** @var Deckslot $slot */
-        foreach ($decklist->getSlots() as $slot) {
-            if ($slot->getCard()
-                     ->getType()
-                     ->getName() == "Identity") {
-                $identity = [
-                    "index" => $slot->getCard()->getCode(),
-                    "name"  => $slot->getCard()->getTitle(),
-                ];
-            } else {
-                $rd[] = [
-                    "index" => $slot->getCard()->getCode(),
-                    "name"  => $slot->getCard()->getTitle(),
-                    "qty"   => $slot->getQuantity(),
-                ];
-            }
-        }
-        $name = mb_strtolower($decklist->getName());
-        $name = preg_replace('/[^a-zA-Z0-9_\-]/', '-', $name);
-        $name = preg_replace('/--+/', '-', $name);
-        if (empty($identity)) {
-            return new Response('no identity found');
-        }
-
-        $filename = "$name.o8d";
-
-        $content = $this->renderView('/octgn.xml.twig', [
-            "identity"    => $identity,
-            "rd"          => $rd,
-            "description" => strip_tags($decklist->getRawdescription()),
-        ]);
-
-        $response->headers->set('Content-Type', 'application/octgn');
-        $response->headers->set('Content-Disposition', 'attachment;filename=' . $filename);
 
         $response->setContent($content);
 

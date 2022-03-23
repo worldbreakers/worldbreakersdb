@@ -15,7 +15,6 @@ Promise.all([NRDB.data.promise, NRDB.ui.promise]).then(function() {
   $('#top_nav_card_search_menu').on('shown.bs.dropdown', function (element) {
     $("#top_nav_card_search").focus();
   });
-
   $('#top_nav_card_search').typeahead({
     hint: true,
     highlight: true,

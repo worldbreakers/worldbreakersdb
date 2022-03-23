@@ -6,8 +6,6 @@ use AppBundle\Behavior\Entity\SlotInterface;
 use AppBundle\Entity\Decklist;
 use AppBundle\Entity\Decklistslot;
 use AppBundle\Entity\Deckslot;
-use AppBundle\Entity\Legality;
-use AppBundle\Entity\Mwl;
 use AppBundle\Entity\Card;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -18,39 +16,9 @@ class Judge
     /** @var EntityManagerInterface $entityManager */
     private $entityManager;
 
-    /** @var array $mwlCards */
-    private $mwlCards;
-
     public function __construct(EntityManagerInterface $entityManager)
     {
         $this->entityManager = $entityManager;
-        $this->mwlCards = [];
-    }
-
-    /**
-     * @param Card $card
-     * @param Mwl $mwl
-     */
-    private function getModifiedCard(Card $card, Mwl $mwl)
-    {
-        if (isset($this->mwlCards[$mwl->getId()]) && isset($this->mwlCards[$mwl->getId()][$card->getCode()])) {
-            return $this->mwlCards[$mwl->getId()][$card->getCode()];
-        }
-
-        $modifiedCard = $card;
-
-        if (array_key_exists($card->getCode(), $mwl->getCards())) {
-            $modificationData = $mwl->getCards()[$card->getCode()];
-            $modifiedCard = clone($card);
-            foreach ($modificationData as $modificationKey => $modificationValue) {
-                $setter = 'set' . $this->getTrainCase($modificationKey);
-                $modifiedCard->$setter($modificationValue);
-            }
-        }
-
-        $this->mwlCards[$mwl->getId()][$card->getCode()] = $modifiedCard;
-
-        return $modifiedCard;
     }
 
     private function getTrainCase(string $string)
@@ -117,7 +85,6 @@ class Judge
     {
         $identity = null;
         $deckSize = 0;
-        $restricted = false;
         $problem = null;
 
         /** @var SlotInterface $slot */
@@ -153,13 +120,6 @@ class Judge
 
             if ($qty > 1) {
                 $problem = 'copies';
-            }
-
-            if ($card->isRestricted()) {
-                if ($restricted) {
-                    $problem = 'restricted';
-                }
-                $restricted = true;
             }
 
             if ($card->isSignatureCard() && $card->getSignature() !== $identity->getSignature()) {
@@ -202,30 +162,5 @@ class Judge
         }
 
         return null;
-    }
-
-    /**
-     * computing whether Legality.decklist is legal under Legality.mwl
-     *
-     * @param Legality $legality
-     * @return bool
-     */
-    public function computeLegality(Legality $legality)
-    {
-        /** @var SlotInterface[] $slots */
-        $slots = [];
-
-        foreach ($legality->getDecklist()->getSlots() as $slot) {
-            $modifiedSlot = new Decklistslot();
-            $modifiedSlot->setQuantity($slot->getQuantity());
-            $modifiedSlot->setCard($this->getModifiedCard($slot->getCard(), $legality->getMwl()));
-            $slots[] = $modifiedSlot;
-        }
-
-        $analyse = $this->analyse($slots);
-
-        $legality->setIsLegal(!isset($analyse['problem']));
-
-        return $legality->getIsLegal();
     }
 }

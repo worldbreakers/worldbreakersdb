@@ -43,7 +43,6 @@ class DecklistManager
                 d.user_id,
                 d.tournament_id,
                 t.description tournament,
-                r.name rotation,
                 u.username,
                 u.faction usercolor,
                 u.reputation,
@@ -60,7 +59,6 @@ class DecklistManager
                 join pack p on d.last_pack_id=p.id
                 join favorite f on f.decklist_id=d.id
                 left join tournament t on d.tournament_id=t.id
-                left join rotation r on d.rotation_id=r.id
                 where f.user_id=?
                 and d.moderation_status in (0,1)
                 order by date_creation desc
@@ -102,7 +100,6 @@ class DecklistManager
                 d.user_id,
                 d.tournament_id,
                 t.description tournament,
-                r.name rotation,
                 u.username,
                 u.faction usercolor,
                 u.reputation,
@@ -118,7 +115,6 @@ class DecklistManager
                 join card c on d.identity_id=c.id
                 join pack p on d.last_pack_id=p.id
                 left join tournament t on d.tournament_id=t.id
-                left join rotation r on d.rotation_id=r.id
                 where d.user_id=?
                 and d.moderation_status in (0,1,2)
                 order by date_creation desc
@@ -155,7 +151,6 @@ class DecklistManager
                 d.user_id,
                 d.tournament_id,
                 t.description tournament,
-                r.name rotation,
                 u.username,
                 u.faction usercolor,
                 u.reputation,
@@ -172,7 +167,6 @@ class DecklistManager
                 join card c on d.identity_id=c.id
                 join pack p on d.last_pack_id=p.id
                 left join tournament t on d.tournament_id=t.id
-                left join rotation r on d.rotation_id=r.id
                 where d.date_creation > DATE_SUB(CURRENT_DATE, INTERVAL 1 MONTH)
                 and d.moderation_status in (0,1)
                 order by 2*nbvotes/(1+nbjours*nbjours) DESC, nbvotes desc, nbcomments desc
@@ -206,7 +200,6 @@ class DecklistManager
               d.user_id,
               d.tournament_id,
               t.description tournament,
-              r.name rotation,
               u.username,
               u.faction usercolor,
               u.reputation,
@@ -222,7 +215,6 @@ class DecklistManager
               join card c on d.identity_id=c.id
               join pack p on d.last_pack_id=p.id
               left join tournament t on d.tournament_id=t.id
-              left join rotation r on d.rotation_id=r.id
             where dotw > 0
             order by dotw desc
             limit $start, $limit"
@@ -255,7 +247,6 @@ class DecklistManager
                 d.user_id,
                 d.tournament_id,
                 t.description tournament,
-                r.name rotation,
                 u.username,
                 u.faction usercolor,
                 u.reputation,
@@ -271,7 +262,6 @@ class DecklistManager
                 join card c on d.identity_id=c.id
                 join pack p on d.last_pack_id=p.id
                 left join tournament t on d.tournament_id=t.id
-                left join rotation r on d.rotation_id=r.id
                 where nbvotes > 10
                 and d.moderation_status in (0,1)
                 order by nbvotes desc, date_creation desc
@@ -305,7 +295,6 @@ class DecklistManager
                 d.user_id,
                 d.tournament_id,
                 t.description tournament,
-                r.name rotation,
                 u.username,
                 u.faction usercolor,
                 u.reputation,
@@ -322,7 +311,6 @@ class DecklistManager
                 join card c on d.identity_id=c.id
                 join pack p on d.last_pack_id=p.id
                 left join tournament t on d.tournament_id=t.id
-                left join rotation r on d.rotation_id=r.id
                 where d.nbcomments > 1
                 and d.moderation_status in (0,1)
                 order by nbrecentcomments desc, date_creation desc
@@ -356,7 +344,6 @@ class DecklistManager
                 d.user_id,
                 d.tournament_id,
                 t.description tournament,
-                r.name rotation,
                 u.username,
                 u.faction usercolor,
                 u.reputation,
@@ -372,7 +359,6 @@ class DecklistManager
                 join card c on d.identity_id=c.id
                 join pack p on d.last_pack_id=p.id
                 left join tournament t on d.tournament_id=t.id
-                left join rotation r on d.rotation_id=r.id
                 where d.tournament_id is not null
                 and d.moderation_status in (0,1)
                 order by date_creation desc
@@ -406,7 +392,6 @@ class DecklistManager
                 d.user_id,
                 d.tournament_id,
                 t.description tournament,
-                r.name rotation,
                 u.username,
                 u.faction usercolor,
                 u.reputation,
@@ -423,7 +408,6 @@ class DecklistManager
                 join pack p on d.last_pack_id=p.id
                 join faction f on d.faction_id=f.id
                 left join tournament t on d.tournament_id=t.id
-                left join rotation r on d.rotation_id=r.id
                 where f.code=?
                 and d.moderation_status in (0,1)
                 order by date_creation desc
@@ -460,7 +444,6 @@ class DecklistManager
                 d.user_id,
                 d.tournament_id,
                 t.description tournament,
-                r.name rotation,
                 u.username,
                 u.faction usercolor,
                 u.reputation,
@@ -476,7 +459,6 @@ class DecklistManager
                 join card c on d.identity_id=c.id
                 join pack p on d.last_pack_id=p.id
                 left join tournament t on d.tournament_id=t.id
-                left join rotation r on d.rotation_id=r.id
                 where p.code=?
                 and d.moderation_status in (0,1)
                 order by date_creation desc
@@ -515,7 +497,6 @@ class DecklistManager
                 d.user_id,
                 d.tournament_id,
                 t.description tournament,
-                r.name rotation,
                 u.username,
                 u.faction usercolor,
                 u.reputation,
@@ -531,7 +512,6 @@ class DecklistManager
                 join card c on d.identity_id=c.id
                 join pack p on d.last_pack_id=p.id
                 left join tournament t on d.tournament_id=t.id
-                left join rotation r on d.rotation_id=r.id
                 where d.date_creation > DATE_SUB(CURRENT_DATE, INTERVAL 1 MONTH)
                 and d.moderation_status in (0,1)
                 $additional_clause
@@ -566,7 +546,6 @@ class DecklistManager
                 d.user_id,
                 d.tournament_id,
                 t.description tournament,
-                r.name rotation,
                 u.username,
                 u.faction usercolor,
                 u.reputation,
@@ -582,7 +561,6 @@ class DecklistManager
                 join card c on d.identity_id=c.id
                 join pack p on d.last_pack_id=p.id
                 left join tournament t on d.tournament_id=t.id
-                left join rotation r on d.rotation_id=r.id
                 where d.moderation_status=2
                 order by date_creation desc
                 limit $start, $limit"
@@ -615,7 +593,6 @@ class DecklistManager
                 d.user_id,
                 d.tournament_id,
                 t.description tournament,
-                r.name rotation,
                 u.username,
                 u.faction usercolor,
                 u.reputation,
@@ -631,7 +608,6 @@ class DecklistManager
                 join card c on d.identity_id=c.id
                 join pack p on d.last_pack_id=p.id
                 left join tournament t on d.tournament_id=t.id
-                left join rotation r on d.rotation_id=r.id
                 where d.moderation_status=1
                 order by date_creation desc
                 limit $start, $limit"
@@ -665,8 +641,6 @@ class DecklistManager
         $decklist_title = filter_var($request->query->get('title'), FILTER_SANITIZE_STRING);
         $sort = $request->query->get('sort');
         $packs = $request->query->get('packs');
-        $mwl_code = $request->query->get('mwl_code');
-        $rotation_id = $request->query->get('rotation_id');
         $is_legal = $request->query->get('is_legal');
         if ($is_legal === null || $is_legal === '') {
             $is_legal = null;
@@ -738,16 +712,6 @@ class DecklistManager
             $params[] = array_unique($packs);
             $types[] = Connection::PARAM_STR_ARRAY;
         }
-        if (!empty($mwl_code)) {
-            $wheres[] = 'exists(select * from legality join mwl on legality.mwl_id=mwl.id where legality.decklist_id=d.id and mwl.code=? and legality.is_legal=1)';
-            $params[] = $mwl_code;
-            $types[] = \PDO::PARAM_STR;
-        }
-        if (!empty($rotation_id)) {
-            $wheres[] = 'd.rotation_id=?';
-            $params[] = $rotation_id;
-            $types[] = \PDO::PARAM_INT;
-        }
         if ($is_legal !== null) {
             $wheres[] = 'd.is_legal = ?';
             $params[] = $is_legal;
@@ -791,7 +755,6 @@ class DecklistManager
                 d.user_id,
                 d.tournament_id,
                 t.description tournament,
-                r.name rotation,
                 $extra_select
                 u.username,
                 u.faction usercolor,
@@ -810,7 +773,6 @@ class DecklistManager
                 join faction f on d.faction_id=f.id
                 $join
                 left join tournament t on d.tournament_id=t.id
-                left join rotation r on d.rotation_id=r.id
                 where $where
                 and d.moderation_status in (0,1)
                 $group_by
@@ -869,33 +831,6 @@ class DecklistManager
             . " FROM AppBundle:Decklistslot s"
             . " JOIN AppBundle:Card c WITH s.card=c"
             . " WHERE s.quantity>1 AND s.decklist=?1";
-        $countQuery = $this->entityManager->createQuery($countDql)->setParameter(1, $decklist);
-        $count = $countQuery->getSingleResult()[1];
-        if ($count) {
-            return false;
-        }
-
-        // card rotation
-        $countDql = "SELECT COUNT(DISTINCT s)"
-            . " FROM AppBundle:Decklistslot s"
-            . " JOIN AppBundle:Card c WITH s.card=c"
-            . " JOIN AppBundle:Pack p WITH c.pack=p"
-            . " JOIN AppBundle:Cycle y WITH p.cycle=y"
-            . " WHERE y.rotated=true"
-            . " AND s.decklist=?1";
-        $countQuery = $this->entityManager->createQuery($countDql)->setParameter(1, $decklist);
-        $count = $countQuery->getSingleResult()[1];
-        if ($count) {
-            return false;
-        }
-
-        // mwl
-        $countDql = "SELECT COUNT(DISTINCT l)"
-            . " FROM AppBundle:Legality l"
-            . " JOIN AppBundle:Mwl m WITH l.mwl=m"
-            . " WHERE m.active=true"
-            . " AND l.isLegal=false"
-            . " AND l.decklist=?1";
         $countQuery = $this->entityManager->createQuery($countDql)->setParameter(1, $decklist);
         $count = $countQuery->getSingleResult()[1];
         if ($count) {

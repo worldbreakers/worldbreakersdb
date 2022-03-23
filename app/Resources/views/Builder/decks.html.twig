@@ -10,7 +10,6 @@ var Identity = null,
   LastClickedDeck = null,
   SelectedDeck = null,
   Decks = {{ decks|json_encode|raw }},
-  MWL = null,
   DisplaySort = 'type',
   DisplaySortSecondary = 'name';
 </script>
@@ -135,10 +134,8 @@ var Identity = null,
 <div id="deck" style="display:none;margin-top:10px">
 
   <!-- Identity and Stats -->
-  <div id="mwl" class="text-warning"></div>
   <div id="cardcount"></div>
   <div id="latestpack"></div>
-  <div id="restricted"></div>
   <div id="limited"></div>
   <!-- Identity and Stats -->
 
@@ -157,7 +154,6 @@ var Identity = null,
   </div>
   <div style="margin-bottom:10px">
     <button type="button" class="btn btn-default btn-xs" id="btn-download-text">Text file</button>
-    <button type="button" class="btn btn-default btn-xs" id="btn-download-octgn">Octgn file</button>
     <button type="button" class="btn btn-default btn-xs" id="btn-download-tts">Tabletop Simulator</button>
     <button type="button" class="btn btn-default btn-xs" id="btn-export-bbcode">bbCode</button>
     <button type="button" class="btn btn-default btn-xs" id="btn-export-markdown">Markdown (Reddit)</button>
@@ -180,7 +176,7 @@ var Identity = null,
       or even <span class="fake-inline-button text-primary"><span class="glyphicon glyphicon-envelope"></span> Email</span> them.</p>
     <p>So what are you waiting for? To create your first deck, you can either <span class="fake-inline-button text-primary"><span class="glyphicon glyphicon-plus"></span> Build</span> one from scratch using the Deckbuilder,
       <span class="fake-inline-button text-primary"><span class="glyphicon glyphicon-import"></span> Import</span> one from the web,
-      or <span class="fake-inline-button text-primary"><span class="glyphicon glyphicon-upload"></span> Upload</span> a deck file in Octgn or simple text format.</p>
+      or <span class="fake-inline-button text-primary"><span class="glyphicon glyphicon-upload"></span> Upload</span> a deck file in a simple text format.</p>
   </div>
 </div>
 <div style="text-align:center">
@@ -210,18 +206,7 @@ var Identity = null,
               </div>
               <div class="form-group">
                 <label for="type">File type</label>
-                <select class="form-control" id="type" name="type"><option value="auto">auto</option><option value="octgn">OCTGN</option><option value="text">Text</option></select>
-              </div>
-              <div class="form-group">
-                <label for="mwl_code">Legality</label>
-                <select class="form-control" name="mwl_code" id="mwl_code">
-                  {% for mwl in list_mwl %}
-                  <option value="{{ mwl.code }}">
-                    {{ mwl.name }}{% if not mwl.active %}{% if mwl.dateStart %} (after {{ mwl.dateStart|date('Y-m-d') }}){% endif %}{% else %} (active){% endif %}
-                  </option>
-                    {% endfor %}
-                    <option value="">Casual Play</option>
-                </select>
+                <select class="form-control" id="type" name="type"><option value="auto">auto</option><option value="text">Text</option></select>
               </div>
               <div class="pull-right">
                 <button type="submit" class="btn btn-success">Upload</button>

@@ -3,8 +3,6 @@
 namespace AppBundle\Controller;
 
 use AppBundle\Entity\Card;
-use AppBundle\Entity\Cycle;
-use AppBundle\Entity\Rotation;
 use AppBundle\Service\CardsData;
 use AppBundle\Service\DecklistManager;
 use AppBundle\Service\DiffService;
@@ -192,10 +190,7 @@ class DecklistsController extends Controller
                 ORDER BY f.name ASC"
         )->fetchAll();
 
-        $cycles_and_packs = $cardsData->getCyclesAndPacks();
-
-        $list_mwl = $entityManager->getRepository('AppBundle:Mwl')->findBy([], ['dateStart' => 'DESC']);
-        $list_rotations = $entityManager->getRepository(Rotation::class)->findBy([], ['dateStart' => 'DESC']);
+        $packs = $cardsData->getPacks();
 
         return $this->render('/Search/search.html.twig', [
             'pagetitle' => 'Decklist Search',
@@ -205,13 +200,9 @@ class DecklistsController extends Controller
             'form'      => $this->renderView(
                 '/Search/form.html.twig',
                 [
-                    'cycles_and_packs' => $cycles_and_packs,
+                    'packs'            => $packs,
                     'author'           => '',
                     'title'            => '',
-                    'list_mwl'         => $list_mwl,
-                    'mwl_code'         => '',
-                    'list_rotations'   => $list_rotations,
-                    'rotation_id'      => '',
                     'is_legal'         => '',
                 ]
             ),
@@ -234,23 +225,14 @@ class DecklistsController extends Controller
         $decklist_title = filter_var($request->query->get('title'), FILTER_SANITIZE_STRING);
         $sort = $request->query->get('sort');
         $packs = $request->query->get('packs');
-        $mwl_code = $request->query->get('mwl_code');
-        $rotation_id = $request->query->get('rotation_id');
         $is_legal = $request->query->get('is_legal');
 
-        $cycles_and_packs = $cardsData->getCyclesAndPacks(is_array($packs) ? $packs : []);
-
-        $list_mwl = $entityManager->getRepository('AppBundle:Mwl')->findBy([], ['dateStart' => 'DESC']);
-        $list_rotations = $entityManager->getRepository(Rotation::class)->findBy([], ['dateStart' => 'DESC']);
+        $packs = $cardsData->getPacks(is_array($packs) ? $packs : []);
 
         $params = [
-            'cycles_and_packs' => $cycles_and_packs,
+            'packs'            => $packs,
             'author'           => $author_name,
             'title'            => $decklist_title,
-            'list_mwl'         => $list_mwl,
-            'mwl_code'         => $mwl_code,
-            'list_rotations'   => $list_rotations,
-            'rotation_id'      => $rotation_id,
             'is_legal'         => $is_legal,
         ];
         $params['sort_' . $sort] = ' selected="selected"';

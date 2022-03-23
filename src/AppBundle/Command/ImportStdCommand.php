@@ -4,11 +4,6 @@ namespace AppBundle\Command;
 
 use AppBundle\Behavior\Entity\NormalizableInterface;
 use AppBundle\Entity\Card;
-use AppBundle\Entity\Cycle;
-use AppBundle\Entity\MwlCard;
-use AppBundle\Entity\Prebuilt;
-use AppBundle\Entity\Prebuiltslot;
-use AppBundle\Entity\Rotation;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
@@ -52,9 +47,9 @@ class ImportStdCommand extends ContainerAwareCommand
 
         $helper = $this->getHelper('question');
 
-        // factions
+        // guilds
 
-        $output->writeln("Importing Factions...");
+        $output->writeln("Importing Guilds...");
         $factionsFileInfo = $this->getFileInfo($path, 'factions.json');
         $imported = $this->importFactionsJsonFile($factionsFileInfo);
         if (!$force && count($imported)) {
@@ -82,21 +77,6 @@ class ImportStdCommand extends ContainerAwareCommand
         $this->loadCollection('Type');
         $output->writeln("Done.");
 
-        // cycles
-
-        $output->writeln("Importing Cycles...");
-        $cyclesFileInfo = $this->getFileInfo($path, 'cycles.json');
-        $imported = $this->importCyclesJsonFile($cyclesFileInfo);
-        if (!$force && count($imported)) {
-            $question = new ConfirmationQuestion("Do you confirm? (Y/n) ", true);
-            if (!$helper->ask($input, $output, $question)) {
-                die();
-            }
-        }
-        $this->entityManager->flush();
-        $this->loadCollection('Cycle');
-        $output->writeln("Done.");
-
         // packs
 
         $output->writeln("Importing Packs...");
@@ -120,49 +100,6 @@ class ImportStdCommand extends ContainerAwareCommand
         foreach ($fileSystemIterator as $fileinfo) {
             $imported = array_merge($imported, $this->importCardsJsonFile($fileinfo));
         }
-        if (!$force && count($imported)) {
-            $question = new ConfirmationQuestion("Do you confirm? (Y/n) ", true);
-            if (!$helper->ask($input, $output, $question)) {
-                die();
-            }
-        }
-        $this->entityManager->flush();
-        $output->writeln("Done.");
-
-        // prebuilt
-
-        $output->writeln("Importing Prebuilts...");
-        $prebuiltFileInfo = $this->getFileInfo($path, 'prebuilts.json');
-        $imported = $this->importPrebuiltJsonFile($prebuiltFileInfo);
-        if (!$force && count($imported)) {
-            $question = new ConfirmationQuestion("Do you confirm? (Y/n) ", true);
-            if (!$helper->ask($input, $output, $question)) {
-                die();
-            }
-        }
-        $this->entityManager->flush();
-        $output->writeln("Done.");
-
-        // mwl
-
-        $output->writeln("Importing MWL...");
-        $mwlFileInfo = $this->getFileInfo($path, 'mwl.json');
-        $imported = $this->importMwlJsonFile($mwlFileInfo);
-        if (!$force && count($imported)) {
-            $question = new ConfirmationQuestion("Do you confirm? (Y/n) ", true);
-            if (!$helper->ask($input, $output, $question)) {
-                die();
-            }
-        }
-        $this->entityManager->flush();
-        $output->writeln("Done.");
-
-        // rotation
-
-        $output->writeln("Importing Rotation...");
-        $rotationFileInfo = $this->getFileInfo($path, 'rotations.json');
-        $imported = $this->importRotationJsonFile($rotationFileInfo);
-        $output->writeln("Imported: " . count($imported));
         if (!$force && count($imported)) {
             $question = new ConfirmationQuestion("Do you confirm? (Y/n) ", true);
             if (!$helper->ask($input, $output, $question)) {
@@ -217,28 +154,6 @@ class ImportStdCommand extends ContainerAwareCommand
         return $result;
     }
 
-    protected function importCyclesJsonFile(\SplFileInfo $fileinfo)
-    {
-        $result = [];
-
-        $cyclesData = $this->getDataFromFile($fileinfo);
-        foreach ($cyclesData as $cycleData) {
-            $cycle = $this->getEntityFromData('AppBundle\Entity\Cycle', $cycleData, [
-                'code',
-                'name',
-                'position',
-                'size',
-                'rotated',
-            ], [], []);
-            if ($cycle) {
-                $result[] = $cycle;
-                $this->entityManager->persist($cycle);
-            }
-        }
-
-        return $result;
-    }
-
     protected function importPacksJsonFile(\SplFileInfo $fileinfo)
     {
         $result = [];
@@ -251,9 +166,7 @@ class ImportStdCommand extends ContainerAwareCommand
                 'position',
                 'size',
                 'date_release',
-                'ffg_id',
             ], [
-                'cycle_code',
             ], []);
             if ($pack) {
                 $result[] = $pack;
@@ -297,130 +210,6 @@ class ImportStdCommand extends ContainerAwareCommand
             if ($card) {
                 $result[] = $card;
                 $this->entityManager->persist($card);
-            }
-        }
-
-        return $result;
-    }
-
-    protected function importPrebuiltJsonFile(\SplFileInfo $fileinfo)
-    {
-        $result = [];
-
-        foreach ($this->getDataFromFile($fileinfo) as $prebuiltData) {
-            $prebuilt = $this->getEntityFromData('AppBundle\Entity\Prebuilt', $prebuiltData, [
-                'code',
-                'name',
-                'date_release',
-                'position',
-            ], [], []);
-            if ($prebuilt instanceof Prebuilt) {
-                $result[] = $prebuilt;
-                $this->entityManager->persist($prebuilt);
-
-                foreach ($prebuiltData['cards'] as $card_code => $quantity) {
-                    $card = $this->entityManager->getRepository('AppBundle:Card')->findOneBy(['code' => $card_code]);
-                    if (!$card instanceof Card) {
-                        continue;
-                    }
-                    $prebuiltslot = new Prebuiltslot();
-                    $prebuiltslot->setCard($card);
-                    $prebuiltslot->setQuantity($quantity);
-                    $prebuiltslot->setPrebuilt($prebuilt);
-                    $this->entityManager->persist($prebuiltslot);
-
-                    if ($card->getType()->getCode() === 'identity') {
-                        $prebuilt->setIdentity($card);
-                        $prebuilt->setFaction($card->getFaction());
-                    }
-                }
-            }
-        }
-
-        return $result;
-    }
-
-    protected function importMwlJsonFile(\SplFileInfo $fileinfo)
-    {
-        $result = [];
-
-        foreach ($this->getDataFromFile($fileinfo) as $mwlData) {
-            $mwl = $this->getEntityFromData('AppBundle\Entity\Mwl', $mwlData, [
-                'code',
-                'name',
-                'date_start',
-                'cards',
-            ], [], []);
-            if ($mwl) {
-                $result[] = $mwl;
-                $this->entityManager->getConnection()->beginTransaction();
-                try {
-                    $this->entityManager->persist($mwl);
-                    $this->output->writeln("Wrote MWL with name <info>" . $mwl->getName() . "</info>");
-                    $q = $this->entityManager->createQuery('delete from AppBundle:MwlCard mc where mc.mwl_id = ?1');
-                    $q->setParameter(1, $mwl->getId());
-                    $q->execute();
-
-                    foreach ($mwlData['cards'] as $card_code => $mwl_entry) {
-                        $card = $this->entityManager->getRepository('AppBundle:Card')->findOneBy(['code' => $card_code]);
-                        if (!$card instanceof Card) {
-                            $this->output->writeln("<error>Couldn't load card with code $card_code</error>");
-                            continue;
-                        }
-                        $mwl_value = '';
-                        $mwl_card = new MwlCard();
-                        $mwl_card->setMwl($mwl);
-                        $mwl_card->setCard($card);
-                        if (array_key_exists('global_penalty', $mwl_entry)) {
-                            $mwl_card->setGlobalPenalty($mwl_entry['global_penalty']);
-                            $mwl_value = 'global penalty: ' . $mwl_entry['global_penalty'];
-                        }
-                        if (array_key_exists('is_restricted', $mwl_entry)) {
-                            $mwl_card->setIsRestricted($mwl_entry['is_restricted']);
-                            $mwl_value = 'is_restricted: true';
-                        }
-                        if (array_key_exists('deck_limit', $mwl_entry)) {
-                            $mwl_card->setIsBanned(true);
-                            $mwl_value = 'is_banned: true';
-                        }
-                        $this->entityManager->persist($mwl_card);
-                        $this->output->writeln("Wrote MWL entry for MWL <info>" . $mwl->getName() . "</info> and card <info>" . $card->getTitle() . " (" . $card->getCode() . ")</info>, mwl value: <info>$mwl_value</info>");
-                    }
-                    $this->entityManager->persist($mwl);
-                    $this->entityManager->flush();
-                    $this->entityManager->getConnection()->commit();
-                } catch (Exception $e) {
-                    $this->entityManager->getConnection()->rollBack();
-                    throw $e;
-                }
-            }
-        }
-
-        return $result;
-    }
-
-    protected function importRotationJsonFile(\SplFileInfo $fileinfo)
-    {
-        $result = [];
-
-        $data = $this->getDataFromFile($fileinfo);
-        foreach ($data as $rotationData) {
-            /** @var Rotation $rotation */
-            $rotation = $this->getEntityFromData('AppBundle\Entity\Rotation', $rotationData, [
-                'code',
-                'name',
-                'date_start',
-            ], [], []);
-            if ($rotation) {
-                $result[] = $rotation;
-                foreach ($rotationData['rotated'] as $cycle_code) {
-                    $cycle = $this->entityManager->getRepository('AppBundle:Cycle')->findOneBy(['code' => $cycle_code]);
-                    if (!$cycle instanceof Cycle) {
-                        continue;
-                    }
-                    $rotation->addCycle($cycle);
-                }
-                $this->entityManager->persist($rotation);
             }
         }
 
@@ -561,34 +350,8 @@ class ImportStdCommand extends ContainerAwareCommand
         }
         $newer = $entity->normalize();
 
-        // special case for Mwl
-        if ($entityName === 'AppBundle\Entity\Mwl') {
-            $newer['cards'] = $data['cards'];
-            unset($newer['active']);
-            unset($orig['active']);
-        }
-
         if (!$this->deepArrayEquality($newer, $orig)) {
             return $entity;
-        }
-
-        // Special handling for rotation.
-        // The code above already catches new rotation entries, but if the only
-        // difference is in the cycles already in the db for an existing entry,
-        // we need to check that manually.  If those are the same, just let the
-        // existing handling do its work.
-        if ($entityName === 'AppBundle\Entity\Rotation') {
-            $json_cycles = $data['rotated'];
-            sort($json_cycles);
-            $db_cycles = array();
-            foreach ($entity->GetRotated() as $c) {
-                array_push($db_cycles, $c->GetCode());
-            }
-            sort($db_cycles);
-            if ($json_cycles != $db_cycles) {
-                $this->output->writeln("Cycles don't match for rotation <info>" . $entity->GetName() . "</info>, so updating it.");
-                return $entity;
-            }
         }
 
         return null;

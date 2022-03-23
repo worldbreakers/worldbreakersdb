@@ -51,11 +51,6 @@
         if(index == card.indeck) $(element).addClass('active');
         else $(element).removeClass('active');
       });
-      if(!is_card_usable(card)) {
-        var slice = 0; // disable all inputs by default
-        if(card.indeck > 0) slice = 1; // enable only first input to allow user to remove invalid agendas if they wish
-        qtyelt.find('label').slice(slice).addClass("disabled").find('input[type=radio]').attr("disabled", true);
-      }
       if(card.code == Identity.code) {
         qtyelt.find('label').addClass("disabled").find('input[type=radio]').attr("disabled", true);
       }

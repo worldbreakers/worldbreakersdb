@@ -43,13 +43,11 @@ class HighlightCommand extends ContainerAwareCommand
                        f.code faction_code,
                        d.nbvotes,
                        d.nbfavorites,
-                       d.nbcomments,
-                       m.code as mwl_code
+                       d.nbcomments
                      FROM decklist d
                        JOIN user u ON d.user_id=u.id
                        JOIN card c ON d.identity_id=c.id
                        JOIN faction f ON d.faction_id=f.id
-                       JOIN mwl m ON d.mwl_id = m.id
                      WHERE d.id=?
                        ",
                     [$decklist_id]
@@ -74,13 +72,11 @@ class HighlightCommand extends ContainerAwareCommand
                        f.code faction_code,
                        d.nbvotes,
                        d.nbfavorites,
-                       d.nbcomments,
-                       m.code as mwl_code
+                       d.nbcomments
                      FROM decklist d
                        JOIN user u ON d.user_id=u.id
                        JOIN card c ON d.identity_id=c.id
                        JOIN faction f ON d.faction_id=f.id
-                       JOIN mwl m ON d.mwl_id = m.id
                      WHERE d.date_creation > date_sub( current_date, INTERVAL 7 DAY )
                        AND u.enabled=1
                        AND d.moderation_status=0

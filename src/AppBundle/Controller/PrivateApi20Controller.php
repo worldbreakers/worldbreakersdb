@@ -10,7 +10,6 @@ use AppBundle\Entity\Decklistslot;
 use AppBundle\Entity\User;
 use AppBundle\Service\DeckManager;
 use AppBundle\Service\Judge;
-use AppBundle\Service\RotationService;
 use AppBundle\Service\TextProcessor;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\FOSRestController;
@@ -252,7 +251,7 @@ class PrivateApi20Controller extends FOSRestController
      *  },
      * )
      */
-    public function publishDeckAction(Request $request, EntityManagerInterface $entityManager, Judge $judge, TextProcessor $textProcessor, RotationService $rotationService)
+    public function publishDeckAction(Request $request, EntityManagerInterface $entityManager, Judge $judge, TextProcessor $textProcessor)
     {
         $user = $this->getUser();
 
@@ -339,7 +338,6 @@ class PrivateApi20Controller extends FOSRestController
             }
         }
         $decklist->setParent($deck);
-        $decklist->setRotation($rotationService->findCompatibleRotation($decklist));
 
         $entityManager->persist($decklist);
         $entityManager->flush();

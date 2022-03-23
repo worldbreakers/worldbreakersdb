@@ -2,12 +2,9 @@
 
   // all the settings, initialized with their default value
   var cache = {
-      'show-disabled': false,
-      'only-deck': false,
       'display-columns': 1,
       'buttons-behavior': 'cumulative',
-      'sort-order': 'type',
-      'check-rotation': true
+      'sort-order': 'type'
   };
 
   settings.load = function load() {

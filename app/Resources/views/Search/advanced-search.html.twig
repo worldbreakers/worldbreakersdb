@@ -96,7 +96,7 @@
                         <div class="col-sm-12">
                             <div class="form-group">
                                 <label>Guild</label>
-                                <select name="f[]" id="faction-select" multiple="multiple" class="hidden">
+                                <select name="g[]" id="faction-select" multiple="multiple" class="hidden">
                                     <option value="earth">Earth Guild</option>
                                     <option value="moon">Moon Guild</option>
                                     <option value="stars">Stars Guild</option>
@@ -129,7 +129,7 @@
                     <div class="row">
                         <div class="col-sm-12">
                             <div class="form-group">
-                                <label for="s">Subtype</label>
+                                <label for="s">Traits</label>
                                 <div>
                                     <select class="form-control" name="s" id="s"><option value="">any</option>{% for keyword in keywords %}<option value="{{ keyword }}">{{ keyword }}</option>{% endfor %}</select>
                                 </div>
@@ -169,35 +169,17 @@
                             </div>
                         </div>
                     </div>
-                </fieldset>
-                <fieldset>
-                    <legend>Card pools &amp; Ban Lists</legend>
                     <div class="row">
-                        <div class="col-sm-6">
+                        <div class="col-sm-12">
                             <div class="form-group">
-                                <label for="z">Rotation</label>
-                                <select class="form-control" name="z">
-                                    <option value=""></option>
-                                    {% set active_found = false %}
-                                    {% set latest_found = false %}
-                                    {% set today = "now"|date("Y-m-d") %}
-                                    {% for rotation in rotations %}
-                                    <option value="{{ rotation.code }}">{{ rotation.name }}{% if (active_found == false) and (today >= rotation.getDateStart|date("Y-m-d")) %} (active){% set active_found = true %}{% endif %}{% if latest_found == false %} (latest){% set latest_found = true %}{% endif %}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-sm-6">
-                            <div class="form-group">
-                                <label for="b">Ban List</label>
-                                <div>
-                                    <select class="form-control" name="b" id="b">
-                                        <option value=""></option>
-                                        {% set latest_found = false %}
-                                        {% for banlist in banlists %}
-                                        <option value="{{ banlist.code }}">{{ banlist.name }}{% if banlist.active %} (active){% endif %}{% if latest_found == false %} (latest){% set latest_found = true %}{% endif %}</option>
-                                        {% endfor %}
-                                    </select>
+                                <label for="h">Health</label>
+                                <div class="row">
+                                    <div class="col-xs-4">
+                                        <select name="ho" id="ho" class="form-control"><option value=":">=</option><option value="<">&lt;</option><option value=">">&gt;</option></select>
+                                    </div>
+                                    <div class="col-xs-8">
+                                        <input id="h" name="h" value="" class="form-control">
+                                    </div>
                                 </div>
                             </div>
                         </div>

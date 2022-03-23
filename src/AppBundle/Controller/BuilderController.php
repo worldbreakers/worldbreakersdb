@@ -7,7 +7,6 @@ use AppBundle\Entity\Deck;
 use AppBundle\Entity\Deckchange;
 use AppBundle\Entity\Decklist;
 use AppBundle\Entity\Deckslot;
-use AppBundle\Entity\Mwl;
 use AppBundle\Entity\User;
 use AppBundle\Service\CardsData;
 use AppBundle\Service\DeckManager;
@@ -53,13 +52,6 @@ class BuilderController extends Controller
         ]);
 
         $identities = $cardsData->select_only_latest_cards($identities);
-        $banned_cards = array();
-        foreach ($identities as $id) {
-            $i = $cardsData->get_mwl_info([$id], true /* active_only */);
-            if (count($i) > 0 && $i[array_keys($i)[0]]['active'] && $i[array_keys($i)[0]]['deck_limit'] === 0) {
-                $banned_cards[$id->getCode()] = true;
-            }
-         }
 
         return $this->render(
 
@@ -67,7 +59,6 @@ class BuilderController extends Controller
             [
                 'pagetitle'  => "New deck",
                 "identities" => $identities,
-                "banned_cards"   => $banned_cards,
                 "factions" => $factions
             ],
 
@@ -112,10 +103,6 @@ class BuilderController extends Controller
             [ $card_code => 1 ]
         );
 
-        $list_mwl = $entityManager->getRepository('AppBundle:Mwl')->findBy([], ['dateStart' => 'DESC']);
-        /** @var Mwl|null $active_mwl */
-        $active_mwl = $entityManager->getRepository('AppBundle:Mwl')->findOneBy(['active' => true]);
-
         return $this->render(
             '/Builder/deck.html.twig',
             [
@@ -129,10 +116,8 @@ class BuilderController extends Controller
                     "uuid"        => "",
                     "history"     => [],
                     "unsaved"     => 0,
-                    "mwl_code"    => $active_mwl ? $active_mwl->getCode() : null,
                 ],
                 "published_decklists" => [],
-                "list_mwl"            => $list_mwl,
             ],
             $response
         );
@@ -150,14 +135,11 @@ class BuilderController extends Controller
         $response->setPublic();
         $response->setMaxAge($this->getParameter('long_cache'));
 
-        $list_mwl = $entityManager->getRepository('AppBundle:Mwl')->findBy([], ['dateStart' => 'DESC']);
-
         return $this->render(
 
             '/Builder/directimport.html.twig',
             [
                 'pagetitle' => "Import a deck",
-                'list_mwl'  => $list_mwl,
             ],
 
             $response
@@ -194,11 +176,7 @@ class BuilderController extends Controller
             }
         }
 
-        if ($filetype == "octgn" || ($filetype == "auto" && $origext == "o8d")) {
-            $parse = $this->parseOctgnImport(file_get_contents($filename), $entityManager);
-        } else {
-            $parse = $this->parseTextImport(file_get_contents($filename), $entityManager);
-        }
+        $parse = $this->parseTextImport(file_get_contents($filename), $entityManager);
 
         return $this->forward(
             'AppBundle:Builder:save',
@@ -250,46 +228,6 @@ class BuilderController extends Controller
     }
 
     /**
-     * @param string                 $octgn
-     * @param EntityManagerInterface $entityManager
-     * @return array
-     */
-    public function parseOctgnImport(string $octgn, EntityManagerInterface $entityManager)
-    {
-        $crawler = new Crawler();
-        $crawler->addXmlContent($octgn);
-        $cardcrawler = $crawler->filter('deck > section > card');
-
-        $content = [];
-        foreach ($cardcrawler as $domElement) {
-            $quantity = intval($domElement->getAttribute('qty'));
-            $matches = [];
-            if (preg_match('/bc0f047c-01b1-427f-a439-d451eda(\d{5})/', $domElement->getAttribute('id'), $matches)) {
-                $card_code = $matches[1];
-            } else {
-                continue;
-            }
-            $card = $entityManager->getRepository('AppBundle:Card')->findOneBy([
-                'code' => $card_code,
-            ]);
-            if ($card instanceof Card) {
-                $content[$card->getCode()] = $quantity;
-            }
-        }
-
-        $desccrawler = $crawler->filter('deck > notes');
-        $description = [];
-        foreach ($desccrawler as $domElement) {
-            $description[] = $domElement->nodeValue;
-        }
-
-        return [
-            "content"     => $content,
-            "description" => implode("\n", $description),
-        ];
-    }
-
-    /**
      * @param Deck $deck
      * @param Judge $judge
      * @param CardsData $cardsData
@@ -334,10 +272,6 @@ class BuilderController extends Controller
             );
         }
 
-        $mwl = null;
-        if ($deck->getMWL()) {
-            $mwl = $deck->getMWL()->getCards();
-        }
         foreach ($types as $type) {
             if (isset($classement[$type]) && $classement[$type]['qty']) {
                 $lines[] = "";
@@ -369,67 +303,6 @@ class BuilderController extends Controller
 
         $response->headers->set('Content-Type', 'text/plain');
         $response->headers->set('Content-Disposition', 'attachment;filename=' . $name . ".txt");
-
-        $response->setContent($content);
-
-        return $response;
-    }
-
-    /**
-     * @param Deck $deck
-     * @return Response
-     *
-     * @IsGranted("IS_AUTHENTICATED_REMEMBERED")
-     *
-     * @ParamConverter("deck", class="AppBundle:Deck", options={"mapping": {"deck_uuid": "uuid"}})
-     */
-    public function octgnExportAction(Deck $deck)
-    {
-        if ($this->getUser()->getId() != $deck->getUser()->getId()) {
-            throw $this->createAccessDeniedException();
-        }
-
-        $rd = [];
-        $identity = null;
-        /** @var Deckslot $slot */
-        foreach ($deck->getSlots() as $slot) {
-            if ($slot->getCard()
-                     ->getType()
-                     ->getName() == "Identity") {
-                $identity = [
-                    "index" => $slot->getCard()->getCode(),
-                    "name"  => $slot->getCard()->getTitle(),
-                ];
-            } else {
-                $rd[] = [
-                    "index" => $slot->getCard()->getCode(),
-                    "name"  => $slot->getCard()->getTitle(),
-                    "qty"   => $slot->getQuantity(),
-                ];
-            }
-        }
-        $name = mb_strtolower($deck->getName());
-        $name = preg_replace('/[^a-zA-Z0-9_\-]/', '-', $name);
-        $name = preg_replace('/--+/', '-', $name);
-        if (empty($identity)) {
-            return new Response('no identity found');
-        }
-
-        $filename = "$name.o8d";
-
-        $content = $this->renderView(
-            '/octgn.xml.twig',
-            [
-                "identity"    => $identity,
-                "rd"          => $rd,
-                "description" => strip_tags($deck->getDescription()),
-            ]
-        );
-
-        $response = new Response();
-
-        $response->headers->set('Content-Type', 'application/octgn');
-        $response->headers->set('Content-Disposition', 'attachment;filename=' . $filename);
 
         $response->setContent($content);
 
@@ -486,10 +359,9 @@ class BuilderController extends Controller
         $decklist_id = intval(filter_var($request->get('decklist_id'), FILTER_SANITIZE_NUMBER_INT));
         $description = trim($request->get('description'));
         $tags = explode(',', filter_var($request->get('tags'), FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES));
-        $mwl_code = $request->get('mwl_code');
 
         if ($deck instanceof Deck) {
-            $deckManager->saveDeck($this->getUser(), $deck, $decklist_id, $name, $description, $tags, $mwl_code, $content, $source_deck ? $source_deck : null);
+            $deckManager->saveDeck($this->getUser(), $deck, $decklist_id, $name, $description, $tags, $content, $source_deck ? $source_deck : null);
         }
 
         return $this->redirect($this->generateUrl('decks_list'));
@@ -573,7 +445,6 @@ class BuilderController extends Controller
               d.id,
               d.uuid,
               d.name,
-              m.code mwl_code,
               DATE_FORMAT(d.date_creation, '%Y-%m-%dT%TZ') date_creation,
               DATE_FORMAT(d.date_update, '%Y-%m-%dT%TZ') date_update,
               d.description,
@@ -581,7 +452,6 @@ class BuilderController extends Controller
               u.id user_id,
               (SELECT count(*) FROM deckchange c WHERE c.deck_id=d.id AND c.saved=0) unsaved
             FROM deck d
-              LEFT JOIN mwl m ON d.mwl_id=m.id
               LEFT JOIN user u ON d.user_id=u.id
             WHERE
               d.uuid = ?", [$deck_uuid])->fetchAll();
@@ -728,8 +598,6 @@ class BuilderController extends Controller
 
         )->fetchAll();
 
-        $list_mwl = $entityManager->getRepository('AppBundle:Mwl')->findBy([], ['dateStart' => 'DESC']);
-
         return $this->render(
             '/Builder/deck.html.twig',
             [
@@ -737,7 +605,6 @@ class BuilderController extends Controller
                 'deck'                => $deck,
                 'published_decklists' => $published_decklists,
                 'parent_decklists'    => $parent_decklists,
-                'list_mwl'            => $list_mwl,
             ]
         );
     }
@@ -764,7 +631,6 @@ class BuilderController extends Controller
               f.code faction_code,
               CASE WHEN u.id=? THEN 1 ELSE 0 END is_owner
             FROM deck d
-              LEFT JOIN mwl m  ON d.mwl_id=m.id
               LEFT JOIN user u ON d.user_id=u.id
               LEFT JOIN card c ON d.identity_id=c.id
               LEFT JOIN faction f ON c.faction_id=f.id
@@ -883,8 +749,6 @@ class BuilderController extends Controller
              ORDER BY t.description DESC"
         )->fetchAll();
 
-        $list_mwl = $entityManager->getRepository('AppBundle:Mwl')->findBy([], ['dateStart' => 'DESC']);
-
         return $this->render(
 
             '/Builder/decks.html.twig',
@@ -896,7 +760,6 @@ class BuilderController extends Controller
                 'nbdecks'         => count($decks),
                 'cannotcreate'    => $user->getMaxNbDecks() <= count($decks),
                 'tournaments'     => $tournaments,
-                'list_mwl'        => $list_mwl,
             ]
 
         );
@@ -916,7 +779,6 @@ class BuilderController extends Controller
         foreach ($decklist->getSlots() as $slot) {
             $content[$slot->getCard()->getCode()] = $slot->getQuantity();
         }
-        $mwl = $decklist->getMwl();
 
         return $this->forward(
             'AppBundle:Builder:save',
@@ -924,7 +786,6 @@ class BuilderController extends Controller
                 'name'        => $decklist->getName(),
                 'content'     => json_encode($content),
                 'decklist_id' => $decklist->getId(),
-                'mwl_code'    => $mwl instanceof Mwl ? $mwl->getCode() : null,
             ]
         );
     }
@@ -949,11 +810,6 @@ class BuilderController extends Controller
         }
         $description = strlen($deck->getDescription()) > 0 ? ("Original deck notes:\n\n" . $deck->getDescription()) : '';
 
-        $mwl = $deck->getMwl();
-        if ($mwl instanceof Mwl) {
-            $mwl = $mwl->getCode();
-        }
-
         return $this->forward(
             'AppBundle:Builder:save',
             [
@@ -961,7 +817,6 @@ class BuilderController extends Controller
                 'content'     => json_encode($content),
                 'description' => $description,
                 'deck_id'     => $deck->getParent() ? $deck->getParent()->getId() : null,
-                'mwl_code'    => $mwl,
                 'tags'        => $deck->getTags(),
             ]
         );

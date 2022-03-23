@@ -3,7 +3,7 @@
 (function (data, $) {
 
     var force_update = false;
-    var dbNames = ['cycles', 'packs', 'cards', 'factions', 'types', 'mwl'];
+    var dbNames = ['packs', 'cards', 'factions', 'types'];
 
     /**
      * Promise interface to forerunnerdb's load method
@@ -159,12 +159,6 @@
 
         _.each(data.types.find(), function (type) {
             data.types.updateById(type.code, {
-            });
-        });
-
-        _.each(data.packs.find(), function (pack) {
-            data.packs.updateById(pack.code, {
-                cycle: data.cycles.findById(pack.cycle_code)
             });
         });
 

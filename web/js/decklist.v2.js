@@ -7,8 +7,6 @@ NRDB.data.promise.then(function () {
         var slot = Decklist.cards[i];
         NRDB.data.cards.updateById(slot.card_code, {indeck: parseInt(slot.qty, 10)});
     }
-    $('.change_mwl').on('click', on_mwl_click);
-    update_mwl(MWL);
     update_deck();
 
     $('a[href="#tools"]').on('shown.bs.tab', function (e) {
@@ -262,9 +260,6 @@ function do_action_decklist(event) {
         case 'btn-download-text':
             location.href = Routing.generate('decklist_text_export', {decklist_uuid: Decklist.uuid});
             break;
-        case 'btn-download-octgn':
-            location.href = Routing.generate('decklist_octgn_export', {decklist_uuid: Decklist.uuid});
-            break;
     }
 }
 
@@ -286,7 +281,6 @@ $(function () {
     $(document).on('click', '#social-icon-like', send_like);
     $(document).on('click', '#social-icon-favorite', send_favorite);
     $(document).on('click', '#btn-download-text', do_action_decklist);
-    $(document).on('click', '#btn-download-octgn', do_action_decklist);
     $(document).on('click', '#btn-download-tts', download_tts);
     $(document).on('click', '#btn-export-bbcode', export_bbcode);
     $(document).on('click', '#btn-export-markdown', export_markdown);
@@ -445,21 +439,6 @@ function send_favorite() {
     });
 
     send_like.call($('#social-icon-like'));
-}
-function on_mwl_click(event) {
-    event.preventDefault();
-    var mwl_code = $(this).data('code');
-    update_mwl(mwl_code);
-    return false;
-
-}
-function update_mwl(mwl_code) {
-    MWL = null;
-    if(mwl_code) {
-        MWL = NRDB.data.mwl.findById(mwl_code);
-    }
-    update_deck();
-    $('a[href="#deck"]').tab('show');
 }
 
 function moderation_absolve(event) {

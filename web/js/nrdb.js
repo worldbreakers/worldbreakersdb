@@ -13,10 +13,10 @@ function debounce(fn, delay) {
     };
 }
 
-// Use the cycle and pack positions to order cards by number properly since the
+// Use the pack positions to order cards by number properly since the
 // pack codes and pack position values aren't enough to sort packs.
-function makeCycleAndPackPosition(pack) {
-  return String(1000 + pack.cycle.position) + String(1000 + pack.position);
+function makePackPosition(pack) {
+  return String(1000 + pack.position);
 }
 
 function getDisplayDescriptions(sort) {
@@ -114,53 +114,8 @@ function process_deck_by_type() {
     return bytype;
 }
 
-function get_mwl_modified_card(card) {
-    if (MWL && MWL.cards[card.code]) {
-        return Object.assign(card, MWL.cards[card.code]);
-    }
-
-    return card;
-}
-
 function find_identity() {
     Identity = NRDB.data.cards.find({ indeck: { '$gt': 0 }, type_code: 'identity' }).pop();
-}
-
-/**
- * Returns a banned, restricted, or rotated icon for the supplied card and selected MWL.
- * @param  card
- * @return string
- */
-function get_card_legality_icons(card) {
-    var mwlCard = get_mwl_modified_card(card);
-
-    var result = [];
-
-    function add_icon(icon, description) {
-        result.push('<span title="' + description + '">' + icon + '</span>');
-    }
-
-    // Check MWL
-    if (mwlCard.is_restricted) {
-        add_icon('🦄', 'Restricted card');
-    } else if (mwlCard.deck_limit == 0) {
-        // Prohibited or banned cards are identified by having a deck_limit of 0.
-        add_icon('🚫', 'Banned card');
-    }
-
-    // Check if set has rotated
-    if (NRDB.settings && NRDB.settings.getItem('check-rotation')) {
-        var rotated_cycles = _.map(NRDB.data.cycles.find( { "rotated": true } ), 'code');
-        var cycle = card.pack.cycle_code;
-        if (rotated_cycles.indexOf(cycle) !== -1) {
-            add_icon('🔄', 'Rotated card');
-        }
-    }
-
-    if (result.length) {
-        return ' <span class="builder-legality-indicators">' + result.join(' ') + '</span> ';
-    }
-    return '';
 }
 
 function update_deck(options) {
@@ -189,7 +144,7 @@ function update_deck(options) {
     if (DisplaySort === 'number' && displayDescription.length === 0) {
         var rows = [];
         NRDB.data.packs.find().forEach(function (pack) {
-            rows.push({ id: makeCycleAndPackPosition(pack), label: pack.name});
+            rows.push({ id: makePackPosition(pack), label: pack.name});
         });
         displayDescription.push(rows);
     }
@@ -230,7 +185,7 @@ function update_deck(options) {
     var cabinet = {};
     var parts = Identity.title.split(/[,:] /);
 
-    $('#identity').html('<a href="' + Routing.generate('cards_zoom', { card_code: Identity.code }) + '" data-target="#cardModal" data-remote="false" class="card" data-toggle="modal" data-index="' + Identity.code + '">' + parts[0] + ' <small>' + parts[1] + '</small></a>' + get_card_legality_icons(Identity));
+    $('#identity').html('<a href="' + Routing.generate('cards_zoom', { card_code: Identity.code }) + '" data-target="#cardModal" data-remote="false" class="card" data-toggle="modal" data-index="' + Identity.code + '">' + parts[0] + ' <small>' + parts[1] + '</small></a>');
     $('#img_identity').prop('src', Identity.images.medium[0]);
 
     check_decksize();
@@ -269,8 +224,7 @@ function update_deck(options) {
         indeck: { '$gt': 0 },
         type_code: { '$ne': 'identity' },
     }, { '$orderBy': orderBy }).forEach(function (card) {
-        if (latestpack.cycle.position < card.pack.cycle.position
-            || (latestpack.cycle.position == card.pack.cycle.position && latestpack.position < card.pack.position)) {
+        if (latestpack.position < card.pack.position) {
             latestpack = card.pack;
         }
 
@@ -281,7 +235,7 @@ function update_deck(options) {
         } else if (DisplaySort === 'faction') {
             criteria = card.faction_code;
         } else if (DisplaySort === 'number') {
-            criteria = makeCycleAndPackPosition(card.pack);
+            criteria = makePackPosition(card.pack);
         } else if (DisplaySort === 'title') {
             criteria = 'cards';
         }
@@ -310,7 +264,7 @@ function update_deck(options) {
             });
         }
 
-        var item = $('<div>' + cardIndeck + '<a href="' + Routing.generate('cards_zoom', { card_code: card.code }) + '" class="card" data-toggle="modal" data-remote="false" data-target="#cardModal" data-index="' + card.code + '">' + cardTitle + standingReq.join('') + '</a>' + get_card_legality_icons(card) + '</div>');
+        var item = $('<div>' + cardIndeck + '<a href="' + Routing.generate('cards_zoom', { card_code: card.code }) + '" class="card" data-toggle="modal" data-remote="false" data-target="#cardModal" data-index="' + card.code + '">' + cardTitle + standingReq.join('') + '</a>' + '</div>');
         item.appendTo($('#deck-content .deck-' + criteria));
 
         cabinet[criteria] |= 0;
@@ -319,13 +273,7 @@ function update_deck(options) {
 
     });
     $('#latestpack').html('Cards up to <i>' + latestpack.name + '</i>');
-    check_restricted();
     check_deck_limit();
-    if (NRDB.settings && NRDB.settings.getItem('check-rotation')) {
-        check_rotation();
-    } else {
-        $('#rotated').hide();
-    }
     if ($('#costChart .highcharts-container').length)
         setTimeout(make_cost_graph, 100);
 }
@@ -348,27 +296,11 @@ function count_card_copies(cards) {
     return count;
 }
 
-function check_restricted() {
-    var nb_restricted = 0;
-    NRDB.data.cards.find({ indeck: { '$gt': 0 } }).forEach(function (card) {
-        var modified_card = get_mwl_modified_card(card);
-        if(modified_card.is_restricted) {
-            nb_restricted++;
-        }
-    });
-
-    if(nb_restricted > 1) {
-        $('#restricted').text('More than 1 restricted card included').show();
-    } else {
-        $('#restricted').text('').hide();
-    }
-}
-
 function check_deck_limit() {
     var nb_violations = 0;
     NRDB.data.cards.find({ indeck: { '$gt': 0 } }).forEach(function (card) {
-        var modified_card = get_mwl_modified_card(card);
-        if(modified_card.deck_limit < card.indeck) {
+        // TODO: hard coded limit
+        if(1 < card.indeck) {
             nb_violations++;
         }
     });
@@ -377,26 +309,6 @@ function check_deck_limit() {
         $('#limited').text('Too many copies of a limited card').show();
     } else {
         $('#limited').text('').hide();
-    }
-}
-
-function check_rotation() {
-    var rotated_cycles = _.map(NRDB.data.cycles.find( { "rotated": true } ), 'code');
-    var used_cycles = _.map(NRDB.data.cards.find({ indeck: { '$gt': 0 } }), 'pack.cycle_code');
-
-    var intersect = rotated_cycles.filter(function(n) {
-        return used_cycles.indexOf(n) !== -1;
-    });
-
-    if (intersect.length > 0) {
-		let num_old_with_new_versions = convert_to_recent(false /* update */);
-		if (num_old_with_new_versions > 0) {
-           $('#rotated').html('Deck contains ' + num_old_with_new_versions + ' rotated cards with new versions - <a href="javascript:convert_to_recent(true /*update*/)" title="Replace ' + num_old_with_new_versions + ' rotated cards with their post-rotation counterparts.">click to update</a>').show();
-		} else {
-           $('#rotated').html('Deck contains rotated cards with no post-rotation versions.').show();
-		}
-    } else {
-        $('#rotated').text('').hide();
     }
 }
 
@@ -427,7 +339,6 @@ function convert_to_recent(update) {
 
     if (update) {
         update_deck();
-        $('#rotated').html("Replaced " + replaced + " card(s) with their post-rotation counterparts.").show();
     } else {
         return replaced;
     }

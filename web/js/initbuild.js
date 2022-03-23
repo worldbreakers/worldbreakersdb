@@ -30,38 +30,6 @@ $(function() {
         }
     });
 
-    // Update the ID list when the format is changed
-    function updateFormat(format) {
-        $('.identity').each(function(id, i) {
-            // All
-            if (format === 'all') {
-                $(this).removeClass('hidden-format');
-                return;
-            }
-            // Other formats
-            let visible = true;
-            // Standard
-            if (format === 'standard') {
-                visible = !($(this).hasClass('banned') || $(this).hasClass('rotated'));
-            }
-            // Draft
-            if ($(this).hasClass('pack-draft')) {
-                visible = format === 'draft';
-            }
-            else if (format === 'draft') {
-                visible = false
-            }
-            if (format === 'other') {
-                visible = false
-            }
-            // Apply effect
-            if (visible)
-                $(this).removeClass('hidden-format');
-            else
-                $(this).addClass('hidden-format');
-        });
-    }
-
     // Update the ID list when any other parameter is changed
     function updateMisc() {
         let faction = $('#faction-filter').val();
@@ -74,13 +42,6 @@ $(function() {
             $(this).removeClass('hidden-misc');
         });
     }
-
-    // Filter on format selected
-    $('.option-format').on('click', function(event) {
-        updateFormat($(this).attr('value'));
-        checkPreview();
-        event.preventDefault();
-    });
 
     // Filter on faction selected
     $('#faction-filter').change(function() {

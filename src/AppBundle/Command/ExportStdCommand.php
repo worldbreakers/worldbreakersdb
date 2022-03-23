@@ -48,7 +48,7 @@ class ExportStdCommand extends ContainerAwareCommand
 
         $output->writeln("Exporting data in <info>$path</info>");
 
-        $things = ['faction', 'type', 'cycle', 'pack'];
+        $things = ['faction', 'type', 'pack'];
 
         foreach ($things as $thing) {
             $filepath = "${path}/${thing}s.json";

@@ -28,7 +28,7 @@
       </td>
       <td data-th="Type" >{{ card.type_name }}</td>
       <td data-th="&hellip;">{% if card.strength is not null %}{{ card.strength }}/{{ card.health }}{% endif %}</td>
-      <td data-th="Set"><span class="icon icon-{{ card.cycle_code }}"></span> {{ card.pack_name }} #{{ card.position }}</td>
+      <td data-th="Set">{{ card.pack_name }} #{{ card.position }}</td>
    </tr>
    {% endfor %}
 </table>

@@ -37,7 +37,7 @@
         + '<li><a href="' + Routing.generate('user_profile', {_locale: NRDB.locale}) + '">Edit account</a></li>'
         + '<li><a href="' + Routing.generate('user_profile_view', {user_id: user.data.id, user_name: user.data.name, _locale: NRDB.locale}) + '">Public profile</a></li>'
         + '<li><a href="' + Routing.generate('activity_feed', {_locale: NRDB.locale}) + '">Activity ' + unchecked_activity_label + '</a></li>'
-        + '<li><a href="' + Routing.generate('fos_user_security_logout') + '">Jack out</a></li>'
+        + '<li><a href="' + Routing.generate('fos_user_security_logout') + '">Log out</a></li>'
         + '</ul>');
     };
 

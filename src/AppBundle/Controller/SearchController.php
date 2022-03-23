@@ -3,14 +3,10 @@
 namespace AppBundle\Controller;
 
 use AppBundle\Entity\Card;
-use AppBundle\Entity\Cycle;
-use AppBundle\Entity\Mwl;
 use AppBundle\Entity\Pack;
-use AppBundle\Entity\Rotation;
 use AppBundle\Entity\Type;
 use AppBundle\Service\CardsData;
 use AppBundle\Service\Illustrators;
-use AppBundle\Service\RotationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -22,10 +18,12 @@ class SearchController extends Controller
         'name'         => 'Name',
         'set'          => 'Set Name',
         'release-date' => 'Release Date',
-        'faction'      => 'Faction',
+        'faction'      => 'Guild',
         'type'         => 'Type',
         'cost'         => 'Cost',
-        'strength'     => 'Strength'
+        'standing'     => 'Standing Requirement',
+        'strength'     => 'Strength',
+        'health'       => 'Health'
     );
 
     const VIEW_OPTIONS = array(
@@ -36,6 +34,24 @@ class SearchController extends Controller
         'rulings' => 'Rulings only',
         'short'   => 'Names only'
     );
+
+    const SEARCH_SHORTCUTS = [
+        // "_", // title or index
+        "a", // flavor
+        "e", // extension (pack)
+        "f", // faction
+        "g", // guild
+        "i", // illustrator
+        "o", // cost
+        "p", // strength
+        "h", // health
+        "r", // release
+        "s", // subtype (trait)
+        "t", // type
+        "x", // text
+        "y", //
+    ];
+
     /**
      * @param EntityManagerInterface $entityManager
      * @param CardsData              $cardsData
@@ -59,17 +75,6 @@ class SearchController extends Controller
             $packs [] = [
                 "name" => $pack->getName(),
                 "code" => $pack->getCode(),
-            ];
-        }
-
-        $list_cycles = $entityManager->getRepository('AppBundle:Cycle')->findBy([], [
-            "position" => "ASC",
-        ]);
-        $cycles = [];
-        foreach ($list_cycles as $cycle) {
-            $cycles [] = [
-                "name" => $cycle->getName(),
-                "code" => $cycle->getCode(),
             ];
         }
 
@@ -103,19 +108,13 @@ class SearchController extends Controller
         }
         ksort($illustrator_map);
 
-        $banlists = $entityManager->getRepository(Mwl::class)->findBy([], ['dateStart' => 'DESC']);
-        $rotations = $entityManager->getRepository(Rotation::class)->findBy([], ['dateStart' => 'DESC']);
-
      return $this->render('/Search/advanced-search.html.twig', [
             "pagetitle"       => "Card Search",
             "pagedescription" => "Find all the cards of the game, easily searchable.",
             "packs"           => $packs,
-            "cycles"          => $cycles,
             "types"           => $types,
             "keywords"        => $keywords,
             "illustrators"    => array_keys($illustrator_map),
-            "rotations"       => $rotations,
-            "banlists"        => $banlists,
             "sort"            => "name",
             "view"            => "list",
             "sort_options"    => self::SORT_OPTIONS,
@@ -135,7 +134,7 @@ class SearchController extends Controller
         if (!$card instanceof Card) {
             throw $this->createNotFoundException();
         }
-        $meta = $card->getTitle() . ", a " . $card->getFaction()->getName() . " " . $card->getType()->getName() . " card for Worldbreakers from the set " . $card->getPack()->getName() . " published by TODO:???.";
+        $meta = $card->getTitle() . ", a " . $card->getFaction()->getName() . " " . $card->getType()->getName() . " card for Worldbreakers from the set " . $card->getPack()->getName();
 
         return $this->forward(
             'AppBundle:Search:display',
@@ -168,8 +167,7 @@ class SearchController extends Controller
             throw $this->createNotFoundException();
         }
         $meta = $pack->getName() . ", a set of cards for Worldbreakers"
-            . ($pack->getDateRelease() ? " published on " . $pack->getDateRelease()->format('Y/m/d') : "")
-            . " by Fantasy Flight Games.";
+            . ($pack->getDateRelease() ? " published on " . $pack->getDateRelease()->format('Y/m/d') : "");
 
         // Find previous and next packs for navigation.
         $em = $entityManager->getRepository('AppBundle:Pack');
@@ -208,39 +206,6 @@ class SearchController extends Controller
     }
 
     /**
-     * @param string                 $cycle_code
-     * @param string                 $view
-     * @param string                 $sort
-     * @param int                    $page
-     * @param Request                $request
-     * @param EntityManagerInterface $entityManager
-     * @return Response
-     */
-    public function cycleAction(string $cycle_code, string $view, string $sort, int $page, Request $request, EntityManagerInterface $entityManager)
-    {
-        $cycle = $entityManager->getRepository('AppBundle:Cycle')->findOneBy(["code" => $cycle_code]);
-        if (!$cycle instanceof Cycle) {
-            throw $this->createNotFoundException();
-        }
-        $meta = $cycle->getName() . ", a cycle of datapack for Worldbreakers published by TODO:???.";
-
-        return $this->forward(
-            'AppBundle:Search:display',
-            [
-                '_route'        => $request->attributes->get('_route'),
-                '_route_params' => $request->attributes->get('_route_params'),
-                'q'             => 'c:' . $cycle->getPosition(),
-                'view'          => $view,
-                'sort'          => $sort,
-                'page'          => $page,
-                'title'         => $cycle->getName(),
-                'meta'          => $meta,
-                'locale'        => $request->getLocale(),
-            ]
-        );
-    }
-
-    /**
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
@@ -256,7 +221,7 @@ class SearchController extends Controller
         if ($request->query->get('q') != "") {
             $params[] = $request->query->get('q');
         }
-        $keys = ["e", "t", "f", "s", "x", "p", "o", "n", "d", "r", "i", "l", "y", "a", "u", "b", "z"];
+        $keys = self::SEARCH_SHORTCUTS;
         foreach ($keys as $key) {
             $val = $request->query->get($key);
             if (isset($val) && $val != "") {
@@ -316,15 +281,6 @@ class SearchController extends Controller
                 $url = $this->generateUrl('cards_list', ['pack_code' => $conditions[0][2], 'view' => $view, 'sort' => $sort, 'page' => $page, '_locale' => $request->getLocale()]);
 
                 return $this->redirect($url);
-            }
-            if ($conditions[0][0] == "c") {
-                $cycle_position = $conditions[0][2];
-                $cycle = $entityManager->getRepository('AppBundle:Cycle')->findOneBy(['position' => $cycle_position]);
-                if ($cycle instanceof Cycle) {
-                    $url = $this->generateUrl('cards_cycle', ['cycle_code' => $cycle->getCode(), 'view' => $view, 'sort' => $sort, 'page' => $page, '_locale' => $request->getLocale()]);
-
-                    return $this->redirect($url);
-                }
             }
         }
 
@@ -420,23 +376,13 @@ class SearchController extends Controller
         $cardsData->validateConditions($conditions);
 
         $card = null;
-        $currentRotationCycles = [];
 
         $rows = $cardsData->get_search_rows($conditions, $sort, $locale);
 
         // If there are no results, and no specific criteria were searched, try again but force acronyms
         if (!$rows && !array_filter($conditions, function($c) {return $c[0] != "_";})) {
-            $capsConditions = array_map(function($c) {return ["_", $c[1], strtoupper($c[2])];}, $conditions);
-            $rows = $cardsData->get_search_rows($capsConditions, $sort, $locale);
-
-            // If there are still no results, try again but with aliases
-            if ($rows) {
-                $conditions = $capsConditions;
-            }
-            else {
-                $cardsData->unaliasCardNames($conditions);
-                $rows = $cardsData->get_search_rows($conditions, $sort, $locale);
-            }
+            $conditions = array_map(function($c) {return ["_", $c[1], strtoupper($c[2])];}, $conditions);
+            $rows = $cardsData->get_search_rows($conditions, $sort, $locale);
         }
 
         // Reconstruct the correct search string for display
@@ -454,12 +400,6 @@ class SearchController extends Controller
                         $pack = $entityManager->getRepository('AppBundle:Pack')->findOneBy(["code" => $conditions[0][2]]);
                         if ($pack instanceof Pack) {
                             $title = $pack->getName();
-                        }
-                    }
-                    if ($conditions[0][0] == "c") {
-                        $cycle = $entityManager->getRepository('AppBundle:Cycle')->findOneBy(["code" => $conditions[0][2]]);
-                        if ($cycle instanceof Cycle) {
-                            $title = $cycle->getName();
                         }
                     }
                 }
@@ -481,6 +421,7 @@ class SearchController extends Controller
             }
 
             // data to pass to the view
+            $now = new \DateTime();
             for ($rowindex = $first; $rowindex < $last && $rowindex < count($rows); $rowindex++) {
                 /** @var Card $card */
                 $card = $rows[$rowindex];
@@ -489,10 +430,8 @@ class SearchController extends Controller
                 if (empty($availability[$pack->getCode()])) {
                     $availability[$pack->getCode()] = false;
                     if (
-                        // Draft and Terminal Directive Campaign
-                        $pack->getCode() != "draft" && $pack->getCode() != "tdc" &&
                         // Cards before release date
-                        $pack->getDateRelease() && $pack->getDateRelease() <= new \DateTime()
+                        $pack->getDateRelease() && $pack->getDateRelease() <= $now
                     ) {
                         $availability[$pack->getCode()] = true;
                     }
@@ -502,42 +441,16 @@ class SearchController extends Controller
                 if ($view == "zoom") {
                     $cardVersions = $versions[$card->getTitle()];
 
-                    $rotationService = new RotationService($entityManager);
-                    $currentRotation = $rotationService->findCurrentRotation();
-                    foreach($currentRotation->getRotated()->toArray() as $cycle) {
-                        $currentRotationCycles[$cycle->getCode()] = true;
-                    }
                     $cardinfo['versions'] = [];
                     $standard_legal = true;
-                    $all_versions_rotated = true;
-
-                    $rotated_count = 0;
 
                     foreach ($cardVersions as $version) {
                         $v = $cardsData->getCardInfo($version, $locale);
                         $cardinfo['versions'][] = $v;
-                        // Draft and terminal directive campaign cards are not legal in standard.
-                        if ($v['cycle_code'] == 'draft' || $v['pack_code'] == 'tdc') {
-                            $standard_legal = false;
-                        }
-                        // Count the card's occurence in the rotated cycle(s)
-                        if (array_key_exists($v['cycle_code'], $currentRotationCycles)) {
-                            ++$rotated_count;
-                        }
                     }
-
-                    // If any version of the card is not in a rotated cycle, the card is considered legal.
-                    $all_versions_rotated = $rotated_count == count($cardinfo['versions']);
 
                     $cardinfo['reviews'] = $cardsData->get_reviews($cardVersions);
                     $cardinfo['rulings'] = $cardsData->get_rulings($cardVersions);
-                    $cardinfo['mwl_info'] = $cardsData->get_mwl_info($cardVersions);
-
-                    if ($standard_legal) {
-                        $cardinfo['standard_legality'] = $all_versions_rotated ? 'rotated' : 'legal';
-                    } else {
-                        $cardinfo['standard_legality'] = 'banned';
-                    }
                 }
                 if ($view == "rulings") {
                     $cardinfo['rulings'] = $cardsData->get_rulings(array($card));
@@ -617,7 +530,6 @@ class SearchController extends Controller
             "pagetitle"       => $title,
             "metadescription" => $meta,
             "locales"         => $locales,
-            "currentRotationCycles" => $currentRotationCycles,
         ], $response);
     }
 

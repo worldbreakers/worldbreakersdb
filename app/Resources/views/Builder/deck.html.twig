@@ -17,8 +17,6 @@ var Filters = {},
   Order = 1,
   Identity = null,
   DeckSize = 0,
-  MWL = null,
-        MWL_global_penalty = false,
   Deck = {{ deck.slots|json_encode|raw }},
   Deck_uuid = {{ deck.uuid|json_encode|raw }},
   History = {{ deck.history|json_encode|raw }},
@@ -49,12 +47,10 @@ var Filters = {},
     <img id="img_identity" src="#empty" alt="Identity" class="img-responsive">
   </div><!-- /.col-sm-3 -->
   <div class="col-sm-9">
-    <h4 id="identity">Identity</h4>
+    <h4 id="identity">Worldbreaker</h4>
     <div id="cardcount"></div>
     <div id="latestpack"></div>
-    <div id="restricted"></div>
     <div id="limited"></div>
-        <div id="rotated"></div>
   </div><!-- /.col-sm-9 -->
 </div><!-- /.row -->
 <!-- Identity and Stats -->
@@ -74,17 +70,6 @@ var Filters = {},
   <div class="form-group">
     <label for="name">Name</label>
     <input type="text" class="form-control decklist-name" name="name" value="{{ deck.name }}">
-  </div>
-  <div class="form-group">
-    <label for="mwl_code">Legality</label>
-    <select class="form-control" name="mwl_code" id="mwl_code">
-      {% for mwl in list_mwl %}
-      <option value="{{ mwl.code }}"{% if mwl.code == deck.mwl_code %} selected="selected"{% endif %}>
-        {{ mwl.name }}{% if not mwl.active %}{% if mwl.dateStart %} (after {{ mwl.dateStart|date('Y-m-d') }}){% endif %}{% else %} (active){% endif %}
-      </option>
-        {% endfor %}
-        <option value=""{% if deck.mwl_code == null %} selected="selected"{% endif %}>Casual Play</option>
-    </select>
   </div>
   <button type="submit" class="btn btn-warning">Save</button>
   <button type="submit" id="btn-save-as-copy" class="btn btn-default">Save as Copy</button>
@@ -234,11 +219,6 @@ var Filters = {},
     </div>
     <!-- tabpanel Settings -->
     <div role="tabpanel" class="tab-pane" id="tab-pane-settings">
-        <fieldset>
-          <div class="checkbox"><label><input type="checkbox" name="show-disabled" data-persistence> Show unusable cards</label></div>
-          <div class="checkbox"><label><input type="checkbox" name="only-deck" data-persistence> Show only used cards</label></div>
-          <div class="checkbox"><label><input type="checkbox" name="check-rotation" data-persistence> Check for Rotation compliance</label></div>
-      </fieldset>
         <fieldset>
           <div class="radio"><label><input type="radio" name="display-columns" value="1" data-persistence> Display on 1 column</label></div>
           <div class="radio"><label><input type="radio" name="display-columns" value="2" data-persistence> Display on 2 columns</label></div>

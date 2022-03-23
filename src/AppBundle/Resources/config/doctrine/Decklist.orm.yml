@@ -4,8 +4,6 @@ AppBundle\Entity\Decklist:
     indexes:
         date_creation_index:
             columns: [ date_creation ]
-        rotation_index:
-            columns: [ rotation_id ]
         moderation_status_index:
             columns: [ moderation_status ]
     manyToOne:
@@ -65,19 +63,6 @@ AppBundle\Entity\Decklist:
             joinColumn:
                 name: modflag_id
                 referencedColumnName: id
-        rotation:
-            targetEntity: Rotation
-            nullable: true
-            inversedBy: decklists
-            joinColumn:
-                name: rotation_id
-                referencedColumnName: id
-        mwl:
-            targetEntity: Mwl
-            nullable: true
-            joinColumn:
-                name: mwl_id
-                referencedColumnName: id
     oneToMany:
         slots:
             targetEntity: Decklistslot
@@ -93,10 +78,6 @@ AppBundle\Entity\Decklist:
         children:
             targetEntity: Deck
             mappedBy: parent
-        legalities:
-            targetEntity: Legality
-            mappedBy: decklist
-            cascade: ["remove"]
         claims:
             targetEntity: Claim
             mappedBy: decklist

@@ -148,11 +148,6 @@ class Card implements NormalizableInterface, TimestampableInterface
     private $globalPenalty;
 
     /**
-     * @var bool
-     */
-    private $isRestricted;
-
-    /**
      * Constructor
      */
     public function __construct()
@@ -765,25 +760,6 @@ class Card implements NormalizableInterface, TimestampableInterface
     public function setGlobalPenalty(int $globalPenalty = null)
     {
         $this->globalPenalty = $globalPenalty;
-
-        return $this;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isRestricted()
-    {
-        return $this->isRestricted;
-    }
-
-    /**
-     * @param bool $isRestricted
-     * @return $this
-     */
-    public function setIsRestricted(bool $isRestricted)
-    {
-        $this->isRestricted = $isRestricted;
 
         return $this;
     }

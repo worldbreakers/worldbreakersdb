@@ -137,14 +137,6 @@ decks_upload_all:
     defaults:
         _controller: AppBundle:Builder:uploadall
 
-deck_export_octgn:
-    path: /deck/export/octgn/{deck_uuid}
-    methods: [GET]
-    defaults:
-        _controller: AppBundle:Builder:octgnExport
-    requirements:
-        deck_uuid: '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
-
 deck_export_text:
     path: /deck/export/text/{deck_uuid}
     methods: [GET]
@@ -161,14 +153,6 @@ deck_copy:
         _locale: en
     requirements:
         _locale: \w\w
-        decklist_uuid: '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
-
-decklist_octgn_export:
-    path: /decklist/export/octgn/{decklist_uuid}
-    methods: [GET]
-    defaults:
-        _controller: AppBundle:Social:octgnExport
-    requirements:
         decklist_uuid: '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
 
 decklist_text_export:
@@ -271,15 +255,6 @@ decklists_diff:
         decklist1_uuid: '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
         decklist2_uuid: '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
 
-prebuilt_view:
-    path: /{_locale}/prebuilt/{prebuilt_code}
-    methods: [GET]
-    defaults:
-        _controller: AppBundle:Prebuilt:view
-        _locale: en
-    requirements:
-        _locale: \w\w
-
 user_profile:
     path: /{_locale}/user/profile
     methods: [GET]
@@ -366,19 +341,6 @@ all_comments:
         page: 1
     requirements:
         _locale: \w\w
-
-tools_demo:
-    path: /tools/demo
-    methods: [GET]
-    defaults:
-        _controller: AppBundle:Tools:demo
-
-demo_ext_decklist:
-    path: /demo/ext-decklist/{id}
-    methods: [GET]
-    defaults:
-        _controller: AppBundle:Tools:extdecklist
-        id: 98
 
 tag_add:
     path: /tag/add
@@ -537,20 +499,6 @@ api_public_packs:
     defaults:
         _controller: AppBundle:PublicApi20:packs
 
-api_public_cycle:
-    path: /api/2.0/public/cycle/{cycle_code}
-    methods: [GET]
-    defaults:
-        _controller: AppBundle:PublicApi20:cycle
-    requirements:
-        cycle_code: "[\\w-]+"
-
-api_public_cycles:
-    path: /api/2.0/public/cycles
-    methods: [GET]
-    defaults:
-        _controller: AppBundle:PublicApi20:cycles
-
 api_public_faction:
     path: /api/2.0/public/faction/{faction_code}
     methods: [GET]
@@ -619,18 +567,6 @@ api_public_deck_by_uuid:
     requirements:
         uuid: '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
 
-api_public_prebuilts:
-    path: /api/2.0/public/prebuilts
-    methods: [GET]
-    defaults:
-        _controller: AppBundle:PublicApi20:prebuilts
-
-api_public_mwl:
-    path: /api/2.0/public/mwl
-    methods: [GET]
-    defaults:
-        _controller: AppBundle:PublicApi20:mwl
-
 api_private_decks:
     path: /api/2.0/private/decks
     methods: [GET]
@@ -697,17 +633,6 @@ cards_zoom:
         _locale: \w\w
         card_code: \d+
 
-cards_cycle:
-    path:  /{_locale}/cycle/{cycle_code}/{view}/{sort}/{page}
-    defaults:
-        _controller: AppBundle:Search:cycle
-        _locale: en
-        view: list
-        sort: faction
-        page: 1
-    requirements:
-        _locale: \w\w
-
 advanced_search:
     path:  /{_locale}/search
     defaults:
@@ -765,23 +690,11 @@ modflags_get:
     defaults:
         _controller: AppBundle:Modflags:get
 
-banlists:
-    path: /{_locale}/banlists
-    methods: [GET]
-    defaults:
-        _controller: AppBundle:Banlists:get
-
 formats:
     path: /{_locale}/formats
     methods: [GET]
     defaults:
         _controller: AppBundle:Formats:get
-
-rotation:
-    path: /{_locale}/rotation
-    methods: [GET]
-    defaults:
-        _controller: AppBundle:Rotation:get
 
 claims:
     resource: "@AppBundle/Controller/ClaimsController.php"

@@ -33,11 +33,12 @@ class LegalityDecklistsLimitCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        // TODO: quantity hard coded to 1
         $sql = "UPDATE decklist d SET d.is_legal=0 WHERE d.is_legal=1"
                 . " AND EXISTS(SELECT *"
                 . " FROM decklistslot s"
                 . " JOIN card c ON c.id=s.card_id"
-                . " WHERE s.quantity>c.deck_limit"
+                . " WHERE s.quantity>1"
                 . " AND d.id=s.decklist_id)";
 
         $this->entityManager->getConnection()->executeQuery($sql);

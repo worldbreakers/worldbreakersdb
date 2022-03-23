@@ -69,12 +69,10 @@
       var NRDB = {
         data_loaded: $.Callbacks(),
         api_url: {
-          cycles: '{{ path('api_public_cycles')|raw }}',
           packs: '{{ path('api_public_packs')|raw }}',
           cards: '{{ path('api_public_cards')|raw }}',
           factions: '{{ path('api_public_factions')|raw }}',
           types: '{{ path('api_public_types')|raw }}',
-          mwl: '{{ path('api_public_mwl')|raw }}'
         },
         locale: '{{ app.request.locale }}',
         card_image_url: '{{ card_image_url }}',

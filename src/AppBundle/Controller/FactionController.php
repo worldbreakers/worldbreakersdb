@@ -27,7 +27,6 @@ class FactionController extends Controller
         $faction_name = $factions[0]->getName();
 
         $result = [];
-        $banned_cards = array();
 
         foreach ($factions as $faction) {
 
@@ -79,11 +78,6 @@ class FactionController extends Controller
 
                 $identity = $cardsData->select_only_latest_cards($identities);
 
-                $i = $cardsData->get_mwl_info([$identity[0]], true /* active_only */);
-                if (count($i) > 0 && $i[array_keys($i)[0]]['active'] && $i[array_keys($i)[0]]['deck_limit'] === 0) {
-                    $banned_cards[$identity[0]->getCode()] = true;
-                }
-
                 $decklists[] = [
                     'identity'  => $identity[0],
                     'points'    => $points,
@@ -105,7 +99,6 @@ class FactionController extends Controller
         return $this->render('/Faction/faction.html.twig', [
             "pagetitle"    => "Faction Page: $faction_name",
             "results"      => $result,
-            "banned_cards" => $banned_cards,
         ], $response);
     }
 }

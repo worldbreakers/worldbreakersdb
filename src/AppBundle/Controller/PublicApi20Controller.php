@@ -246,42 +246,6 @@ class PublicApi20Controller extends FOSRestController
     }
 
     /**
-     * Get a cycle
-     *
-     * @ApiDoc(
-     *  section="Cycle",
-     *  resource=true,
-     *  description="Get one cycle",
-     *  parameters={
-     *  },
-     * )
-     */
-    public function cycleAction(string $cycle_code, Request $request)
-    {
-      return $this->getSingleEntityFromCache("public-api-cycle-" . $cycle_code, function() use ($cycle_code) {
-        return $this->entityManager->getRepository('AppBundle:Cycle')->findOneBy(['code' => $cycle_code]);
-      }, $request);
-    }
-
-    /**
-     * Get all the cycles
-     *
-     * @ApiDoc(
-     *  section="Cycle",
-     *  resource=true,
-     *  description="Get all the cycles",
-     *  parameters={
-     *  },
-     * )
-     */
-    public function cyclesAction(Request $request)
-    {
-      return $this->getFromCache("public-api-cycles", function() {
-        return $this->entityManager->getRepository('AppBundle:Cycle')->findAll();
-      }, $request);
-    }
-
-    /**
      * Get a pack
      *
      * @ApiDoc(
@@ -467,41 +431,5 @@ class PublicApi20Controller extends FOSRestController
         }
 
         return $this->prepareResponse([$deck], $request);
-    }
-
-    /**
-     * Get all prebuilts
-     *
-     * @ApiDoc(
-     *  section="Prebuilt",
-     *  resource=true,
-     *  description="Get all the prebuilts",
-     *  parameters={
-     *  },
-     * )
-     */
-    public function prebuiltsAction(Request $request)
-    {
-      return $this->getFromCache("public-api-prebuilts", function() {
-        return $this->entityManager->getRepository('AppBundle:Prebuilt')->findAll();
-      }, $request);
-    }
-
-    /**
-     * Get all MWL data
-     *
-     * @ApiDoc(
-     *  section="MWL",
-     *  resource=true,
-     *  description="Get all the mwl data",
-     *  parameters={
-     *  },
-     * )
-     */
-    public function mwlAction(Request $request)
-    {
-      return $this->getFromCache("public-api-mwl", function() {
-        return $this->entityManager->getRepository('AppBundle:Mwl')->findAll();
-      }, $request);
     }
 }

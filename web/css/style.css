@@ -137,11 +137,6 @@ tbody .btn-group{white-space:nowrap}
 #collection-grid .col-sm-4 .media-object {height:70px}
 #collection-grid .col-sm-4 .media-heading {line-height:30px;white-space:nowrap}
 
-.builder-legality-indicators {
-  display: inline-block;
-  margin: 0 5px 0 2px;
-}
-
 .twitter-typeahead{width:100%}
 .twitter-typeahead .tt-hint{color:#aaa;margin-left:11px;margin-top:4px}
 
@@ -479,34 +474,10 @@ ul.rulings-list blockquote {
   padding: 5px 10px;
 }
 
-#restricted, #rotated {
-  color: red;
-}
-
 .search-example {
   border: 1px solid #888;
   font-family: monospace;
   padding: 0 2px;
-}
-
-/* Card legality indicators */
-.legality-banned:before {
-  content: "🚫";
-}
-.legality-legal:before {
-  content: "✅";
-}
-.legality-rotated:before {
-  content: "🔄";
-}
-.legality-restricted:before {
-  content: "🦄";
-}
-.legality-1-inf:before {
-  content: "1️⃣";
-}
-.legality-3-inf:before {
-  content: "3️⃣";
 }
 
 /*** screen reader fallback ***/

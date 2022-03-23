@@ -12,12 +12,6 @@ AppBundle\Entity\Deck:
             joinColumn:
                 name: user_id
                 referencedColumnName: id
-        mwl:
-            targetEntity: Mwl
-            nullable: true
-            joinColumn:
-                name: mwl_id
-                referencedColumnName: id
         identity:
             targetEntity: Card
             nullable: false

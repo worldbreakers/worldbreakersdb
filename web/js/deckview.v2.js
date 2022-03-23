@@ -13,8 +13,6 @@ $(document).on('data.app', function() {
     });
   });
 
-  MWL = SelectedDeck.code && NRDB.data.mwl.findById(SelectedDeck.code);
-
   update_deck();
   NRDB.deck_gallery.update();
 
@@ -30,7 +28,6 @@ function do_action_deck(event) {
     case 'btn-publish': show_publish_deck_form(SelectedDeck.uuid, SelectedDeck.name, SelectedDeck.description); break;
     case 'btn-delete': confirm_delete(); break;
     case 'btn-download-text': location.href=Routing.generate('deck_export_text', {deck_uuid:SelectedDeck.uuid}); break;
-    case 'btn-download-octgn': location.href=Routing.generate('deck_export_octgn', {deck_uuid:SelectedDeck.uuid}); break;
     case 'btn-download-tts': download_tts(); break;
     case 'btn-print': window.print(); break;
     case 'btn-sort-type': DisplaySort = 'type'; DisplaySortSecondary = null; switch_to_web_view(); break;
@@ -71,6 +68,6 @@ function confirm_delete() {
 }
 
 function switch_to_web_view() {
-  $('#deck').html('<div class="row"><div class="col-sm-12"><h3 id="identity"></h3><div id="cardcount"></div><div id="latestpack"></div><div id="restricted"></div><div id="limited"></div></div></div><div class="row" id="deck-content" style="margin-bottom:10px"></div>');
+  $('#deck').html('<div class="row"><div class="col-sm-12"><h3 id="identity"></h3><div id="cardcount"></div><div id="latestpack"></div><div id="limited"></div></div></div><div class="row" id="deck-content" style="margin-bottom:10px"></div>');
   update_deck();
 }

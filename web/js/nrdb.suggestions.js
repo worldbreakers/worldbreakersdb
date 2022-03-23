@@ -95,7 +95,7 @@
       if(suggestions.current[i].proba === 0) continue;
       var cards = NRDB.data.cards.find({title: suggestions.current[i].title}, {$orderBy: {code: -1}});
       var card = cards[0];
-      if(is_card_usable(card) && Filters.pack_code.indexOf(card.pack_code) > -1) {
+      if(Filters.pack_code.indexOf(card.pack_code) > -1) {
         var div = suggestions.div(card);
         div.on('click', 'button.close', suggestions.exclude.bind(this, card.title));
         tbody.append(div);

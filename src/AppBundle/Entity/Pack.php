@@ -59,11 +59,6 @@ class Pack implements NormalizableInterface, TimestampableInterface, CodeNameInt
     private $cards;
 
     /**
-     * @var Cycle
-     */
-    private $cycle;
-
-    /**
      * @var \DateTime
      */
     private $dateCreation;
@@ -96,7 +91,6 @@ class Pack implements NormalizableInterface, TimestampableInterface, CodeNameInt
     {
         return [
             'code'         => $this->code,
-            'cycle_code'   => $this->cycle ? $this->cycle->getCode() : null,
             'date_release' => $this->dateRelease ? $this->dateRelease->format('Y-m-d') : null,
             'name'         => $this->name,
             'position'     => $this->position,
@@ -254,25 +248,6 @@ class Pack implements NormalizableInterface, TimestampableInterface, CodeNameInt
     public function getCards()
     {
         return $this->cards;
-    }
-
-    /**
-     * @return Cycle
-     */
-    public function getCycle()
-    {
-        return $this->cycle;
-    }
-
-    /**
-     * @param Cycle $cycle
-     * @return Pack
-     */
-    public function setCycle(Cycle $cycle)
-    {
-        $this->cycle = $cycle;
-
-        return $this;
     }
 
     /**

@@ -10,7 +10,6 @@ var Identity = null,
   Decklist = {{ decklist|json_encode|raw }},
   Commenters = {{ commenters|json_encode|raw }},
   SelectedDeck = Decklist,
-  MWL = {{ mwl|json_encode|raw }},
   DisplaySort = 'type',
   DisplaySortSecondary = 'name';
 
@@ -23,7 +22,7 @@ NRDB.user.params.decklist_id = Decklist.id;
 <div class="container decklist">
 
 {% if not decklist.is_legal %}
-    <div class="alert alert-warning" role="alert">This decklist is not legal for tournament play currently, due to <a href="https://www.fantasyflightgames.com/en/products/android-netrunner-the-card-game/">Card Errata</a>, <a href="https://www.fantasyflightgames.com/en/news/2014/11/5/when-new-programs-overwrite-the-old/">Rotation</a> or <a href="https://www.fantasyflightgames.com/en/products/android-netrunner-the-card-game/">Legality</a>.</div>
+    <div class="alert alert-warning" role="alert">This decklist is not legal for tournament play currently, due to Card Errata, Rotation or Legality.</div>
 {% endif %}
 <div class="row">
     <div class="col-xs-12 panel-group">
@@ -70,7 +69,6 @@ NRDB.user.params.decklist_id = Decklist.id;
       <li><a href="#" id="btn-compare">Compare with another decklist</a></li>
         <li class="dropdown-header"><span class="glyphicon glyphicon-download"></span> Download</li>
         <li><a href="#" id="btn-download-text">Text file</a></li>
-        <li><a href="#" id="btn-download-octgn">Octgn file</a></li>
         <li><a href="#" id="btn-download-tts">Tabletop Simulator file</a></li>
         <li class="dropdown-header"><span class="glyphicon glyphicon-export"></span> Export</li>
         <li><a href="#" id="btn-export-bbcode">bbCode</a></li>
@@ -98,7 +96,6 @@ NRDB.user.params.decklist_id = Decklist.id;
     <h3 id="identity"></h3>
     <div id="cardcount"></div>
     <div id="latestpack"></div>
-    <div id="restricted"></div>
     <div id="limited"></div>
     {% if decklist.tournament %}
         <a class="btn btn-ghost btn-success btn-sm" href="{{ path('decklists_list', {type:'tournament'}) }}">
@@ -112,71 +109,6 @@ NRDB.user.params.decklist_id = Decklist.id;
 <!-- Deck Content -->
 <div class="row" id="deck-content" style="margin-bottom:20px"></div>
 <!-- Deck Content -->
-
-<!-- Legality -->
-<table class="table table-condensed" id="table-mwl">
-  <thead>
-    <tr>
-      <th colspan="1">
-        <span class="glyphicon glyphicon-bell"></span> Legality
-        <span id="open-lists" style="padding-left: 20px"><a href="#">(show more)</a></span></th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr><td>
-      {# This makes two assumptions:
-       # 1) That there will be at least 2 legalities (should hold true indefinitely)
-       # 2) That if the first list isn't active, the second list is (probably holds)
-       #}
-      {% set is_current = legalities[0].active %}
-      {% if legalities[0].is_legal %}
-        <span class="glyphicon glyphicon-thumbs-up" style="color:green"></span>
-      {% else %}
-        <span class="glyphicon glyphicon-thumbs-down" style="color:red"></span>
-      {% endif %}
-      <a href="#" class="change_mwl" data-code="{{ legalities[0].code }}">
-        {{ legalities[0].name }} {% if is_current %}(active){% else %}(latest){% endif %}
-      </a>
-    </td></tr>
-    {% if not is_current %}
-      <tr><td>
-        {% if legalities[1].is_legal %}
-          <span class="glyphicon glyphicon-thumbs-up" style="color:green"></span>
-        {% else %}
-          <span class="glyphicon glyphicon-thumbs-down" style="color:red"></span>
-        {% endif %}
-        <a href="#" class="change_mwl" data-code="{{ legalities[1].code }}">{{ legalities[1].name }} (active)</a>
-      </td></tr>
-    {% endif %}
-    {% for legality in legalities|slice(is_current ? 1 : 2) %}
-    <tr class="other-list" style="display: none;"><td>
-      <a href="#" class="change_mwl" data-code="{{ legality.code }}">
-        {% if legality.is_legal %}<span class="glyphicon glyphicon-thumbs-up" style="color:green"></span>
-        {% else %}<span class="glyphicon glyphicon-thumbs-down" style="color:red"></span>{% endif %}
-        {{ legality.name }}
-      </a>
-    </td></tr>
-    {% endfor %}
-  </tbody>
-</table>
-
-<!-- Rotation -->
-<table class="table table-condensed" id="table-rotation">
-  <thead>
-  <tr><th colspan="1"><span class="glyphicon glyphicon-repeat"></span> Rotation</th></tr>
-  </thead>
-  <tbody>
-  <tr>
-    <td>
-      {% if rotation %}
-      Deck valid after {{ rotation }}
-      {% else %}
-      Pre-rotation decklist
-      {% endif %}
-    </td>
-  </tr>
-  </tbody>
-</table>
 
 <!-- Claims -->
 {% if claims|length %}
@@ -214,7 +146,7 @@ NRDB.user.params.decklist_id = Decklist.id;
 {% for pack in packs %}
 <tr>
     <td>
-      <span class="small icon icon-fw icon-{{ pack.cycle_code }}" title="{{ pack.cycle_name }}"></span> <a href="{{ path('cards_list',{pack_code:pack.code}) }}">{{ pack.name }}</a>
+      <a href="{{ path('cards_list',{pack_code:pack.code}) }}">{{ pack.name }}</a>
     </td>
 </tr>
 {% endfor %}
@@ -272,19 +204,6 @@ NRDB.user.params.decklist_id = Decklist.id;
 {% else %}
 <tr><td>None yet</td></tr>
 {% endif %}
-</tbody>
-</table>
-
-<table class="table table-condensed" id="table-ext">
-<thead>
-<tr><th><span class="glyphicon glyphicon-list"></span> Include in your page (<a href="{{ path('demo_ext_decklist',{id:decklist.id}) }}">help</a>)</th></tr>
-</thead>
-<tbody>
-<tr>
-  <td>
-    <input style="width:100%;font-size:small" value="&lt;div data-id=&quot;{{ decklist.id }}&quot; class=&quot;nrdb-ext-decklist&quot;>&lt;script src=&quot;{{ app.request.getSchemeAndHttpHost() ~ '/ext-decklist.js' }}&quot;>&lt;/script>&lt;/div>">
-  </td>
-</tr>
 </tbody>
 </table>
 

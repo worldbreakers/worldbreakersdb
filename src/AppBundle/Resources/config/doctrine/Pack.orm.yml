@@ -7,13 +7,6 @@ AppBundle\Entity\Pack:
             columns: [ date_release ]
         position_index:
             columns: [ position ]
-    manyToOne:
-        cycle:
-            targetEntity: Cycle
-            inversedBy: packs
-            joinColumn:
-                name: cycle_id
-                referencedColumnName: id
     oneToMany:
         cards:
             orderBy: { 'position': 'ASC' }

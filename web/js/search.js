@@ -20,11 +20,6 @@ $(document).on('data.app', function() {
     source: findMatches
   });
 
-  $('.cycle_checkbox').each(function() {
-    $(this).closest('.checkbox').checklist();
-  });
-  handle_checkbox_change();
-
   $('#filter-text').on('typeahead:selected typeahead:autocompleted', function(event, card) {
     var line = $(
       '<p class="background-' + card.faction_code +
@@ -39,38 +34,6 @@ $(document).on('data.app', function() {
     line.insertBefore($('#filter-text'));
     $(event.target).typeahead('val', '');
   });
-
-  $('#allowed_packs').on('change', handle_checkbox_change);
-
-  let rotated_cycles = Array();
-  rotated_cycles['draft'] = 1;
-  rotated_cycles['napd'] = 1;
-  NRDB.data.cycles.find( { "rotated": true } ).forEach(function(cycle) { rotated_cycles[cycle.code] = 1; });
-
-  var rotated_packs = Array();
-  NRDB.data.packs.find().forEach(function(pack) {
-    if (rotated_cycles[pack.cycle.code]) { rotated_packs[pack.code] = 1; }
-  });
-
-  $('#select_standard').on('click', function (event) {
-    $('#allowed_packs').find('input[type="checkbox"]').each(function() {
-      $(this).prop('checked', Boolean(!(rotated_cycles[this.value] || rotated_packs[this.value])));
-    });
-    handle_checkbox_change();
-    return false;
-  });
-
-  $('#select_all').on('click', function (event) {
-    $('#allowed_packs').find('input[type="checkbox"]:not(:checked)').prop('checked', true);
-    handle_checkbox_change();
-    return false;
-  });
-
-  $('#select_none').on('click', function (event) {
-    $('#allowed_packs').find('input[type="checkbox"]:checked').prop('checked', false);
-    handle_checkbox_change();
-    return false;
-  });
 });
 
 function select_only_latest_cards(matchingCards) {
@@ -84,9 +47,4 @@ function select_only_latest_cards(matchingCards) {
   return matchingCards.filter(function(value, index, arr) {
     return value.code == latestCardsByTitle[value.title].code;
   });
-}
-
-function handle_checkbox_change() {
-  $('#packs-on').text($('#allowed_packs').find('input[type="checkbox"]:not(.cycle_checkbox):checked').length + ' on / ');
-  $('#packs-off').text($('#allowed_packs').find('input[type="checkbox"]:not(.cycle_checkbox):not(:checked)').length + ' off');
 }

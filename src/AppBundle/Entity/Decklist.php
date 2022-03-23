@@ -128,11 +128,6 @@ class Decklist implements NormalizableInterface, TimestampableInterface
     private $votes;
 
     /**
-     * @var Rotation|null
-     */
-    private $rotation;
-
-    /**
      * @var integer
      */
     private $moderationStatus;
@@ -179,11 +174,6 @@ class Decklist implements NormalizableInterface, TimestampableInterface
 
     private $isLegal;
 
-    /**
-     * @var Mwl|null
-     */
-    private $mwl;
-
     public function __construct()
     {
         $this->slots = new ArrayCollection();
@@ -216,7 +206,6 @@ class Decklist implements NormalizableInterface, TimestampableInterface
             'user_name'        => $this->user->getUsername(),
             'tournament_badge' => $this->tournament ? true : false,
             'cards'            => $cards,
-            'mwl_code'         => $this->mwl ? $this->mwl->getCode() : null,
         ];
     }
 
@@ -835,35 +824,6 @@ class Decklist implements NormalizableInterface, TimestampableInterface
     }
 
     /**
-     * Add legality
-     * @param Legality $legality
-     * @return Decklist
-     */
-    public function addLegality(Legality $legality)
-    {
-        $this->legalities[] = $legality;
-
-        return $this;
-    }
-
-    /**
-     * Remove legality
-     * @param Legality $legality
-     */
-    public function removeLegality(Legality $legality)
-    {
-        $this->legalities->removeElement($legality);
-    }
-
-    /**
-     * @return Collection
-     */
-    public function getLegalities()
-    {
-        return $this->legalities;
-    }
-
-    /**
      * @return integer
      */
     public function getModerationStatus()
@@ -938,43 +898,5 @@ class Decklist implements NormalizableInterface, TimestampableInterface
     public function setIsLegal(bool $isLegal)
     {
         $this->isLegal = $isLegal;
-    }
-
-    /**
-     * @return Rotation|null
-     */
-    public function getRotation()
-    {
-        return $this->rotation;
-    }
-
-    /**
-     * @param Rotation|null $rotation
-     * @return $this
-     */
-    public function setRotation(Rotation $rotation = null)
-    {
-        $this->rotation = $rotation;
-
-        return $this;
-    }
-
-    /**
-     * @return Mwl|null
-     */
-    public function getMwl()
-    {
-        return $this->mwl;
-    }
-
-    /**
-     * @param Mwl|null $mwl
-     * @return $this
-     */
-    public function setMwl(Mwl $mwl = null)
-    {
-        $this->mwl = $mwl;
-
-        return $this;
     }
 }
