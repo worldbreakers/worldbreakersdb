@@ -282,8 +282,12 @@ function update_deck(options) {
     });
     $('#latestpack').html('Cards up to <i>' + latestpack.name + '</i>');
     check_deck_limit();
-    if ($('#costChart .highcharts-container').length)
+    if ($('#costChart .highcharts-container').length) {
         setTimeout(make_cost_graph, 100);
+    }
+    if ($('#standingChart .highcharts-container').length) {
+        setTimeout(make_standing_graph, 100);
+    }
 }
 
 function check_decksize() {
@@ -356,7 +360,7 @@ $(function () {
 
     $('[data-toggle="tooltip"]').tooltip();
 
-    $.each(['table-graph-costs', 'table-graph-strengths', 'table-predecessor', 'table-parent', 'table-successor', 'table-suggestions'], function (i, table_id) {
+    $.each(['table-graph-costs', 'table-graph-standings', 'table-predecessor', 'table-parent', 'table-successor', 'table-suggestions'], function (i, table_id) {
         var table = $('#' + table_id);
         if (!table.length)
             return;
@@ -600,6 +604,75 @@ function download_tts(deck) {
             $modalBody.html(content);
         });
     });
+}
+
+function make_standing_graph() {
+    var standings = [];
+
+    NRDB.data.cards.find({ indeck: { '$gt': 0 }, type_code: { '$ne': 'identity' } }).forEach(function (card) {
+        if (card.standing_req != null) {
+            if (standings[card.standing_req] == null) {
+                standings[card.standing_req] = [];
+            }
+            if (standings[card.standing_req][card.type.name] == null) {
+                standings[card.standing_req][card.type.name] = 0;
+            }
+            standings[card.standing_req][card.type.name] += card.indeck;
+        }
+    });
+
+    // standingChart
+    var standing_series = [
+        { name: 'Event', data: [] },
+        { name: 'Follower', data: [] },
+        { name: 'Location', data: [] },
+    ];
+    var xAxis = [];
+
+    for (var j = 0; j < standings.length; j++) {
+        xAxis.push(j);
+        var data = standings[j];
+        for (var i = 0; i < standing_series.length; i++) {
+            var type_name = standing_series[i].name;
+            standing_series[i].data.push((data && data[type_name]) ? data[type_name] : 0);
+        }
+    }
+
+    $('#standingChart').highcharts({
+        colors: ['#FFE66F', '#B22A95', '#FF55DA', '#30CCC8'],
+        title: {
+            text: null,
+        },
+        credits: {
+            enabled: false,
+        },
+        chart: {
+            type: 'column',
+            animation: false,
+        },
+        xAxis: {
+            categories: xAxis,
+        },
+        yAxis: {
+            title: {
+                text: null,
+            },
+            allowDecimals: false,
+            minTickInterval: 1,
+            minorTickInterval: 1,
+            endOnTick: false,
+        },
+        plotOptions: {
+            column: {
+                stacking: 'normal',
+            },
+            series: {
+                animation: false,
+            },
+        },
+        series: standing_series,
+    });
+
 }
 
 function make_cost_graph() {

@@ -11,6 +11,7 @@ NRDB.data.promise.then(function () {
 
     $('a[href="#tools"]').on('shown.bs.tab', function (e) {
         make_cost_graph();
+        make_standing_graph();
     });
 });
 

@@ -96,6 +96,7 @@ Promise.all([NRDB.data.promise, NRDB.settings.promise]).then(function() {
   });
 
   make_cost_graph();
+  make_standing_graph();
 
   $.each(History, function (index, snapshot) {
     add_snapshot(snapshot);
