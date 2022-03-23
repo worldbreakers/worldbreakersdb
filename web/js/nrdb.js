@@ -641,7 +641,7 @@ function build_tts(deck) {
     var images = lines.map(function (code, index) {
         return new Promise(function (resolve, reject) {
             var img = new Image();
-            img.crossOrigin = "Anonymous";
+            img.crossOrigin = "anonymous";
             img.onload = function () {
                 ctx.drawImage(img, CARD_WIDTH * (index % 10), CARD_HEIGHT * Math.floor(index / 10));
                 resolve(img);
