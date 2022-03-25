@@ -71,7 +71,7 @@ class DecklistsController extends Controller
                 break;
             case 'dotw':
                 $result = $decklistManager->dotw($start, $limit);
-                $pagetitle = "Decklist of the week";
+                $pagetitle = "Featured Decklist";
                 break;
             case 'halloffame':
                 $result = $decklistManager->halloffame($start, $limit);

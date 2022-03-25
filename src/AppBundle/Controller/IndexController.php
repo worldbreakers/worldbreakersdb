@@ -23,7 +23,7 @@ class IndexController extends Controller
         $response->setPublic();
         $response->setMaxAge($this->getParameter('short_cache'));
 
-        // decklist of the week
+        // featured decklist
         $dbh = $entityManager->getConnection();
         $rows = $dbh->executeQuery("SELECT decklist FROM highlight WHERE id=?", [1])->fetchAll();
         $decklist = count($rows) ? json_decode($rows[0]['decklist']) : null;

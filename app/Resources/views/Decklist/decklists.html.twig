@@ -16,7 +16,7 @@
 {% set linkurl = path('decklists_list', {type:'recent'}) %}<li class="{% if url == linkurl %}active{% endif %}"><a href="{{ linkurl }}">Recent</a></li>
 {% set linkurl = path('decklists_list', {type:'tournament'}) %}<li class="{% if url == linkurl %}active{% endif %}"><a href="{{ linkurl }}">Tournaments</a></li>
 {% set linkurl = path('decklists_list', {type:'hottopics'}) %}<li class="{% if url == linkurl %}active{% endif %}"><a href="{{ linkurl }}">Hot topics</a></li>
-{% set linkurl = path('decklists_list', {type:'dotw'}) %}<li class="{% if url == linkurl %}active{% endif %}"><a href="{{ linkurl }}">Decklist of the week</a></li>
+{% set linkurl = path('decklists_list', {type:'dotw'}) %}<li class="{% if url == linkurl %}active{% endif %}"><a href="{{ linkurl }}">Featured decklist</a></li>
 {% set linkurl = path('decklists_list', {type:'halloffame'}) %}<li class="{% if url == linkurl %}active{% endif %}"><a href="{{ linkurl }}">Hall of Fame</a></li>
 {% set linkurl = path('decklists_list', {type:'favorites'}) %}<li class="{% if url == linkurl %}active{% endif %}"><a href="{{ linkurl }}">My favorites</a></li>
 {% set linkurl = path('decklists_list', {type:'mine'}) %}<li class="{% if url == linkurl %}active{% endif %}"><a href="{{ linkurl }}">My decklists</a></li>
