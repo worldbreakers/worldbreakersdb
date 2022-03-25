@@ -548,6 +548,10 @@ ol.stages {
 }
 
 /*** decklists ***/
+.decklist-graphs {
+    margin-bottom: 20px;
+}
+
 .decklist-standing-req {
     margin-left: 0.5em;
     font-size: 0.75em;

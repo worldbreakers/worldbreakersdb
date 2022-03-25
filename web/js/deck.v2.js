@@ -71,7 +71,6 @@ Promise.all([NRDB.data.promise, NRDB.settings.promise]).then(function() {
     $(elt).button('toggle');
   });
 
-
   $('input[name=Identity]').prop("checked", false);
 
   function findMatches(q, cb) {
@@ -94,9 +93,6 @@ Promise.all([NRDB.data.promise, NRDB.settings.promise]).then(function() {
     display: function(card) { return card.title + ' (' + card.pack.name + ')'; },
     source: findMatches
   });
-
-  make_cost_graph();
-  make_standing_graph();
 
   $.each(History, function (index, snapshot) {
     add_snapshot(snapshot);
@@ -126,8 +122,8 @@ Promise.all([NRDB.data.promise, NRDB.settings.promise]).then(function() {
   Promise.all(promises).then(function () {
       refresh_collection();
       update_deck();
+      update_charts();
   });
-
 });
 
 // This will filter matchingCards to only the latest version of each card, preserving the original order of matchingCards.

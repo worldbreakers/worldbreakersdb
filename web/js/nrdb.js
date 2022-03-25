@@ -282,11 +282,48 @@ function update_deck(options) {
     });
     $('#latestpack').html('Cards up to <i>' + latestpack.name + '</i>');
     check_deck_limit();
-    if ($('#costChart .highcharts-container').length) {
-        setTimeout(make_cost_graph, 100);
+
+    update_charts();
+}
+
+
+var charts = {};
+
+function create_charts() {
+    var charts = {};
+
+    if (document.getElementById('costChart')) {
+        charts.cost = make_stacked_bar_chart(
+            document.getElementById('costChart'),
+            { labels: [], datasets: [], }
+        );
     }
-    if ($('#standingChart .highcharts-container').length) {
-        setTimeout(make_standing_graph, 100);
+
+    if (document.getElementById('standingChart')) {
+        charts.standing = make_stacked_bar_chart(
+            document.getElementById('standingChart'),
+            { labels: [], datasets: [], }
+        );
+    }
+
+    return charts;
+}
+
+function update_charts() {
+    if (!('charts' in NRDB)) {
+        NRDB.charts = create_charts();
+    }
+
+    if (NRDB.charts.cost) {
+        var costData = repartitionByCost();
+        NRDB.charts.cost.data = costData;
+        NRDB.charts.cost.update();
+    }
+
+    if (NRDB.charts.standing) {
+        var standingData = repartitionByStanding();
+        NRDB.charts.standing.data = standingData;
+        NRDB.charts.standing.update();
     }
 }
 
@@ -359,16 +396,6 @@ function convert_to_recent(update) {
 $(function () {
 
     $('[data-toggle="tooltip"]').tooltip();
-
-    $.each(['table-graph-costs', 'table-graph-standings', 'table-predecessor', 'table-parent', 'table-successor', 'table-suggestions'], function (i, table_id) {
-        var table = $('#' + table_id);
-        if (!table.length)
-            return;
-        var head = table.find('thead tr th');
-        var toggle = $('<a href="#" class="pull-right small">hide</a>');
-        toggle.on({ click: toggle_table });
-        head.prepend(toggle);
-    });
 
     $('body').on({
         click: function (event) {
@@ -606,140 +633,130 @@ function download_tts(deck) {
     });
 }
 
-function make_standing_graph() {
-    var standings = [];
+function repartitionByStanding()
+{
+    var standingData = {};
+    var minStanding = 0;
+    var maxStanding = 0;
+    var cards = NRDB.data.cards.find({ indeck: { '$gt': 0 }, type_code: { '$ne': 'identity' } });
 
-    NRDB.data.cards.find({ indeck: { '$gt': 0 }, type_code: { '$ne': 'identity' } }).forEach(function (card) {
-        if (card.standing_req != null) {
-            if (standings[card.standing_req] == null) {
-                standings[card.standing_req] = [];
-            }
-            if (standings[card.standing_req][card.type.name] == null) {
-                standings[card.standing_req][card.type.name] = 0;
-            }
-            standings[card.standing_req][card.type.name] += card.indeck;
+    cards.forEach(function (card) {
+        if (card.standing_req > maxStanding) {
+            maxStanding = card.standing_req;
         }
     });
 
-    // standingChart
-    var standing_series = [
-        { name: 'Event', data: [] },
-        { name: 'Follower', data: [] },
-        { name: 'Location', data: [] },
-    ];
-    var xAxis = [];
-
-    for (var j = 0; j < standings.length; j++) {
-        xAxis.push(j);
-        var data = standings[j];
-        for (var i = 0; i < standing_series.length; i++) {
-            var type_name = standing_series[i].name;
-            standing_series[i].data.push((data && data[type_name]) ? data[type_name] : 0);
+    cards.forEach(function (card) {
+        if (card.standing_req != null) {
+            if (!(card.type.code in standingData)) {
+                standingData[card.type.code] = new Array(maxStanding - minStanding + 1).fill(0);
+            }
+            standingData[card.type.code][card.standing_req] += card.indeck;
         }
+    });
+
+    var types = NRDB.data.types.find({ code: { '$ne': 'identity' } });
+    var types_colors = {
+        event: 'red',
+        follower: 'blue',
+        location: 'green',
+    };
+
+    var labels = [];
+    for (var i = minStanding; i <= maxStanding; ++i) {
+        labels.push(i);
     }
 
-    $('#standingChart').highcharts({
-        colors: ['#FFE66F', '#B22A95', '#FF55DA', '#30CCC8'],
-        title: {
-            text: null,
-        },
-        credits: {
-            enabled: false,
-        },
-        chart: {
-            type: 'column',
-            animation: false,
-        },
-        xAxis: {
-            categories: xAxis,
-        },
-        yAxis: {
-            title: {
-                text: null,
-            },
-            allowDecimals: false,
-            minTickInterval: 1,
-            minorTickInterval: 1,
-            endOnTick: false,
-        },
-        plotOptions: {
-            column: {
-                stacking: 'normal',
-            },
-            series: {
-                animation: false,
-            },
-        },
-        series: standing_series,
-    });
+    var data = {
+        labels: labels,
+        datasets: types.map(function (type) {
+            return {
+                label: type.name,
+                // TODO: Set colors in JSON
+                backgroundColor: types_colors[type.code],
+                data: standingData[type.code]
+            };
+        })
+    };
 
+    return data;
 }
 
-function make_cost_graph() {
-    var costs = [];
+function repartitionByCost()
+{
+    var costData = {};
 
-    NRDB.data.cards.find({ indeck: { '$gt': 0 }, type_code: { '$ne': 'identity' } }).forEach(function (card) {
-        if (card.cost != null) {
-            if (costs[card.cost] == null)
-                costs[card.cost] = [];
-            if (costs[card.cost][card.type.name] == null)
-                costs[card.cost][card.type.name] = 0;
-            costs[card.cost][card.type.name] += card.indeck;
+    var minCost = 0;
+    var maxCost = 0;
+    var cards = NRDB.data.cards.find({ indeck: { '$gt': 0 }, type_code: { '$ne': 'identity' } });
+
+    cards.forEach(function (card) {
+        if (card.cost > maxCost) {
+            maxCost = card.cost;
         }
     });
 
-    // costChart
-    var cost_series = [
-        { name: 'Event', data: [] },
-        { name: 'Follower', data: [] },
-        { name: 'Location', data: [] },
-    ];
-    var xAxis = [];
-
-    for (var j = 0; j < costs.length; j++) {
-        xAxis.push(j);
-        var data = costs[j];
-        for (var i = 0; i < cost_series.length; i++) {
-            var type_name = cost_series[i].name;
-            cost_series[i].data.push((data && data[type_name]) ? data[type_name] : 0);
+    cards.forEach(function (card) {
+        if (card.cost != null) {
+            if (!(card.type.code in costData)) {
+                costData[card.type.code] = new Array(maxCost - minCost + 1).fill(0);
+            }
+            costData[card.type.code][card.cost] += card.indeck;
         }
+    });
+
+    var types = NRDB.data.types.find({ code: { '$ne': 'identity' } });
+    var types_colors = {
+        event: 'red',
+        follower: 'blue',
+        location: 'green',
+    };
+
+    var labels = [];
+    for (var i = minCost; i <= maxCost; ++i) {
+        labels.push(i);
     }
 
-    $('#costChart').highcharts({
-        colors: ['#FFE66F', '#B22A95', '#FF55DA', '#30CCC8'],
-        title: {
-            text: null,
-        },
-        credits: {
-            enabled: false,
-        },
-        chart: {
-            type: 'column',
-            animation: false,
-        },
-        xAxis: {
-            categories: xAxis,
-        },
-        yAxis: {
-            title: {
-                text: null,
-            },
-            allowDecimals: false,
-            minTickInterval: 1,
-            minorTickInterval: 1,
-            endOnTick: false,
-        },
-        plotOptions: {
-            column: {
-                stacking: 'normal',
-            },
-            series: {
-                animation: false,
-            },
-        },
-        series: cost_series,
-    });
+    var data = {
+        labels: labels,
+        datasets: types.map(function (type) {
+            return {
+                label: type.name,
+                // TODO: Set colors in JSON
+                backgroundColor: types_colors[type.code],
+                data: costData[type.code],
+            };
+        })
+    };
 
+    return data;
+}
+
+function make_stacked_bar_chart(element, data) {
+    var config = {
+        type: 'bar',
+        data: data,
+        options: {
+            aspectRatio: 1,
+            plugins: {
+                legend: {
+                    align: 'start',
+                    position: 'bottom',
+                },
+            },
+            responsive: true,
+            scales: {
+                x: {
+                    stacked: true,
+                },
+                y: {
+                    stacked: true
+                }
+            }
+        }
+    };
+
+    return new Chart(element, config);
 }
 
 /* my version of button.js, overriding twitter's */

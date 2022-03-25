@@ -15,9 +15,7 @@ $(document).on('data.app', function() {
 
   update_deck();
   NRDB.deck_gallery.update();
-
-  make_cost_graph();
-  make_standing_graph();
+  update_charts();
 });
 
 

@@ -8,9 +8,7 @@ NRDB.data.promise.then(function () {
         NRDB.data.cards.updateById(slot.card_code, {indeck: parseInt(slot.qty, 10)});
     }
     update_deck();
-
-    make_cost_graph();
-    make_standing_graph();
+    update_charts();
 });
 
 Promise.all([NRDB.data.promise, NRDB.user.promise]).then(function () {

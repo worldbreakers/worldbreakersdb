@@ -1,6 +1,6 @@
 (function (format, $) {
   format.cost = function (card) {
-    return card.cost === null ? "X" : card.cost;
+    return card.cost === undefined ? "X" : card.cost;
   };
 
   format.type = function (card) {
