@@ -58,35 +58,6 @@ NRDB.user.params.decklist_id = Decklist.id;
 <!-- Left-side Column -->
 <div class="col-md-6">
 
-<ul class="nav nav-pills nav-justified" role="tablist" style="margin-bottom:20px">
-    <li role="presentation" class="active"><a href="#deck" data-toggle="tab">Decklist</a></li>
-    <li role="presentation"><a href="#packs" data-toggle="tab">Packs</a></li>
-    <li role="presentation"><a href="#tools" data-toggle="tab">Info</a></li>
-    <li role="presentation" class="dropdown">
-      <a href="#" id="actions" class="dropdown-toggle" data-toggle="dropdown">Actions <span class="caret"></span></a>
-      <ul class="dropdown-menu" id="btn-group-decklist">
-        <li><a href="#" id="btn-copy-decklist">Copy into my decks</a></li>
-      <li><a href="#" id="btn-compare">Compare with another decklist</a></li>
-        <li class="dropdown-header"><span class="glyphicon glyphicon-download"></span> Download</li>
-        <li><a href="#" id="btn-download-text">Text file</a></li>
-        <li><a href="#" id="btn-download-tts">Tabletop Simulator file</a></li>
-        <li class="dropdown-header"><span class="glyphicon glyphicon-export"></span> Export</li>
-        <li><a href="#" id="btn-export-bbcode">bbCode</a></li>
-        <li><a href="#" id="btn-export-markdown">Markdown (Reddit)</a></li>
-        <li><a href="#" id="btn-export-plaintext">Plain text</a></li>
-        <li class="dropdown-header"><span class="glyphicon glyphicon-sort"></span> Sort</li>
-        <li><a href="#" id="btn-sort-type">by Type</a></li>
-        <li><a href="#" id="btn-sort-number">by Set</a></li>
-        <li><a href="#" id="btn-sort-faction">by Guild</a></li>
-        <li><a href="#" id="btn-sort-faction-type">by Guild, then Type</a></li>
-        <li><a href="#" id="btn-sort-faction-number">by Guild, then Set</a></li>
-        <li><a href="#" id="btn-sort-title">by Name</a></li>
-    </ul>
-  </li>
-</ul>
-<div class="tab-content" style="border-bottom:1px solid #ddd;padding-bottom:20px">
-<div role="tabpanel" class="tab-pane active" id="deck">
-
 <!-- Identity and Stats -->
 <div class="row">
   <div class="col-sm-3">
@@ -96,12 +67,30 @@ NRDB.user.params.decklist_id = Decklist.id;
     <h3 id="identity"></h3>
     <div id="cardcount"></div>
     <div id="latestpack"></div>
+    <div class="packs-required dropdown">
+        <button class="btn btn-link dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+            {% if packs|length == 1 %}
+                1 Pack required
+            {% else %}
+                {{ packs|length }} Packs required
+            {% endif %}
+            <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+            {% for pack in packs %}
+                <li>
+                    <a href="{{ path('cards_list',{pack_code:pack.code}) }}">{{ pack.name }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+
     <div id="limited"></div>
     {% if decklist.tournament %}
         <a class="btn btn-ghost btn-success btn-sm" href="{{ path('decklists_list', {type:'tournament'}) }}">
             <span class="glyphicon glyphicon-certificate"></span> {{ decklist.tournament }}
         </a>
-        {% endif %}
+    {% endif %}
   </div><!-- /.col-md-9 -->
 </div><!-- /.row -->
 <!-- Identity and Stats -->
@@ -134,125 +123,127 @@ NRDB.user.params.decklist_id = Decklist.id;
 </table>
 {% endif %}
 
-</div><!-- /#deck -->
-<div role="tabpanel" class="tab-pane" id="packs">
-
-<!-- Packs -->
-<table class="table table-condensed" id="table-packs">
-<thead>
-<tr><th colspan="1"><span class="glyphicon glyphicon-shopping-cart"></span> Packs</th></tr>
-</thead>
-<tbody>
-{% for pack in packs %}
-<tr>
-    <td>
-      <a href="{{ path('cards_list',{pack_code:pack.code}) }}">{{ pack.name }}</a>
-    </td>
-</tr>
-{% endfor %}
-</tbody>
-</table>
-
-</div>
-<div role="tabpanel" class="tab-pane" id="tools">
-
 <!-- Graphs -->
-<table class="table table-condensed" id="table-graph-costs">
-<thead>
-<tr><th colspan="1"><span class="glyphicon glyphicon-stats"></span> Repartition by Cost</th></tr>
-</thead>
-<tbody>
-    <tr><td><div id="costChart"></div></td></tr>
-</tbody>
-</table>
-
-<table class="table table-condensed" id="table-graph-standings">
-<thead>
-    <tr><th colspan="1"><span class="glyphicon glyphicon-stats"></span> Repartition by Standing</th></tr>
-</thead>
-<tbody>
-    <tr><td><div id="standingChart"></div></td></tr>
-</tbody>
-</table>
+<div class="decklist-graphs">
+    <div class="row">
+        <div class="col-sm-6">
+            <h5><span class="glyphicon glyphicon-stats"></span> Repartition by Cost</h5>
+            <div id="costChart"></div>
+        </div>
+        <div class="col-sm-6">
+            <h5><span class="glyphicon glyphicon-stats"></span> Repartition by Standing</h5>
+            <div id="standingChart"></div>
+        </div>
+    </div>
+</div>
 
 <table class="table table-condensed" id="table-predecessor">
-<thead>
-<tr><th colspan="{% if precedent_decklists|length %}4{% else %}1{% endif %}"><span class="glyphicon glyphicon-backward"></span> Derived from</th></tr>
-</thead>
-<tbody>
-{% if precedent_decklists|length %}
-{% for decklist in precedent_decklists %}
-<tr>
-  <td class="decklist-name"><a href="{{ path('decklist_view', { 'decklist_uuid': decklist.uuid, 'decklist_name': decklist.prettyname|e('url') }) }}">{{ decklist.name }}</a></td>
-  <td class="social"><span class="glyphicon glyphicon-heart social-icon-like"></span> {{ decklist.nbvotes }}</td>
-  <td class="social"><span class="glyphicon glyphicon-star social-icon-favorite"></span> {{ decklist.nbfavorites }}</td>
-  <td class="social"><span class="glyphicon glyphicon-comment social-icon-comment"></span> {{ decklist.nbcomments }}</td>
-</tr>
-{% endfor %}
-{% else %}
-<tr><td>None. Self-made deck here.</td></tr>
-{% endif %}
-</tbody>
+    <thead>
+        <tr><th colspan="{% if precedent_decklists|length %}4{% else %}1{% endif %}"><span class="glyphicon glyphicon-backward"></span> Derived from</th></tr>
+    </thead>
+    <tbody>
+        {% if precedent_decklists|length %}
+            {% for decklist in precedent_decklists %}
+                <tr>
+                    <td class="decklist-name"><a href="{{ path('decklist_view', { 'decklist_uuid': decklist.uuid, 'decklist_name': decklist.prettyname|e('url') }) }}">{{ decklist.name }}</a></td>
+                    <td class="social"><span class="glyphicon glyphicon-heart social-icon-like"></span> {{ decklist.nbvotes }}</td>
+                    <td class="social"><span class="glyphicon glyphicon-star social-icon-favorite"></span> {{ decklist.nbfavorites }}</td>
+                    <td class="social"><span class="glyphicon glyphicon-comment social-icon-comment"></span> {{ decklist.nbcomments }}</td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr><td>None. Self-made deck here.</td></tr>
+        {% endif %}
+    </tbody>
 </table>
-
 
 <table class="table table-condensed" id="table-successor">
-<thead>
-<tr><th colspan="{% if successor_decklists|length %}4{% else %}1{% endif %}"><span class="glyphicon glyphicon-forward"></span> Inspiration for</th></tr>
-</thead>
-<tbody>
-{% if successor_decklists|length %}
-{% for decklist in successor_decklists %}
-<tr>
-  <td class="decklist-name"><a href="{{ path('decklist_view', { 'decklist_uuid': decklist.uuid, 'decklist_name': decklist.prettyname|e('url') }) }}">{{ decklist.name }}</a></td>
-  <td class="social"><span class="glyphicon glyphicon-heart social-icon-like"></span> {{ decklist.nbvotes }}</td>
-  <td class="social"><span class="glyphicon glyphicon-star social-icon-favorite"></span> {{ decklist.nbfavorites }}</td>
-  <td class="social"><span class="glyphicon glyphicon-comment social-icon-comment"></span> {{ decklist.nbcomments }}</td>
-</tr>
-{% endfor %}
-{% else %}
-<tr><td>None yet</td></tr>
-{% endif %}
-</tbody>
+    <thead>
+        <tr><th colspan="{% if successor_decklists|length %}4{% else %}1{% endif %}"><span class="glyphicon glyphicon-forward"></span> Inspiration for</th></tr>
+    </thead>
+    <tbody>
+        {% if successor_decklists|length %}
+            {% for decklist in successor_decklists %}
+                <tr>
+                    <td class="decklist-name"><a href="{{ path('decklist_view', { 'decklist_uuid': decklist.uuid, 'decklist_name': decklist.prettyname|e('url') }) }}">{{ decklist.name }}</a></td>
+                    <td class="social"><span class="glyphicon glyphicon-heart social-icon-like"></span> {{ decklist.nbvotes }}</td>
+                    <td class="social"><span class="glyphicon glyphicon-star social-icon-favorite"></span> {{ decklist.nbfavorites }}</td>
+                    <td class="social"><span class="glyphicon glyphicon-comment social-icon-comment"></span> {{ decklist.nbcomments }}</td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr><td>None yet</td></tr>
+        {% endif %}
+    </tbody>
 </table>
 
-</div><!-- /#tools -->
-</div>
 </div>
 <!-- Left-side Column -->
 
 
 <!-- Right-side Column -->
 <div class="col-md-6">
+    <div class="row">
 
-<h3 class="username">
-    <a href="{{ path('user_profile_view', {_locale:app.request.locale,user_id:decklist.user_id,user_name:decklist.username|e('url')}) }}" class="{{ decklist.usercolor }}">{{ decklist.username }}</a>
-    <small title="User Reputation">{{ decklist.reputation }}</small>
-</h3>
-<div id="deck-description">{{ decklist.description|raw }}</div>
+        <div class="col text-right">
+            <div class="btn-group" role="group" aria-label="Decklist actions">
+                <div class="btn-group" id="btn-group-decklist">
+                    <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                        <span class="hidden-sm">Actions</span>
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" id="btn-group-decklist">
+                        <li><a href="#" id="btn-copy-decklist">Copy into my decks</a></li>
+                        <li><a href="#" id="btn-compare">Compare with another decklist</a></li>
+                        <li class="dropdown-header"><span class="glyphicon glyphicon-download"></span> Download</li>
+                        <li><a href="#" id="btn-download-text">Text file</a></li>
+                        <li><a href="#" id="btn-download-tts">Tabletop Simulator file</a></li>
+                        <li class="dropdown-header"><span class="glyphicon glyphicon-export"></span> Export</li>
+                        <li><a href="#" id="btn-export-bbcode">bbCode</a></li>
+                        <li><a href="#" id="btn-export-markdown">Markdown (Reddit)</a></li>
+                        <li><a href="#" id="btn-export-plaintext">Plain text</a></li>
+                        <li class="dropdown-header"><span class="glyphicon glyphicon-sort"></span> Sort</li>
+                        <li><a href="#" id="btn-sort-type">by Type</a></li>
+                        <li><a href="#" id="btn-sort-number">by Set</a></li>
+                        <li><a href="#" id="btn-sort-faction">by Guild</a></li>
+                        <li><a href="#" id="btn-sort-faction-type">by Guild, then Type</a></li>
+                        <li><a href="#" id="btn-sort-faction-number">by Guild, then Set</a></li>
+                        <li><a href="#" id="btn-sort-title">by Name</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
 
-<table class="table" id="comments">
-<thead>
-<tr><th><span class="glyphicon glyphicon-comment"></span> {{ decklist.nbcomments }} comments</th></tr>
-</thead>
-<tbody>
-{% for comment in decklist.comments %}
-<tr><td id="comment-{{ comment.id }}">
-    <div class="small comment-toggler" style="{% if not comment.hidden %}display:none{% endif %}">
-        <a href="#div-comment-{{ comment.id }}" data-toggle="collapse" class="text-muted pull-right" style="margin-left:.5em"><span class="glyphicon glyphicon-eye-open"></span></a>
+        <div class="col">
+            <h3 class="username">
+                <a href="{{ path('user_profile_view', {_locale:app.request.locale,user_id:decklist.user_id,user_name:decklist.username|e('url')}) }}" class="{{ decklist.usercolor }}">{{ decklist.username }}</a>
+                <small title="User Reputation">{{ decklist.reputation }}</small>
+            </h3>
+
+            <div id="deck-description">{{ decklist.description|raw }}</div>
+
+            <table class="table" id="comments">
+                <thead>
+                    <tr><th><span class="glyphicon glyphicon-comment"></span> {{ decklist.nbcomments }} comments</th></tr>
+                </thead>
+                <tbody>
+                    {% for comment in decklist.comments %}
+                        <tr><td id="comment-{{ comment.id }}">
+                            <div class="small comment-toggler" style="{% if not comment.hidden %}display:none{% endif %}">
+                                <a href="#div-comment-{{ comment.id }}" data-toggle="collapse" class="text-muted pull-right" style="margin-left:.5em"><span class="glyphicon glyphicon-eye-open"></span></a>
+                            </div>
+                            <div class="collapse{% if not comment.hidden %} in{% endif %}" id="div-comment-{{ comment.id }}">
+                                <span class="comment-date">{{ comment.date_creation|date('j M Y') }}</span>
+                                <a href="{{ path('user_profile_view', {_locale:app.request.locale,user_id:comment.user_id,user_name:comment.author|e('url')}) }}" class="comment-author username {{ comment.authorcolor }}">{{ comment.author }}</a>
+                                <div class="comment-text">{{ comment.text|raw }}</div>
+                            </div>
+                        </td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <a id="comment-form"></a>
+        </div>
     </div>
-    <div class="collapse{% if not comment.hidden %} in{% endif %}" id="div-comment-{{ comment.id }}">
-        <span class="comment-date">{{ comment.date_creation|date('j M Y') }}</span>
-        <a href="{{ path('user_profile_view', {_locale:app.request.locale,user_id:comment.user_id,user_name:comment.author|e('url')}) }}" class="comment-author username {{ comment.authorcolor }}">{{ comment.author }}</a>
-        <div class="comment-text">{{ comment.text|raw }}</div>
-    </div>
-</td></tr>
-{% endfor %}
-</tbody>
-</table>
-<a id="comment-form"></a>
-</div>
-
 </div>
 <!-- Right-side Column -->
 

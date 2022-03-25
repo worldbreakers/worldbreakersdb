@@ -559,6 +559,10 @@ ol.stages {
     vertical-align: -1px;
 }
 
+.packs-required .btn.dropdown-toggle {
+    padding: 0;
+}
+
 /*** guild specifics ***/
 
 .border-earth {

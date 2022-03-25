@@ -624,7 +624,6 @@ class BuilderController extends Controller
               d.uuid,
               d.name,
               d.description,
-              m.code,
               d.problem,
               d.date_update,
               c.code identity_code,

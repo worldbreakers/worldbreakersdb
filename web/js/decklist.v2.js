@@ -9,10 +9,8 @@ NRDB.data.promise.then(function () {
     }
     update_deck();
 
-    $('a[href="#tools"]').on('shown.bs.tab', function (e) {
-        make_cost_graph();
-        make_standing_graph();
-    });
+    make_cost_graph();
+    make_standing_graph();
 });
 
 Promise.all([NRDB.data.promise, NRDB.user.promise]).then(function () {
