@@ -594,3 +594,28 @@ ol.stages {
 .background-void {
     background-color: #f3eafc;
 }
+
+/*** Start page ***/
+.alert-alpha-stage {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    margin-top: -20px;
+    padding: 0.5em;
+    text-align: center;
+}
+
+h1.site-title {
+  font-family: Garamond,Baskerville,Baskerville Old Face,Hoefler Text,Times New Roman,serif;
+  font-size: 110px;
+  font-variant: small-caps;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+}
+
+div.site-slogan {
+    font-family: Garamond,Baskerville,Baskerville Old Face,Hoefler Text,Times New Roman,serif;
+    font-size: 30px;
+    margin-bottom: 2em;
+    text-align: center;
+}
