@@ -721,55 +721,40 @@ function standingGraphData() {
         type_code: { '$ne': 'identity' }
     });
 
-    var guildCodes = Array.from(
-        cards.reduce(function (memo, card) {
-            Object.keys(card.standing).forEach(function (guild) {
-                memo.add(guild);
-            });
-            return memo;
-        }, new Set())
-    ).sort();
-    var labels = guildCodes.reduce(function (memo, guild) {
-        memo.push(
-            "1x" + guild[0].toUpperCase(),
-            "2x" + guild[0].toUpperCase(),
-            "3x" + guild[0].toUpperCase(),
-        );
+    var guilds = NRDB.data.factions.find({ code: { '$ne': 'neutral' }}, { $orderBy: { name: 1 } });
+    var guildCodes = guilds.map(function (guild) { return guild.code; })
+    var labels = guilds.map(function (guild) { return guild.name; });
 
-        return memo;
-    },[]);
-
-    var data = {
-        event: new Array(guildCodes.length * 3).fill(0),
-        follower: new Array(guildCodes.length * 3).fill(0),
-        location: new Array(guildCodes.length * 3).fill(0),
-    };
+    var data = [];
+    for (var i = 0; i < 3; i++) {
+        data.push(new Array(guilds.length).fill(0));
+    }
 
     cards.forEach(function (card) {
         Object.entries(card.standing).forEach(function (entry) {
             var guildCode = entry[0];
             var standingReq = entry[1];
-            var guildIndex = guildCodes.indexOf(guildCode)
-
-            var index = guildIndex * 3 + standingReq;
-            data[card.type_code][index] += 1;
+            var guildIndex = guildCodes.indexOf(guildCode);
+            data[standingReq - 1][guildIndex]++;
         });
     });
+
+    console.debug(data);
     var datasets = [
         {
-            label: 'Events',
-            data: data.event,
-            backgroundColor: createBackgroundColors(0),
+            label: '1x?',
+            data: data[0],
+            backgroundColor: createBackgroundColors(2),
         },
         {
-            label: 'Follower',
-            data: data.follower,
+            label: '2x?',
+            data: data[1],
             backgroundColor: createBackgroundColors(1),
         },
         {
-            label: 'Location',
-            data: data.location,
-            backgroundColor: createBackgroundColors(2),
+            label: '3x?',
+            data: data[2],
+            backgroundColor: createBackgroundColors(0),
         },
     ];
 
@@ -779,17 +764,10 @@ function standingGraphData() {
     };
 
     function createBackgroundColors(index) {
-        return guildCodes.reduce(function (memo, guild) {
-            memo.push(
-                COLORS[guild][index],
-                COLORS[guild][index],
-                COLORS[guild][index]
-            );
-
-            return memo;
-        }, []);
+        return guildCodes.map(function (guild) {
+            return COLORS[guild][index];
+        });
     }
-
  }
 
 function makeStandingGraph(element) {
