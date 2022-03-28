@@ -300,10 +300,7 @@ function create_charts() {
     }
 
     if (document.getElementById('standingChart')) {
-        charts.standing = make_stacked_bar_chart(
-            document.getElementById('standingChart'),
-            { labels: [], datasets: [], }
-        );
+        charts.standing = makeStandingGraph(document.getElementById('standingChart'));
     }
 
     return charts;
@@ -321,7 +318,7 @@ function update_charts() {
     }
 
     if (NRDB.charts.standing) {
-        var standingData = repartitionByStanding();
+        var standingData = standingGraphData();
         NRDB.charts.standing.data = standingData;
         NRDB.charts.standing.update();
     }
@@ -633,55 +630,6 @@ function download_tts(deck) {
     });
 }
 
-function repartitionByStanding()
-{
-    var standingData = {};
-    var minStanding = 0;
-    var maxStanding = 0;
-    var cards = NRDB.data.cards.find({ indeck: { '$gt': 0 }, type_code: { '$ne': 'identity' } });
-
-    cards.forEach(function (card) {
-        if (card.standing_req > maxStanding) {
-            maxStanding = card.standing_req;
-        }
-    });
-
-    cards.forEach(function (card) {
-        if (card.standing_req != null) {
-            if (!(card.type.code in standingData)) {
-                standingData[card.type.code] = new Array(maxStanding - minStanding + 1).fill(0);
-            }
-            standingData[card.type.code][card.standing_req] += card.indeck;
-        }
-    });
-
-    var types = NRDB.data.types.find({ code: { '$ne': 'identity' } });
-    var types_colors = {
-        event: 'red',
-        follower: 'blue',
-        location: 'green',
-    };
-
-    var labels = [];
-    for (var i = minStanding; i <= maxStanding; ++i) {
-        labels.push(i);
-    }
-
-    var data = {
-        labels: labels,
-        datasets: types.map(function (type) {
-            return {
-                label: type.name,
-                // TODO: Set colors in JSON
-                backgroundColor: types_colors[type.code],
-                data: standingData[type.code]
-            };
-        })
-    };
-
-    return data;
-}
-
 function repartitionByCost()
 {
     var costData = {};
@@ -745,6 +693,120 @@ function make_stacked_bar_chart(element, data) {
                 },
             },
             responsive: true,
+            scales: {
+                x: {
+                    stacked: true,
+                },
+                y: {
+                    stacked: true
+                }
+            }
+        }
+    };
+
+    return new Chart(element, config);
+}
+
+
+var COLORS = {
+    earth: ["#C98161","#D8A48D","#E7C8BA"],
+    moon: ["#476A89","#557FA4","#6F94B4"],
+    stars: ["#ABA58B","#C5C1AF","#DFDDD3"],
+    void: ["#48375B","#56426D","#654D7F"]
+};
+
+function standingGraphData() {
+    var cards = NRDB.data.cards.find({
+        indeck: { '$gt': 0 },
+        type_code: { '$ne': 'identity' }
+    });
+
+    var guildCodes = Array.from(
+        cards.reduce(function (memo, card) {
+            Object.keys(card.standing).forEach(function (guild) {
+                memo.add(guild);
+            });
+            return memo;
+        }, new Set())
+    ).sort();
+    var labels = guildCodes.reduce(function (memo, guild) {
+        memo.push(
+            "1x" + guild[0].toUpperCase(),
+            "2x" + guild[0].toUpperCase(),
+            "3x" + guild[0].toUpperCase(),
+        );
+
+        return memo;
+    },[]);
+
+    var data = {
+        event: new Array(guildCodes.length * 3).fill(0),
+        follower: new Array(guildCodes.length * 3).fill(0),
+        location: new Array(guildCodes.length * 3).fill(0),
+    };
+
+    cards.forEach(function (card) {
+        Object.entries(card.standing).forEach(function (entry) {
+            var guildCode = entry[0];
+            var standingReq = entry[1];
+            var guildIndex = guildCodes.indexOf(guildCode)
+
+            var index = guildIndex * 3 + standingReq;
+            data[card.type_code][index] += 1;
+        });
+    });
+    var datasets = [
+        {
+            label: 'Events',
+            data: data.event,
+            backgroundColor: createBackgroundColors(0),
+        },
+        {
+            label: 'Follower',
+            data: data.follower,
+            backgroundColor: createBackgroundColors(1),
+        },
+        {
+            label: 'Location',
+            data: data.location,
+            backgroundColor: createBackgroundColors(2),
+        },
+    ];
+
+    return {
+        labels: labels,
+        datasets: datasets
+    };
+
+    function createBackgroundColors(index) {
+        return guildCodes.reduce(function (memo, guild) {
+            memo.push(
+                COLORS[guild][index],
+                COLORS[guild][index],
+                COLORS[guild][index]
+            );
+
+            return memo;
+        }, []);
+    }
+
+ }
+
+function makeStandingGraph(element) {
+    const config = {
+        type: 'bar',
+        data: { labels: [], datasets: [] },
+        options: {
+            aspectRatio: 1,
+            plugins: {
+                legend: {
+                    display: false,
+                },
+            },
+            responsive: true,
+            interaction: {
+                intersect: false,
+            },
             scales: {
                 x: {
                     stacked: true,
