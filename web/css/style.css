@@ -205,7 +205,7 @@ tbody .btn-group{white-space:nowrap}
 }
 
 #index_page .section {
-  color: crimson;
+  color: #ee0000;
 }
 .deck-list-group-item {
   box-sizing: content-box;
@@ -604,27 +604,19 @@ ol.stages {
     text-align: center;
 }
 
-h1.site-title, div.site-slogan {
-    font-family: Garamond,Baskerville,Baskerville Old Face,Hoefler Text,Times New Roman,serif;
+.site-title {
     text-align: center;
 }
 
-h1.site-title {
-    font-size: 5rem;
-    font-variant: small-caps;
-    margin: 0;
-    padding: 0;
-}
-
-@media screen and (min-width: 992px) {
-    h1.site-title {
-        font-size: 7rem;
-    }
+.site-title img {
+    width: 80%;
 }
 
 div.site-slogan {
+    font-family: Garamond,Baskerville,Baskerville Old Face,Hoefler Text,Times New Roman,serif;
     font-size: 2rem;
     margin-bottom: 2em;
+    text-align: center;
 }
 
 @media screen and (min-width: 992px) {
