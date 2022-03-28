@@ -604,18 +604,31 @@ ol.stages {
     text-align: center;
 }
 
+h1.site-title, div.site-slogan {
+    font-family: Garamond,Baskerville,Baskerville Old Face,Hoefler Text,Times New Roman,serif;
+    text-align: center;
+}
+
 h1.site-title {
-  font-family: Garamond,Baskerville,Baskerville Old Face,Hoefler Text,Times New Roman,serif;
-  font-size: 110px;
-  font-variant: small-caps;
-  text-align: center;
-  margin: 0;
-  padding: 0;
+    font-size: 5rem;
+    font-variant: small-caps;
+    margin: 0;
+    padding: 0;
+}
+
+@media screen and (min-width: 992px) {
+    h1.site-title {
+        font-size: 7rem;
+    }
 }
 
 div.site-slogan {
-    font-family: Garamond,Baskerville,Baskerville Old Face,Hoefler Text,Times New Roman,serif;
-    font-size: 30px;
+    font-size: 2rem;
     margin-bottom: 2em;
-    text-align: center;
+}
+
+@media screen and (min-width: 992px) {
+    div.site-slogan {
+        font-size: 2.5rem;
+    }
 }
