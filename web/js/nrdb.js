@@ -299,8 +299,8 @@ function create_charts() {
         );
     }
 
-    if (document.getElementById('standingChart')) {
-        charts.standing = makeStandingGraph(document.getElementById('standingChart'));
+    if (document.getElementById('cardCountChart')) {
+        charts.cardCount = makeCardCountGraph(document.getElementById('cardCountChart'));
     }
 
     return charts;
@@ -317,10 +317,10 @@ function update_charts() {
         NRDB.charts.cost.update();
     }
 
-    if (NRDB.charts.standing) {
-        var standingData = standingGraphData();
-        NRDB.charts.standing.data = standingData;
-        NRDB.charts.standing.update();
+    if (NRDB.charts.cardCount) {
+        var cardCountData = cardCountGraphData();
+        NRDB.charts.cardCount.data = cardCountData;
+        NRDB.charts.cardCount.update();
     }
 }
 
@@ -712,16 +712,18 @@ var COLORS = {
     earth: ["#C98161","#D8A48D","#E7C8BA"],
     moon: ["#476A89","#557FA4","#6F94B4"],
     stars: ["#ABA58B","#C5C1AF","#DFDDD3"],
-    void: ["#48375B","#56426D","#654D7F"]
+    void: ["#48375B","#56426D","#654D7F"],
+    neutral: ["#AAAAAA", "#AAAAAA", "#AAAAAA"],
 };
 
-function standingGraphData() {
+function cardCountGraphData() {
     var cards = NRDB.data.cards.find({
         indeck: { '$gt': 0 },
         type_code: { '$ne': 'identity' }
     });
 
     var guilds = NRDB.data.factions.find({ code: { '$ne': 'neutral' }}, { $orderBy: { name: 1 } });
+    guilds.push(NRDB.data.factions.find({ code: { '$eq': 'neutral' }})[0]);
     var guildCodes = guilds.map(function (guild) { return guild.code; })
     var labels = guilds.map(function (guild) { return guild.name; });
 
@@ -731,28 +733,31 @@ function standingGraphData() {
     }
 
     cards.forEach(function (card) {
+        if (card.standing_req > 0) {
         Object.entries(card.standing).forEach(function (entry) {
             var guildCode = entry[0];
             var standingReq = entry[1];
             var guildIndex = guildCodes.indexOf(guildCode);
             data[standingReq - 1][guildIndex]++;
         });
+        } else {
+            data[0][guildCodes.length - 1]++;
+        }
     });
 
-    console.debug(data);
     var datasets = [
         {
-            label: '1x?',
+            label: 'One standing of this guild',
             data: data[0],
             backgroundColor: createBackgroundColors(2),
         },
         {
-            label: '2x?',
+            label: 'Two standing of this guild',
             data: data[1],
             backgroundColor: createBackgroundColors(1),
         },
         {
-            label: '3x?',
+            label: 'Three standing of this guild',
             data: data[2],
             backgroundColor: createBackgroundColors(0),
         },
@@ -770,7 +775,7 @@ function standingGraphData() {
     }
  }
 
-function makeStandingGraph(element) {
+function makeCardCountGraph(element) {
     const config = {
         type: 'bar',
         data: { labels: [], datasets: [] },
