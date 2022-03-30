@@ -27,7 +27,8 @@
             <div class="panel-heading">
                 <h3 class="panel-title card-title" style="display: flex; justify-content: space-between; margin-right: 0;">
                     <span class="card-title{% if card.available == false %} card-preview{% endif %}">
-                        {{ card.title }}
+                        {{ include('/Search/card-title.html.twig') }}
+
                         {% if card.is_signature_card %}<span class="glyphicon glyphicon-star" title="Signature Card"></span>{% endif %}
                     </span>
                     <span class="card-cost">

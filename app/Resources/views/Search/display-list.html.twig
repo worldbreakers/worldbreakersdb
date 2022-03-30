@@ -17,7 +17,9 @@
    <tr class="{% if i%2==0 %}even{% else %}odd{% endif %}">
       {% set card = cards[i] %}
       <td data-th="Title">
-         <a href="{{ card.url }}" class="card{% if card.available == false %} card-preview{% endif %}" data-index="{{ card.code }}">{{ card.title }}</a>
+          <a href="{{ card.url }}" class="card{% if card.available == false %} card-preview{% endif %}" data-index="{{ card.code }}">
+              {{ include('/Search/card-title.html.twig') }}
+          </a>
       </td>
       <td data-th="Guild">{{ card.faction_name }}</td>
       <td data-th="Cost" style="text-align:right;">

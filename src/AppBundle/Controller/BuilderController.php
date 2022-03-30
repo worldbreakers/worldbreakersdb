@@ -906,7 +906,7 @@ class BuilderController extends Controller
                 $parse = $this->parseTextImport($zip->getFromIndex($i), $entityManager);
 
                 $deck = new Deck();
-                $deckManager->saveDeck($this->getUser(), $deck, null, $name, '', [], null, $parse['content'], null);
+                $deckManager->saveDeck($this->getUser(), $deck, null, $name, '', [], $parse['content'], null);
             }
         }
         $zip->close();

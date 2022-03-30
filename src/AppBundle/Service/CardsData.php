@@ -154,6 +154,8 @@ class CardsData
                         } else {
                             $or[] = "(c.title " . ($operator == ":" ? "like" : "not like") . " ?$i)";
                             $parameters[$i++] = "%$arg%";
+                            $or[] = "(c.printedTitle " . ($operator == ":" ? "like" : "not like") . " ?$i)";
+                            $parameters[$i++] = "%$arg%";
                         }
                     }
                     $clauses[] = implode(" or ", $or);
@@ -443,6 +445,7 @@ class CardsData
             "id"                => $card->getId(),
             "code"              => $card->getCode(),
             "title"             => $card->getTitle(),
+            "printed_title"     => $card->getPrintedTitle() !== $card->getTitle() ? $card->getPrintedTitle() : null,
             "type_name"         => $card->getType()->getName(),
             "type_code"         => $card->getType()->getCode(),
             "subtype"           => $card->getKeywords(),

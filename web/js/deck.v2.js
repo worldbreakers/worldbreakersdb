@@ -76,7 +76,7 @@ Promise.all([NRDB.data.promise, NRDB.settings.promise]).then(function() {
   function findMatches(q, cb) {
     if(q.match(/^\w:/)) return;
     // TODO(plural): Make this variable initialized at page load and only updated when the collection changes instead of here on every keypress!
-    var matchingPacks = NRDB.data.cards.find({pack_code: Filters.pack_code || []});
+    var matchingPacks = NRDB.data.cards.find();
     var latestCards = select_only_latest_cards(matchingPacks);
     var regexp = new RegExp(q, 'i');
     var matchingCards = _.filter(latestCards, function (card) {

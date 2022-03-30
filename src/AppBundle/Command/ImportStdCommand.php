@@ -193,7 +193,9 @@ class ImportStdCommand extends ContainerAwareCommand
             $card = $this->getEntityFromData('AppBundle\Entity\Card', $cardData, [
                 'code',
                 'position',
+                'printed_title',
                 'signature',
+                'stripped_printed_title',
                 'stripped_title',
                 'title',
             ], [

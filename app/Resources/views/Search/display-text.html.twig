@@ -9,7 +9,9 @@
 {% set card = cards[row*3+col] %}
 <div class="col-sm-4" style="margin-bottom:1.5em">
     <h4>
-    <a href="{{ card.url }}" class="card-title{% if card.available == false %} card-preview{% endif %}">{{ card.title }}</a>
+        <a href="{{ card.url }}" class="card-title{% if card.available == false %} card-preview{% endif %}">
+            {{ include('/Search/card-title.html.twig') }}
+        </a>
     </h4>
   <div class="card-info">
   <p>

@@ -1,0 +1,6 @@
+{% if card.printed_title %}
+    <span class="card-printed-title">{{ card.printed_title }}</span>
+    <span class="card-canonical-title">({{ card.title }})</span>
+{% else %}
+    {{ card.title }}
+{% endif %}

@@ -38,6 +38,16 @@ class Card implements NormalizableInterface, TimestampableInterface
     private $strippedTitle;
 
     /**
+     * @var string
+     */
+    private $printedTitle;
+
+    /**
+     * @var string
+     */
+    private $strippedPrintedTitle;
+
+    /**
      * @var string|null
      */
     private $keywords;
@@ -317,6 +327,44 @@ class Card implements NormalizableInterface, TimestampableInterface
     public function setStrippedTitle(string $title)
     {
         $this->strippedTitle = $title;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPrintedTitle()
+    {
+        return $this->printedTitle;
+    }
+
+    /**
+     * @param string $printedTitle
+     * @return $this
+     */
+    public function setPrintedTitle(string $printedTitle)
+    {
+        $this->printedTitle = $printedTitle;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getStrippedPrintedTitle()
+    {
+        return $this->strippedPrintedTitle;
+    }
+
+    /**
+     * @param string $strippedPrintedTitle
+     * @return $this
+     */
+    public function setStrippedPrintedTitle(string $strippedPrintedTitle)
+    {
+        $this->strippedPrintedTitle = $strippedPrintedTitle;
 
         return $this;
     }
