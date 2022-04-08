@@ -39,11 +39,17 @@
     );
 
     var qtyelt = modal.find('.modal-qty');
+
+    var isSignatureCard = !!card.signature;
+    var isOtherSignatureCard = isSignatureCard && Identity && card.signature !== Identity.signature;
+
     if(qtyelt && typeof Filters != "undefined") {
 
       var qty = '';
+        if (!isOtherSignatureCard) {
         for(var i=0; i<=card.maxqty; i++) {
           qty += '<label class="btn btn-default"><input type="radio" name="qty" value="'+i+'">'+i+'</label>';
+        }
         }
         qtyelt.html(qty);
 

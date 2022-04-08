@@ -533,18 +533,21 @@ function build_div(record) {
   var isSignatureCard = !!record.signature;
   var isOtherSignatureCard = isSignatureCard && Identity && record.signature !== Identity.signature;
   var radios = '';
-  for (var i = 0; i <= record.maxqty; i++) {
-    if(i && !(i%4)) {
-      radios += '<br>';
-    }
-    radios += '<label class="btn btn-xs btn-default'
-        + (i == record.indeck ? ' active' : '')
-        + (isOtherSignatureCard ? ' disabled' : '')
-        + '"'+ (isOtherSignatureCard ? ' title="Signature cards of other Worldbreakers cannot be added."' : '')
-        + '><input type="radio" name="qty-' + record.code
-        + '" value="' + i + '"'
-        + (isOtherSignatureCard ? ' disabled' : '')
-        + '>' + i + '</label>';
+
+  if (!isOtherSignatureCard) {
+      for (var i = 0; i <= record.maxqty; i++) {
+          if(i && !(i%4)) {
+              radios += '<br>';
+          }
+          radios += '<label class="btn btn-xs btn-default'
+              + (i == record.indeck ? ' active' : '')
+              + (isOtherSignatureCard ? ' disabled' : '')
+              + '"'+ (isOtherSignatureCard ? ' title="Signature cards of other Worldbreakers cannot be added."' : '')
+              + '><input type="radio" name="qty-' + record.code
+              + '" value="' + i + '"'
+              + (isOtherSignatureCard ? ' disabled="disabled"' : '')
+              + '>' + i + '</label>';
+      }
   }
 
   var title = record.title + (isSignatureCard ? '<span class="card-is-signature glyphicon glyphicon-star" title="Signature Card"></span>' : '');
