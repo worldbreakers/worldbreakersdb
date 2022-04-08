@@ -553,6 +553,27 @@ ol.stages {
 }
 
 /*** decklists ***/
+section.deck-sort-options {
+    margin-top: 1.5em;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+section.deck-sort-options header {
+    border-bottom: dashed 1px lightgray;
+    flex: 1;
+}
+
+section.deck-sort-options header h3 {
+    font-size: 1.25em;
+}
+
+section.deck-sort-options .btn-group {
+    margin-left: 1em;
+}
+
 .decklist-graphs {
     margin-bottom: 20px;
 }

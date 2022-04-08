@@ -299,7 +299,7 @@ $(function () {
         });
     });
 
-    $('#btn-group-decklist').on({
+    $('#btn-group-sort-deck').on({
         click: function (event) {
             event.preventDefault();
             if($(this).attr('id').match(/btn-sort-(\w+)/)) {

@@ -95,6 +95,27 @@ NRDB.user.params.decklist_id = Decklist.id;
 </div><!-- /.row -->
 <!-- Identity and Stats -->
 
+<!-- Sorting options -->
+<section class="deck-sort-options">
+    <header>
+        <h3> Deck </h3>
+    </header>
+
+    <div id="btn-group-sort-deck" class="btn-group">
+        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="glyphicon glyphicon-sort"></span> Sort Deck <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+            <li><a href="#" id="btn-sort-type">by Type</a></li>
+            <li><a href="#" id="btn-sort-number">by Set</a></li>
+            <li><a href="#" id="btn-sort-faction">by Guild</a></li>
+            <li><a href="#" id="btn-sort-faction-type">by Guild, then Type</a></li>
+            <li><a href="#" id="btn-sort-faction-number">by Guild, then Set</a></li>
+            <li><a href="#" id="btn-sort-title">by Name</a></li>
+        </ul>
+    </div>
+</section>
+
 <!-- Deck Content -->
 <div class="row" id="deck-content" style="margin-bottom:20px"></div>
 <!-- Deck Content -->
@@ -202,13 +223,6 @@ NRDB.user.params.decklist_id = Decklist.id;
                         <li><a href="#" id="btn-export-bbcode">bbCode</a></li>
                         <li><a href="#" id="btn-export-markdown">Markdown (Reddit)</a></li>
                         <li><a href="#" id="btn-export-plaintext">Plain text</a></li>
-                        <li class="dropdown-header"><span class="glyphicon glyphicon-sort"></span> Sort</li>
-                        <li><a href="#" id="btn-sort-type">by Type</a></li>
-                        <li><a href="#" id="btn-sort-number">by Set</a></li>
-                        <li><a href="#" id="btn-sort-faction">by Guild</a></li>
-                        <li><a href="#" id="btn-sort-faction-type">by Guild, then Type</a></li>
-                        <li><a href="#" id="btn-sort-faction-number">by Guild, then Set</a></li>
-                        <li><a href="#" id="btn-sort-title">by Name</a></li>
                     </ul>
                 </div>
             </div>
