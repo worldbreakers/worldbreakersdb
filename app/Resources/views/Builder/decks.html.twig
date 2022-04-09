@@ -1,17 +1,16 @@
 
 {% extends '/layout.html.twig' %}
 {% block head %}
-<script src="{{ asset('/js/nrdb.card_modal.js') }}"></script>
-<script src="{{ asset('/js/nrdb.diff.js') }}"></script>
-<script src="{{ asset('/js/publish_deck_form.v2.js') }}"></script>
-<script src="{{ asset('/js/decks.v2.js') }}"></script>
 <script type="text/javascript">
-var Identity = null,
-  LastClickedDeck = null,
-  SelectedDeck = null,
-  Decks = {{ decks|json_encode|raw }},
-  DisplaySort = 'type',
-  DisplaySortSecondary = 'name';
+WBDB.initCardModal();
+WBDB.pages.enhanceDecksPage();
+
+var Identity = null;
+var LastClickedDeck = null;
+var SelectedDeck = null;
+var Decks = {{ decks|json_encode|raw }};
+var DisplaySort = 'type';
+var DisplaySortSecondary = 'name';
 </script>
 <style>
   a.deck-list-group-item {

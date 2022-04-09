@@ -2,20 +2,17 @@
 
 {% block head %}
 
-<script src="{{ asset('/js/nrdb.deck_gallery.js') }}"></script>
-<script src="{{ asset('/js/nrdb.card_modal.js') }}"></script>
-<script src="{{ asset('/js/publish_deck_form.v2.js') }}"></script>
-<script src="{{ asset('/js/deckview.v2.js') }}"></script>
 <script type="text/javascript">
+WBDB.initCardModal();
+WBDB.pages.enhanceDeckviewPage();
 
-var Identity = null,
-  Deck = {{ deck|json_encode|raw }},
-  SelectedDeck = Deck,
-  DisplaySort = 'type',
-  DisplaySortSecondary = 'name',
-  Order = 1,
-  Identity = null,
-  DeckSize = 0;
+var Identity = null;
+var Deck = {{ deck|json_encode|raw }};
+var SelectedDeck = Deck;
+var DisplaySort = 'type';
+var DisplaySortSecondary = 'name';
+var Order = 1;
+var Identity = null;
 
 </script>
 {% endblock %}

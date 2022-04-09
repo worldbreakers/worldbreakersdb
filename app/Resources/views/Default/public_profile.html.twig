@@ -1,7 +1,9 @@
 {% extends '/layout.html.twig' %}
 
 {% block head %}
-<script src="{{ asset('/js/profile.js') }}"></script>
+<script>
+    WBDB.pages.enhanceProfilePage();
+</script>
 <script type="text/javascript">
 var UserId = {{ user.id }};
 </script>

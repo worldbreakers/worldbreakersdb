@@ -6,7 +6,7 @@
 <div class="container">
 
     <script type="text/javascript">
-        Promise.all([NRDB.data.promise, NRDB.ui.promise]).then(function() {
+        Promise.all([WBDB.data.promise, WBDB.ui.promise]).then(function() {
             // TODO(plural): Find a better place for this and remove the duplicate definitions.
             // This will filter matchingCards to only the latest version of each card, preserving the original order of matchingCards.
             function select_only_latest_cards(matchingCards) {
@@ -23,7 +23,7 @@
             }
 
             // We only need to calculate the latest_cards once and not on every findMatches call.
-            var latest_cards = select_only_latest_cards(NRDB.data.cards.find());
+            var latest_cards = select_only_latest_cards(WBDB.data.cards.find());
 
             function findMatches(q, cb) {
                 if (q.match(/^\w:/)) { return; }

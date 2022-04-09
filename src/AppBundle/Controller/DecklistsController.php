@@ -237,14 +237,7 @@ class DecklistsController extends Controller
         ];
         $params['sort_' . $sort] = ' selected="selected"';
         if (!empty($faction_code)) {
-            if ($faction_code == 'corp') {
-                $params['faction_C'] = ' selected="selected"';
-            } elseif ($faction_code == 'runner') {
-                $params['faction_R'] = ' selected="selected"';
-
-            } else {
-                $params['faction_' . CardsData::$faction_letters[$faction_code]] = ' selected="selected"';
-            }
+            $params['faction_' . $faction_code] = ' selected="selected"';
         }
 
         if (!empty($cards_code) && is_array($cards_code)) {

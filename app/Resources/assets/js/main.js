@@ -1,6 +1,5 @@
-import '../css/worldbreakersdb.css';
+import "../css/worldbreakersdb.css";
+import WBDB from "./wbdb.js";
+import "./wbdb-globals.js";
 
-console.debug("Worldbreakers mounted", foo());
-function foo () {
-    console.debug("foo");
-}
+window.WBDB = WBDB;

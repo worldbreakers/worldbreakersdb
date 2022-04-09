@@ -1,10 +1,10 @@
 {% extends '/Search/display.html.twig' %}
 
 {% block head %}
-    <script src="{{ asset('/js/zoom.js') }}"></script>
-    <script type="text/javascript">
-        NRDB.user.params.card_id = {{ cards[0].id|json_encode|raw }};
-    </script>
+<script>
+WBDB.pages.enhanceZoomPage();
+WBDB.user.params.card_id = {{ cards[0].id|json_encode|raw }};
+</script>
 {% endblock %}
 
 {% block main %}

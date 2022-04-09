@@ -467,40 +467,6 @@ tbody .btn-group {
   border: 1px solid white;
   border-radius: 10px;
 }
-#deck_gallery {
-  width: 100%;
-  table-layout: fixed;
-  border-collapse: collapse;
-  overflow: hidden;
-}
-#deck_gallery td {
-  padding: 0;
-}
-#deck_gallery td > div {
-  height: 100px;
-  overflow: visible;
-  position: relative;
-}
-#deck_gallery td > div > img {
-  height: 100%;
-  border: 1px solid white;
-  border-radius: 10px;
-}
-#deck_gallery td > div > div {
-  background: rgba(0, 0, 0, 0.5);
-  position: absolute;
-  left: 1px;
-  bottom: 1px;
-  color: white;
-  width: 24px;
-  height: 24px;
-  line-height: 24px;
-  font-size: 16px;
-  font-weight: bold;
-  text-align: center;
-  border-radius: 15px;
-  font-family: monospace;
-}
 
 .rwd-table tr {
   border-top: 1px solid #ddd;
@@ -670,12 +636,6 @@ div.ad-blocked {
 .navbar-brand .icon {
   font-size: 120%;
   line-height: 83%;
-}
-.navbar-brand:hover .icon-link-half-top {
-  color: brown;
-}
-.navbar-brand:hover .icon-link-half-bottom {
-  color: mediumblue;
 }
 
 #navbar-factions {

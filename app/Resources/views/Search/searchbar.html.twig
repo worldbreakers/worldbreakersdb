@@ -1,6 +1,6 @@
     <script type="text/javascript">
-        Promise.all([NRDB.data.promise, NRDB.ui.promise]).then(function() {
-            var all_cards = NRDB.data.cards.find();
+        Promise.all([WBDB.data.promise, WBDB.ui.promise]).then(function() {
+            var all_cards = WBDB.data.cards.find();
 
             function findMatches(q, cb) {
                 if (q.match(/^\w:/)) { return; }
@@ -21,7 +21,7 @@
                 source: findMatches
             });
             $('#search-input').on('typeahead:selected typeahead:autocomplete', function(event, data) {
-                location.href=Routing.generate('cards_zoom', {card_code:data.code, _locale:NRDB.locale});
+                location.href=Routing.generate('cards_zoom', {card_code:data.code, _locale:WBDB.locale});
             });
         });
     </script>

@@ -2,10 +2,12 @@
 
 {% block head %}
 
-<script src="{{ asset('/js/directimport.js') }}"></script>
-<script src="{{ asset('/js/nrdb.fuzzy_search.js') }}"></script>
+<script>
+WBDB.pages.enhanceDirectImportPage();
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/string_score/0.1.22/string_score.js"></script>
 <script type="text/javascript">
+WBDB.initFuzzySearch();
 
 var CardDB, CardNames;
 

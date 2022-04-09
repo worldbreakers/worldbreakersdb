@@ -1,19 +1,18 @@
 {% extends '/layout.html.twig' %}
 
 {% block head %}
-<script src="{{ asset('/js/nrdb.card_modal.js') }}"></script>
-<script src="{{ asset('/js/publish_deck_form.v2.js') }}"></script>
-<script src="{{ asset('/js/decklist.v2.js') }}"></script>
 <script type="text/javascript">
+WBDB.pages.enhanceDecklistPage();
+WBDB.initCardModal();
 
-var Identity = null,
-  Decklist = {{ decklist|json_encode|raw }},
-  Commenters = {{ commenters|json_encode|raw }},
-  SelectedDeck = Decklist,
-  DisplaySort = 'type',
-  DisplaySortSecondary = 'name';
+var Identity = null;
+var Decklist = {{ decklist|json_encode|raw }};
+var Commenters = {{ commenters|json_encode|raw }};
+var SelectedDeck = Decklist;
+var DisplaySort = 'type';
+var DisplaySortSecondary = 'name';
 
-NRDB.user.params.decklist_id = Decklist.id;
+WBDB.user.params.decklist_id = Decklist.id;
 
 </script>
 {% endblock %}
@@ -124,7 +123,7 @@ NRDB.user.params.decklist_id = Decklist.id;
 {% if claims|length %}
 <table class="table table-condensed" id="table-claims">
 <thead>
-<tr><th colspan="3"><span class="netrunner icon icon-abr"></span> Tournaments</th></tr>
+<tr><th colspan="3">Tournaments</th></tr>
 </thead>
 <tbody>
 {% for claim in claims %}

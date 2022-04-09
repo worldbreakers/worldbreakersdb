@@ -2,29 +2,24 @@
 
 {% block head %}
 
-<script src="{{ asset('/js/nrdb.settings.js') }}"></script>
-<script src="{{ asset('/js/nrdb.card_modal.js') }}"></script>
-<script src="{{ asset('/js/nrdb.smart_filter.js') }}"></script>
-<script src="{{ asset('/js/nrdb.suggestions.js') }}"></script>
-<script src="{{ asset('/js/nrdb.diff.js') }}"></script>
-<script src="{{ asset('/js/deck.v2.js') }}"></script>
-<script type="text/javascript">
+<script>
+WBDB.pages.enhanceDeckPage();
+WBDB.initCardModal();
+WBDB.initSettings();
 
 var Filters = {},
-  FilterQuery = {},
-  CardDivs = [null, {}, {}, {}],
-  Sort = "title",
-  Order = 1,
-  Identity = null,
-  DeckSize = 0,
-  Deck = {{ deck.slots|json_encode|raw }},
-  Deck_uuid = {{ deck.uuid|json_encode|raw }},
-  History = {{ deck.history|json_encode|raw }},
-  Url_TypeImage = '{{ asset('/images/types/xxx.png') }}',
-  DisplaySort = 'type',
-  DisplaySortSecondary = 'name',
-  HideDisabled = true,
-  ShowOnlyDeck = false;
+var FilterQuery = {};
+var CardDivs = [null, {}, {}, {}];
+var Sort = "title";
+var Order = 1;
+var Identity = null;
+var Deck = {{ deck.slots|json_encode|raw }};
+var Deck_uuid = {{ deck.uuid|json_encode|raw }};
+var History = {{ deck.history|json_encode|raw }};
+var DisplaySort = 'type';
+var DisplaySortSecondary = 'name';
+var HideDisabled = true;
+var ShowOnlyDeck = false;
 </script>
 
 {% endblock %}

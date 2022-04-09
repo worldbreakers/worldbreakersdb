@@ -26,54 +26,36 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/qtip2/3.0.3/jquery.qtip.min.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intro.js/2.9.3/introjs.min.css">
 
-        <link rel="stylesheet" href="{{ asset('/netrunnerfont.css') }}">
         <link rel="stylesheet" type="text/css" href="{{ asset('/dist/style.css') }}" />
 
         <script src="{{ asset('/bundles/fosjsrouting/js/router.js') }}"></script>
         <script src="{{ path('fos_js_routing_js', {"callback": "fos.Router.setData","version": asset_version('')}) }}"></script>
 
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/lie/3.3.0/lie.polyfill.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.20/lodash.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/qtip2/3.0.3/jquery.qtip.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js"></script>
-        <script src="/js/typeahead.jquery.min.js"></script>
+        <script src="{{ asset('/lib/typeahead.jquery.min.js') }}"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/pagedown/1.0/Markdown.Converter.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.5/jquery.textcomplete.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/forerunnerdb/1.4.68/fdb-all.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.7.3/localforage.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/intro.js/2.9.3/intro.min.js"></script>
         <script src="{{ asset('/lib/bootstrap-toggle-checklist.js') }}"></script>
         <script src="{{ asset('/lib/jquery-persistence.js') }}"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js" integrity="sha512-QSkVNOCYLtj73J4hbmVoOV6KVZuMluZlioC+trLpewV8qMjsWqlIQvkn1KGX2StWvPMdWGBqim1xlC8krl1EKQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+        <script src="{{ asset('/dist/worldbreakersdb.umd.js') }}"></script>
         <script type="text/javascript">
-        var NRDB = {
-            data_loaded: $.Callbacks(),
-            api_url: {
-                packs: '{{ path('api_public_packs')|raw }}',
-                cards: '{{ path('api_public_cards')|raw }}',
-                factions: '{{ path('api_public_factions')|raw }}',
-                types: '{{ path('api_public_types')|raw }}',
-            },
+        WBDB.init({
             locale: '{{ app.request.locale }}',
             card_image_url: '{{ card_image_url }}',
             worldbreakersdb_url: '{{ worldbreakersdb_url }}'
-        };
+        });
         moment.locale(window.navigator.language);
         </script>
-        <script src="{{ asset('/js/nrdb.js') }}"></script>
-        <script src="{{ asset('/js/nrdb.user.js') }}"></script>
-        <script src="{{ asset('/js/nrdb.data.js') }}"></script>
-        <script src="{{ asset('/js/nrdb.format.js') }}"></script>
-        <script src="{{ asset('/js/nrdb.tip.js') }}"></script>
-        <script src="{{ asset('/js/nrdb.ui.js') }}"></script>
-        <script src="{{ asset('/js/topnav.js') }}"></script>
-
-        <script src="{{ asset('/dist/worldbreakersdb.umd.js') }}"></script>
 
         {% block head %}{% endblock %}
 
@@ -182,18 +164,6 @@
                 {% block footer %}
                     <div class="row">
                         <div class="col-xs-12">
-
-                            <ul class="list-inline pull-right">
-                                {% set _route = app.request.attributes.get('_route') %}
-                                {% set _route_params = app.request.attributes.get('_route_params')|merge(app.request.query.all()) %}
-                                {% for supported_locale in supported_locales %}
-                                    <li>
-                                        <a href="{{ path(_route, _route_params|merge({'_locale': supported_locale})) }}">
-                                            <img data-src="{{ asset('/images/flags/32px/flag_' ~ supported_locale ~ '.png') }}" style="height:19px" class="lazyload">
-                                        </a>
-                                    </li>
-                                {% endfor %}
-                            </ul>
 
                             <ul class="list-inline">
                                 <li><a href="{{ path('cards_about') }}">About</a></li>
