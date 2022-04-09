@@ -1,245 +1,230 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>{{ pagetitle|default('Deckbuilder') }} &middot; WorldbreakersDB</title>
+    <head>
+        <title>{{ pagetitle|default('Deckbuilder') }} &middot; WorldbreakersDB</title>
 
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
-    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
-    <meta name="msapplication-TileColor" content="#da532c">
-    <meta name="theme-color" content="#ffffff">
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+        <link rel="manifest" href="/site.webmanifest">
+        <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+        <meta name="msapplication-TileColor" content="#da532c">
+        <meta name="theme-color" content="#ffffff">
 
-    {% if app.request.locale != "en" and app.request.attributes.get('_route') != "" %}
-    {% set _route_params = app.request.attributes.get('_route_params')|default({}) %}
-    {% set _get_params = app.request.query.all()|default({}) %}
-    <link rel="canonical" href="{{ url(app.request.attributes.get('_route'), _route_params|merge(_get_params)|merge({'_locale': 'en'})) }}"/>
-    {% endif %}
+        {% if app.request.locale != "en" and app.request.attributes.get('_route') != "" %}
+            {% set _route_params = app.request.attributes.get('_route_params')|default({}) %}
+            {% set _get_params = app.request.query.all()|default({}) %}
+            <link rel="canonical" href="{{ url(app.request.attributes.get('_route'), _route_params|merge(_get_params)|merge({'_locale': 'en'})) }}"/>
+        {% endif %}
 
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta property="og:image" content="{{ worldbreakersdb_url }}/icon.png" />
-    {% if pagedescription is defined %}<meta name="description" content="{{ pagedescription }}">{% endif %}
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta property="og:image" content="{{ worldbreakersdb_url }}/icon.png" />
+        {% if pagedescription is defined %}<meta name="description" content="{{ pagedescription }}">{% endif %}
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/qtip2/3.0.3/jquery.qtip.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intro.js/2.9.3/introjs.min.css">
-    <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.0.3/cookieconsent.min.css" />
-    <link rel="stylesheet" href="{{ asset('/css/style.css') }}">
-    <link rel="stylesheet" href="{{ asset('/latofonts.css') }}">
-    <link rel="stylesheet" href="{{ asset('/netrunnerfont.css') }}">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/qtip2/3.0.3/jquery.qtip.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intro.js/2.9.3/introjs.min.css">
 
-    <script src="{{ asset('/bundles/fosjsrouting/js/router.js') }}"></script>
-    <script src="{{ path('fos_js_routing_js', {"callback": "fos.Router.setData","version": asset_version('')}) }}"></script>
+        <link rel="stylesheet" href="{{ asset('/netrunnerfont.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ asset('/dist/style.css') }}" />
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lie/3.3.0/lie.polyfill.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.20/lodash.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qtip2/3.0.3/jquery.qtip.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js"></script>
-    <script src="/js/typeahead.jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pagedown/1.0/Markdown.Converter.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.5/jquery.textcomplete.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/forerunnerdb/1.4.68/fdb-all.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.7.3/localforage.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/intro.js/2.9.3/intro.min.js"></script>
-    <script src="{{ asset('/lib/bootstrap-toggle-checklist.js') }}"></script>
-    <script src="{{ asset('/lib/jquery-persistence.js') }}"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.1.1/cookieconsent.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js" integrity="sha512-QSkVNOCYLtj73J4hbmVoOV6KVZuMluZlioC+trLpewV8qMjsWqlIQvkn1KGX2StWvPMdWGBqim1xlC8krl1EKQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script>
-      window.addEventListener("load", function(){
-        window.cookieconsent.initialise({
-          "palette": {
-            "popup": {
-              "background": "#000"
+        <script src="{{ asset('/bundles/fosjsrouting/js/router.js') }}"></script>
+        <script src="{{ path('fos_js_routing_js', {"callback": "fos.Router.setData","version": asset_version('')}) }}"></script>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/lie/3.3.0/lie.polyfill.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.20/lodash.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/qtip2/3.0.3/jquery.qtip.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js"></script>
+        <script src="/js/typeahead.jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pagedown/1.0/Markdown.Converter.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.5/jquery.textcomplete.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/forerunnerdb/1.4.68/fdb-all.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.7.3/localforage.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/intro.js/2.9.3/intro.min.js"></script>
+        <script src="{{ asset('/lib/bootstrap-toggle-checklist.js') }}"></script>
+        <script src="{{ asset('/lib/jquery-persistence.js') }}"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js" integrity="sha512-QSkVNOCYLtj73J4hbmVoOV6KVZuMluZlioC+trLpewV8qMjsWqlIQvkn1KGX2StWvPMdWGBqim1xlC8krl1EKQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <script type="text/javascript">
+        var NRDB = {
+            data_loaded: $.Callbacks(),
+            api_url: {
+                packs: '{{ path('api_public_packs')|raw }}',
+                cards: '{{ path('api_public_cards')|raw }}',
+                factions: '{{ path('api_public_factions')|raw }}',
+                types: '{{ path('api_public_types')|raw }}',
             },
-            "button": {
-              "background": "#f1d600"
-            }
-          }
-        })});
-    </script>
-    <script type="text/javascript">
-      var NRDB = {
-        data_loaded: $.Callbacks(),
-        api_url: {
-          packs: '{{ path('api_public_packs')|raw }}',
-          cards: '{{ path('api_public_cards')|raw }}',
-          factions: '{{ path('api_public_factions')|raw }}',
-          types: '{{ path('api_public_types')|raw }}',
-        },
-        locale: '{{ app.request.locale }}',
-        card_image_url: '{{ card_image_url }}',
-        worldbreakersdb_url: '{{ worldbreakersdb_url }}'
-      };
-      moment.locale(window.navigator.language);
-    </script>
-    <script src="{{ asset('/js/nrdb.js') }}"></script>
-    <script src="{{ asset('/js/nrdb.user.js') }}"></script>
-    <script src="{{ asset('/js/nrdb.data.js') }}"></script>
-    <script src="{{ asset('/js/nrdb.format.js') }}"></script>
-    <script src="{{ asset('/js/nrdb.tip.js') }}"></script>
-    <script src="{{ asset('/js/nrdb.ui.js') }}"></script>
-    <script src="{{ asset('/js/topnav.js') }}"></script>
+            locale: '{{ app.request.locale }}',
+            card_image_url: '{{ card_image_url }}',
+            worldbreakersdb_url: '{{ worldbreakersdb_url }}'
+        };
+        moment.locale(window.navigator.language);
+        </script>
+        <script src="{{ asset('/js/nrdb.js') }}"></script>
+        <script src="{{ asset('/js/nrdb.user.js') }}"></script>
+        <script src="{{ asset('/js/nrdb.data.js') }}"></script>
+        <script src="{{ asset('/js/nrdb.format.js') }}"></script>
+        <script src="{{ asset('/js/nrdb.tip.js') }}"></script>
+        <script src="{{ asset('/js/nrdb.ui.js') }}"></script>
+        <script src="{{ asset('/js/topnav.js') }}"></script>
 
-    <script src="{{ asset('/dist/js/worldbreakers.js') }}"></script>
+        <script src="{{ asset('/dist/worldbreakersdb.umd.js') }}"></script>
 
-    {% block head %}{% endblock %}
+        {% block head %}{% endblock %}
 
-  </head>
-  <body>
-    {% include 'icons.html' %}
-    <div id="wrapper">
-      <nav class="navbar navbar-inverse navbar-static-top" role="navigation">
-        <div class="container">
-          {% block navbar %}
-          <div class="navbar-header">
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="{{ path('worldbreakersdb_index') }}">
-              <img src="/tug.svg" style="display: inline; height: 22px;">
-              WorldbreakersDB
-            </a>
-          </div>
-          <div class="navbar-collapse collapse">
-            <ul class="nav navbar-nav">
-              <li><a href="{{ path('decks_list') }}">My Decks</a></li>
-              <li><a href="{{ path('decklists_list', {type:'popular'}) }}">Decklists</a></li>
-              <li><a href="{{ path('cards_sets') }}">Sets</a></li>
-              <li class="hidden-sm dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Guilds <span class="caret"></span></a>
-                <ul class="dropdown-menu" role="menu">
-                    <li>
-                        <a href="{{ path('faction_page',{faction_code:'earth'}) }}">
-                            <svg class="icon-wb icon-earth"><use xlink:href="#icon-earth"></use></svg>
-                            <span class="hidden-sm">Earth Guild</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ path('faction_page',{faction_code:'moon'}) }}">
-                            <svg class="icon-wb icon-moon"><use xlink:href="#icon-moon"></use></svg>
-                            <span class="hidden-sm">Moon Guild</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ path('faction_page',{faction_code:'stars'}) }}">
-                            <svg class="icon-wb icon-stars"><use xlink:href="#icon-stars"></use></svg>
-                            <span class="hidden-sm">Stars Guild</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ path('faction_page',{faction_code:'void'}) }}">
-                            <svg class="icon-wb icon-void"><use xlink:href="#icon-void"></use></svg>
-                            <span class="hidden-sm">Void Guild</span>
-                        </a>
-                    </li>
-                </ul>
-              </li>
-              <li class="hidden-sm dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">More <span class="caret"></span></a>
-                <ul class="dropdown-menu" role="menu">
-                  <li class="hidden-sm"><a href="{{ path('card_reviews_list') }}">Reviews</a></li>
-                  <li><a href="{{ path('card_rulings') }}">Rulings</a></li>
-                </ul>
-              </li>
-            </ul>
-            <ul class="nav navbar-nav navbar-right">
-              <li class="dropdown" id="top_nav_card_search_menu">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Card Search&nbsp;&nbsp;<span class="glyphicon glyphicon-search"></span></a>
-                <div class="dropdown-menu" id="miney">
-                  <form id="top_nav_card_search_form" method="get" action="{{ path('cards_find') }}">
-                    <input type="text" placeholder="Card Search" class="form-control" name="q" id="top_nav_card_search" title="{% include '/Search/searchtooltip.html.twig' %}">
-                  </form>
+    </head>
+    <body>
+        {% include 'icons.html' %}
+        <div id="wrapper">
+            <nav class="navbar navbar-inverse navbar-static-top" role="navigation">
+                <div class="container">
+                    {% block navbar %}
+                        <div class="navbar-header">
+                            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                            </button>
+                            <a class="navbar-brand" href="{{ path('worldbreakersdb_index') }}">
+                                <img src="/tug.svg" style="display: inline; height: 22px;">
+                                WorldbreakersDB
+                            </a>
+                        </div>
+                        <div class="navbar-collapse collapse">
+                            <ul class="nav navbar-nav">
+                                <li><a href="{{ path('decks_list') }}">My Decks</a></li>
+                                <li><a href="{{ path('decklists_list', {type:'popular'}) }}">Decklists</a></li>
+                                <li><a href="{{ path('cards_sets') }}">Sets</a></li>
+                                <li class="hidden-sm dropdown">
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Guilds <span class="caret"></span></a>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <li>
+                                            <a href="{{ path('faction_page',{faction_code:'earth'}) }}">
+                                                <svg class="icon-wb icon-earth"><use xlink:href="#icon-earth"></use></svg>
+                                                <span class="hidden-sm">Earth Guild</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="{{ path('faction_page',{faction_code:'moon'}) }}">
+                                                <svg class="icon-wb icon-moon"><use xlink:href="#icon-moon"></use></svg>
+                                                <span class="hidden-sm">Moon Guild</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="{{ path('faction_page',{faction_code:'stars'}) }}">
+                                                <svg class="icon-wb icon-stars"><use xlink:href="#icon-stars"></use></svg>
+                                                <span class="hidden-sm">Stars Guild</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="{{ path('faction_page',{faction_code:'void'}) }}">
+                                                <svg class="icon-wb icon-void"><use xlink:href="#icon-void"></use></svg>
+                                                <span class="hidden-sm">Void Guild</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li class="hidden-sm dropdown">
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">More <span class="caret"></span></a>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <li class="hidden-sm"><a href="{{ path('card_reviews_list') }}">Reviews</a></li>
+                                        <li><a href="{{ path('card_rulings') }}">Rulings</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                            <ul class="nav navbar-nav navbar-right">
+                                <li class="dropdown" id="top_nav_card_search_menu">
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Card Search&nbsp;&nbsp;<span class="glyphicon glyphicon-search"></span></a>
+                                    <div class="dropdown-menu" id="miney">
+                                        <form id="top_nav_card_search_form" method="get" action="{{ path('cards_find') }}">
+                                            <input type="text" placeholder="Card Search" class="form-control" name="q" id="top_nav_card_search" title="{% include '/Search/searchtooltip.html.twig' %}">
+                                        </form>
+                                    </div>
+                                </li>
+                                <li><a href="{{ path('search_syntax') }}">Syntax</a></li>
+                                <li><a href="{{ path('advanced_search') }}">Advanced</a></li>
+                                <li id="login">
+                                    <a href="#" class="dropdown-toggle loginname" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span><b class="caret"></b></a>
+                                </li>
+                            </ul>
+                        </div><!--/.navbar-collapse -->
+                    {% endblock %}
                 </div>
-              </li>
-              <li><a href="{{ path('search_syntax') }}">Syntax</a></li>
-              <li><a href="{{ path('advanced_search') }}">Advanced</a></li>
-              <li id="login">
-                  <a href="#" class="dropdown-toggle loginname" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span><b class="caret"></b></a>
-              </li>
-            </ul>
-          </div><!--/.navbar-collapse -->
-          {% endblock %}
+            </nav>
+
+            <div class="container">
+                <div class="alert alert-info alert-alpha-stage" role="alert">
+                    We are in the alpha phase of development. Things will break or get lost. Please report problems via <a class="btn btn-sm btn-link" href="https://discord.com/invite/as32bEvqgG" rel="noreferrer noopener">Discord</a> or <a class="btn btn-sm btn-link" href="https://github.com/worldbreakers/worldbreakersdb/issues" rel="noreferrer noopener">Github.</a>
+                </div>
+
+                {% for flashMessage in app.session.flashbag.get('error') %}
+                    <div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>{{ flashMessage }}</div>
+                {% endfor %}
+                {% for flashMessage in app.session.flashbag.get('warning') %}
+                    <div class="alert alert-warning"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>{{ flashMessage }}</div>
+                {% endfor %}
+                {% for flashMessage in app.session.flashbag.get('notice') %}
+                    <div class="alert alert-success"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>{{ flashMessage }}</div>
+                {% endfor %}
+            </div>
+
+            {% block body %}{% endblock %}
+            <div id="push"></div>
         </div>
-      </nav>
+        <footer class="hidden-print">
+            <div class="container">
 
-      <div class="container">
-          <div class="alert alert-info alert-alpha-stage" role="alert">
-              We are in the alpha phase of development. Things will break or get lost. Please report problems via <a class="btn btn-sm btn-link" href="https://discord.com/invite/as32bEvqgG" rel="noreferrer noopener">Discord</a> or <a class="btn btn-sm btn-link" href="https://github.com/worldbreakers/worldbreakersdb/issues" rel="noreferrer noopener">Github.</a>
-          </div>
+                {% block footer %}
+                    <div class="row">
+                        <div class="col-xs-12">
 
-        {% for flashMessage in app.session.flashbag.get('error') %}
-        <div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>{{ flashMessage }}</div>
-        {% endfor %}
-        {% for flashMessage in app.session.flashbag.get('warning') %}
-        <div class="alert alert-warning"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>{{ flashMessage }}</div>
-        {% endfor %}
-        {% for flashMessage in app.session.flashbag.get('notice') %}
-        <div class="alert alert-success"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>{{ flashMessage }}</div>
-        {% endfor %}
-      </div>
+                            <ul class="list-inline pull-right">
+                                {% set _route = app.request.attributes.get('_route') %}
+                                {% set _route_params = app.request.attributes.get('_route_params')|merge(app.request.query.all()) %}
+                                {% for supported_locale in supported_locales %}
+                                    <li>
+                                        <a href="{{ path(_route, _route_params|merge({'_locale': supported_locale})) }}">
+                                            <img data-src="{{ asset('/images/flags/32px/flag_' ~ supported_locale ~ '.png') }}" style="height:19px" class="lazyload">
+                                        </a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
 
-      {% block body %}{% endblock %}
-      <div id="push"></div>
-    </div>
-    <footer class="hidden-print">
-      <div class="container">
+                            <ul class="list-inline">
+                                <li><a href="{{ path('cards_about') }}">About</a></li>
+                                <li><a href="javascript:localStorage.clear()">Clear data</a></li>
+                            </ul>
 
-        {% block footer %}
-        <div class="row">
-          <div class="col-xs-12">
+                            <p>
+                                Standing on the shoulders of <a href="https://github.com/NetrunnerDB/netrunnerdb" rel="noreferrer noopener">NetrunnerDB</a>. Maintained by <a href="https://github.com/tessaluniki" rel="noreferrer noopener">@tessaluniki</a>.
+                            </p>
 
-            <ul class="list-inline pull-right">
-              {% set _route = app.request.attributes.get('_route') %}
-              {% set _route_params = app.request.attributes.get('_route_params')|merge(app.request.query.all()) %}
-              {% for supported_locale in supported_locales %}
-              <li>
-                <a href="{{ path(_route, _route_params|merge({'_locale': supported_locale})) }}">
-                  <img data-src="{{ asset('/images/flags/32px/flag_' ~ supported_locale ~ '.png') }}" style="height:19px" class="lazyload">
-                </a>
-              </li>
-              {% endfor %}
-            </ul>
+                            <p>
+                                Please post bug reports and feature requests on <a href="https://github.com/worldbreakers/worldbreakersdb/issues" rel="noreferrer noopener">Github</a>
+                            </p>
 
-            <ul class="list-inline">
-              <li><a href="{{ path('cards_about') }}">About</a></li>
-              <li><a href="javascript:localStorage.clear()">Clear data</a></li>
-            </ul>
+                            <p style="color:#333">
+                                The information presented on this site about Worldbreakers, both literal and graphical, is copyrighted by <a href="https://worldbreakersgame.com" rel="noreferrer noopener">Elli Amir</a>.
+                            </p>
 
-            <p>
-                Standing on the shoulders of <a href="https://github.com/NetrunnerDB/netrunnerdb" rel="noreferrer noopener">NetrunnerDB</a>. Maintained by <a href="https://github.com/tessaluniki" rel="noreferrer noopener">@tessaluniki</a>.
-            </p>
+                            <svg width="0" height="0" viewBox="0 0 677 601" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="nrdb_svg_hex">
+                                <defs>
+                                    <symbol id="hex"><polygon points="623,302.91412353515625 480,550.5973510742188 194,550.5973510742188 51,302.91412353515625 194,55.23085021972656 480,55.23085021972656 623,302.91412353515625 "/></symbol>
+                                    <symbol id="rect"><rect x="0" y="0" width="677" height="601" fill="white" /></symbol>
+                                </defs>
+                            </svg>
 
-            <p>
-                Please post bug reports and feature requests on <a href="https://github.com/worldbreakers/worldbreakersdb/issues" rel="noreferrer noopener">Github</a>
-            </p>
+                        </div>
+                    </div>
+                {% endblock %}
 
-            <p style="color:#333">
-                The information presented on this site about Worldbreakers, both literal and graphical, is copyrighted by <a href="https://worldbreakersgame.com" rel="noreferrer noopener">Elli Amir</a>.
-            </p>
-
-            <svg width="0" height="0" viewBox="0 0 677 601" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="nrdb_svg_hex">
-              <defs>
-              <symbol id="hex"><polygon points="623,302.91412353515625 480,550.5973510742188 194,550.5973510742188 51,302.91412353515625 194,55.23085021972656 480,55.23085021972656 623,302.91412353515625 "/></symbol>
-              <symbol id="rect"><rect x="0" y="0" width="677" height="601" fill="white" /></symbol>
-              </defs>
-            </svg>
-
-          </div>
-        </div>
-        {% endblock %}
-
-      </div>
-    </footer>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lazysizes/5.2.0/lazysizes.min.js" async></script>
-  </body>
+            </div>
+        </footer>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/lazysizes/5.2.0/lazysizes.min.js" async></script>
+    </body>
 </html>

@@ -68,7 +68,6 @@ class DefaultController extends Controller
         $notifCommenter = $request->get('notif_commenter') ? true : false;
         $notifMention = $request->get('notif_mention') ? true : false;
         $shareDecks = $request->get('share_decks') ? true : false;
-        $autoloadImages = $request->get('autoload_images') ? true : false;
 
         $user->setFaction($faction_code);
         $user->setResume($resume);
@@ -76,7 +75,6 @@ class DefaultController extends Controller
         $user->setNotifCommenter($notifCommenter);
         $user->setNotifMention($notifMention);
         $user->setShareDecks($shareDecks);
-        $user->setAutoloadImages($autoloadImages);
 
         $entityManager->flush();
 

@@ -136,11 +136,6 @@ class User extends BaseUser
     private $last_activity_check;
 
     /**
-     * @var boolean
-     */
-    private $autoload_images;
-
-    /**
      * @var array
      */
 
@@ -707,25 +702,6 @@ class User extends BaseUser
     public function setLastActivityCheck(\DateTime $lastActivityCheck)
     {
         $this->last_activity_check = $lastActivityCheck;
-
-        return $this;
-    }
-
-    /**
-     * @return boolean
-     */
-    public function getAutoloadImages()
-    {
-        return $this->autoload_images;
-    }
-
-    /**
-     * @param boolean $autoloadImages
-     * @return User
-     */
-    public function setAutoloadImages(bool $autoloadImages)
-    {
-        $this->autoload_images = $autoloadImages;
 
         return $this;
     }

@@ -6,26 +6,26 @@ var Autosave_running = false;
 var Autosave_period = 60;
 
 function update_max_qty() {
-  NRDB.data.cards.find().forEach(function(card) {
+  NRDB.data.cards.find().forEach(function (card) {
     // TODO: hard coded limit
     var max_qty = 1;
-    if(card.pack_code == 'core') {
-      max_qty = Math.min(NRDB.settings.getItem('core-sets'), max_qty);
+    if (card.pack_code == "core") {
+      max_qty = Math.min(NRDB.settings.getItem("core-sets"), max_qty);
     }
     NRDB.data.cards.updateById(card.code, {
-      maxqty : max_qty
+      maxqty: max_qty,
     });
   });
 }
 
-Promise.all([NRDB.data.promise, NRDB.settings.promise]).then(function() {
-  NRDB.data.cards.find().forEach(function(card) {
+Promise.all([NRDB.data.promise, NRDB.settings.promise]).then(function () {
+  NRDB.data.cards.find().forEach(function (card) {
     var indeck = 0;
     if (Deck[card.code]) {
       indeck = parseInt(Deck[card.code], 10);
     }
     NRDB.data.cards.updateById(card.code, {
-      indeck : indeck,
+      indeck: indeck,
     });
   });
 
@@ -33,80 +33,107 @@ Promise.all([NRDB.data.promise, NRDB.settings.promise]).then(function() {
 
   update_max_qty();
 
-  $('#faction_code').empty();
+  $("#faction_code").empty();
 
-  var factions = NRDB.data.factions.find().sort(function(a, b) {
-    return b.code.substr(0,7) === "neutral"
+  var factions = NRDB.data.factions.find().sort(function (a, b) {
+    return b.code.substr(0, 7) === "neutral"
       ? -1
-      : a.code.substr(0,7) === "neutral"
-        ? 1
-        : a.code.localeCompare(b.code);
+      : a.code.substr(0, 7) === "neutral"
+      ? 1
+      : a.code.localeCompare(b.code);
   });
-  factions.forEach(function(faction) {
-    var label = $('<label class="btn btn-default btn-sm" data-code="' + faction.code
-        + '" title="'+faction.name+'"><input type="checkbox" name="' + faction.code
-        + '">' + faction.code + '</label>');
-    label.tooltip({container: 'body'});
-    $('#faction_code').append(label);
-  });
-
-  $('#faction_code').button();
-  $('#faction_code').children('label[data-code='+Identity.faction_code+']').each(function(index, elt) {
-    $(elt).button('toggle');
-  });
-
-  $('#type_code').empty();
-    var types = NRDB.data.types.find({
-        'code': { '$ne': 'identity' }
-    }).sort();
-  types.forEach(function(type) {
-    var label = $('<label class="btn btn-default btn-sm" data-code="'
-        + type.code + '" title="'+type.name+'"><input type="checkbox" name="' + type.code
-        + '">'+type.name+'</label>');
-    label.tooltip({container: 'body'});
-    $('#type_code').append(label);
-  });
-  $('#type_code').button();
-  $('#type_code').children('label:first-child').each(function(index, elt) {
-    $(elt).button('toggle');
+  factions.forEach(function (faction) {
+    var label = $(
+      '<label class="btn btn-default btn-sm" data-code="' +
+        faction.code +
+        '" title="' +
+        faction.name +
+        '"><input type="checkbox" name="' +
+        faction.code +
+        '">' +
+        faction.code +
+        "</label>"
+    );
+    label.tooltip({ container: "body" });
+    $("#faction_code").append(label);
   });
 
-  $('input[name=Identity]').prop("checked", false);
+  $("#faction_code").button();
+  $("#faction_code")
+    .children("label[data-code=" + Identity.faction_code + "]")
+    .each(function (index, elt) {
+      $(elt).button("toggle");
+    });
+
+  $("#type_code").empty();
+  var types = NRDB.data.types
+    .find({
+      code: { $ne: "identity" },
+    })
+    .sort();
+  types.forEach(function (type) {
+    var label = $(
+      '<label class="btn btn-default btn-sm" data-code="' +
+        type.code +
+        '" title="' +
+        type.name +
+        '"><input type="checkbox" name="' +
+        type.code +
+        '">' +
+        type.name +
+        "</label>"
+    );
+    label.tooltip({ container: "body" });
+    $("#type_code").append(label);
+  });
+  $("#type_code").button();
+  $("#type_code")
+    .children("label:first-child")
+    .each(function (index, elt) {
+      $(elt).button("toggle");
+    });
+
+  $("input[name=Identity]").prop("checked", false);
 
   function findMatches(q, cb) {
-    if(q.match(/^\w:/)) return;
+    if (q.match(/^\w:/)) return;
     // TODO(plural): Make this variable initialized at page load and only updated when the collection changes instead of here on every keypress!
     var matchingPacks = NRDB.data.cards.find();
     var latestCards = select_only_latest_cards(matchingPacks);
-    var regexp = new RegExp(q, 'i');
+    var regexp = new RegExp(q, "i");
     var matchingCards = _.filter(latestCards, function (card) {
       return regexp.test(_.deburr(card.title).toLowerCase().trim());
     });
-    cb(_.sortBy(matchingCards, 'title'));
+    cb(_.sortBy(matchingCards, "title"));
   }
 
-  $('#filter-text').typeahead({
-    hint: true,
-    highlight: true,
-    minLength: 2
-  }, {
-    display: function(card) { return card.title + ' (' + card.pack.name + ')'; },
-    source: findMatches
-  });
+  $("#filter-text").typeahead(
+    {
+      hint: true,
+      highlight: true,
+      minLength: 2,
+    },
+    {
+      display: function (card) {
+        return card.title + " (" + card.pack.name + ")";
+      },
+      source: findMatches,
+    }
+  );
 
   $.each(History, function (index, snapshot) {
     add_snapshot(snapshot);
   });
 
-  $('html,body').css('height', 'auto');
+  $("html,body").css("height", "auto");
 
-  $(document).on('persistence:change', function (event, value) {
-    switch($(event.target).attr('name')) {
-    case 'display-columns':
-      refresh_collection();
-      break;
-    case 'sort-order':
-      DisplaySort = value;
+  $(document).on("persistence:change", function (event, value) {
+    switch ($(event.target).attr("name")) {
+      case "display-columns":
+        refresh_collection();
+        break;
+      case "sort-order":
+        DisplaySort = value;
     }
   });
 
@@ -114,15 +141,17 @@ Promise.all([NRDB.data.promise, NRDB.settings.promise]).then(function() {
   var promises = [];
 
   NRDB.data.packs.find().forEach(function (pack) {
-     promises.push(localforage.getItem('pack_code_'+ pack.code).then(function (value) {
-       if(value) initialPackSelection[pack.code] = (value === "on");
-     }));
+    promises.push(
+      localforage.getItem("pack_code_" + pack.code).then(function (value) {
+        if (value) initialPackSelection[pack.code] = value === "on";
+      })
+    );
   });
 
   Promise.all(promises).then(function () {
-      refresh_collection();
-      update_deck();
-      update_charts();
+    refresh_collection();
+    update_deck();
+    update_charts();
   });
 });
 
@@ -135,7 +164,7 @@ function select_only_latest_cards(matchingCards) {
       latestCardsByTitle[card.title] = card;
     }
   }
-  return matchingCards.filter(function(value, index, arr) {
+  return matchingCards.filter(function (value, index, arr) {
     return value.code == latestCardsByTitle[value.title].code;
   });
 }
@@ -147,43 +176,52 @@ function get_filter_query(Filters) {
 }
 
 function uncheck_all_others() {
-  $(this).closest(".filter").find("input[type=checkbox]").prop("checked",false);
-  $(this).children('input[type=checkbox]').prop("checked", true).trigger('change');
+  $(this)
+    .closest(".filter")
+    .find("input[type=checkbox]")
+    .prop("checked", false);
+  $(this)
+    .children("input[type=checkbox]")
+    .prop("checked", true)
+    .trigger("change");
 }
 
 function check_all_others() {
-  $(this).closest(".filter").find("input[type=checkbox]").prop("checked",true);
-  $(this).children('input[type=checkbox]').prop("checked", false);
+  $(this).closest(".filter").find("input[type=checkbox]").prop("checked", true);
+  $(this).children("input[type=checkbox]").prop("checked", false);
 }
 
 function uncheck_all_active() {
-  $(this).closest(".filter").find("label.active").button('toggle');
+  $(this).closest(".filter").find("label.active").button("toggle");
 }
 
 function check_all_inactive() {
-  $(this).closest(".filter").find("label:not(.active)").button('toggle');
+  $(this).closest(".filter").find("label:not(.active)").button("toggle");
 }
 
-$(function() {
+$(function () {
   // while editing a deck, we don't want to leave the page if the deck is unsaved
-  $(window).on('beforeunload', alert_if_unsaved);
+  $(window).on("beforeunload", alert_if_unsaved);
 
-  $('html,body').css('height', '100%');
+  $("html,body").css("height", "100%");
 
-  $('#filter-text').on('typeahead:selected typeahead:autocompleted', NRDB.card_modal.typeahead);
+  $("#filter-text").on(
+    "typeahead:selected typeahead:autocompleted",
+    NRDB.card_modal.typeahead
+  );
 
-  $(document).on('hidden.bs.modal', function (event) {
-    if(InputByTitle) {
+  $(document).on("hidden.bs.modal", function (event) {
+    if (InputByTitle) {
       setTimeout(function () {
-        $('#filter-text').typeahead('val', '').focus();
+        $("#filter-text").typeahead("val", "").focus();
       }, 100);
     }
   });
 
-  $('#pack_code,.search-buttons').on('change', 'label', handle_input_change);
+  $("#pack_code,.search-buttons").on("change", "label", handle_input_change);
 
-  $('.search-buttons').on('click', 'label', function(event) {
-    var dropdown = $(this).closest('ul').hasClass('dropdown-menu');
+  $(".search-buttons").on("click", "label", function (event) {
+    var dropdown = $(this).closest("ul").hasClass("dropdown-menu");
     if (dropdown) {
       if (event.shiftKey) {
         if (!event.altKey) {
@@ -194,7 +232,12 @@ $(function() {
       }
       event.stopPropagation();
     } else {
-      if (!event.shiftKey && NRDB.settings.getItem('buttons-behavior') === 'exclusive' || event.shiftKey && NRDB.settings.getItem('buttons-behavior') === 'cumulative') {
+      if (
+        (!event.shiftKey &&
+          NRDB.settings.getItem("buttons-behavior") === "exclusive") ||
+        (event.shiftKey &&
+          NRDB.settings.getItem("buttons-behavior") === "cumulative")
+      ) {
         if (!event.altKey) {
           uncheck_all_active.call(this);
         } else {
@@ -204,164 +247,243 @@ $(function() {
     }
   });
 
-  $('#filter-text').on({
-    input : function (event) {
+  $("#filter-text").on({
+    input: function (event) {
       var q = $(this).val();
-      if(q.match(/^\w[:<>!]/)) NRDB.smart_filter.handler(q, refresh_collection);
-      else NRDB.smart_filter.handler('', refresh_collection);
-    }
+      if (q.match(/^\w[:<>!]/))
+        NRDB.smart_filter.handler(q, refresh_collection);
+      else NRDB.smart_filter.handler("", refresh_collection);
+    },
   });
 
-  $('#save_form').submit(handle_submit);
+  $("#save_form").submit(handle_submit);
 
-  $('#btn-save-as-copy').on('click', function(event) {
-    $('#deck-save-as-copy').val(1);
+  $("#btn-save-as-copy").on("click", function (event) {
+    $("#deck-save-as-copy").val(1);
   });
 
-  $('#btn-cancel-edits').on('click', function(event) {
+  $("#btn-cancel-edits").on("click", function (event) {
     var edits = $.grep(Snapshots, function (snapshot) {
       return snapshot.saved === false;
     });
-    if(edits.length) {
-      var confirmation = confirm("This operation will revert the changes made to the deck since "+edits[edits.length-1].date_creation.calendar()+". The last "+(edits.length > 1 ? edits.length+" edits" : "edit")+" will be lost. Do you confirm?");
-      if(!confirmation) return false;
+    if (edits.length) {
+      var confirmation = confirm(
+        "This operation will revert the changes made to the deck since " +
+          edits[edits.length - 1].date_creation.calendar() +
+          ". The last " +
+          (edits.length > 1 ? edits.length + " edits" : "edit") +
+          " will be lost. Do you confirm?"
+      );
+      if (!confirmation) return false;
     }
-    $('#deck-cancel-edits').val(1);
+    $("#deck-cancel-edits").val(1);
   });
 
-  $('#collection').on({
-    change : function(event) {
-      var el = event.target;
-      // don't allow setting your current ID to 0 copies.  That's silly.
-      var index = $(el).closest('.card-container').data('index') || $(el).closest('div.modal').data('index');
-      var card = NRDB.data.cards.findById(index);
-      if (card.type_code == 'identity') {
-        var in_collection = $(el).closest('#collection').length;
-        var quantity = parseInt($(el).val(), 10);
-        if (quantity == 0 && card.indeck == 1) {
-          var name = 'qty-' + card.code;
-          $('[name=' + name + '][value=0]').prop('checked', false);
-          $('[name=' + name + '][value=0]').parent().removeClass('active');
-          $('[name=' + name + '][value=1]').prop('checked', true);
-          $('[name=' + name + '][value=1]').parent().addClass('active');
-          event.preventDefault();
-          return;
+  $("#collection").on(
+    {
+      change: function (event) {
+        var el = event.target;
+        // don't allow setting your current ID to 0 copies.  That's silly.
+        var index =
+          $(el).closest(".card-container").data("index") ||
+          $(el).closest("div.modal").data("index");
+        var card = NRDB.data.cards.findById(index);
+        if (card.type_code == "identity") {
+          var in_collection = $(el).closest("#collection").length;
+          var quantity = parseInt($(el).val(), 10);
+          if (quantity == 0 && card.indeck == 1) {
+            var name = "qty-" + card.code;
+            $("[name=" + name + "][value=0]").prop("checked", false);
+            $("[name=" + name + "][value=0]")
+              .parent()
+              .removeClass("active");
+            $("[name=" + name + "][value=1]").prop("checked", true);
+            $("[name=" + name + "][value=1]")
+              .parent()
+              .addClass("active");
+            event.preventDefault();
+            return;
+          }
         }
-      }
-      InputByTitle = false;
-      handle_quantity_change.call(this, event);
-    }
-  }, 'input[type=radio]');
+        InputByTitle = false;
+        handle_quantity_change.call(this, event);
+      },
+    },
+    "input[type=radio]"
+  );
 
-  $('#collection').on({
-    click : function(event) {
-      InputByTitle = false;
-    }
-  }, 'a.card');
+  $("#collection").on(
+    {
+      click: function (event) {
+        InputByTitle = false;
+      },
+    },
+    "a.card"
+  );
 
-  $('.modal').on({
-    change : handle_quantity_change
-  }, 'input[type=radio]');
+  $(".modal").on(
+    {
+      change: handle_quantity_change,
+    },
+    "input[type=radio]"
+  );
 
-  $('thead').on({
-    click : handle_header_click
-  }, 'a[data-sort]');
+  $("thead").on(
+    {
+      click: handle_header_click,
+    },
+    "a[data-sort]"
+  );
 
-  $('#cardModal').on({
-    keypress : function(event) {
+  $("#cardModal").on({
+    keypress: function (event) {
       var num = parseInt(event.which, 10) - 48;
-      $('.modal input[type=radio][value=' + num + ']').trigger('change');
-    }
+      $(".modal input[type=radio][value=" + num + "]").trigger("change");
+    },
   });
 
   var converter = new Markdown.Converter();
-  $('#description').on('keyup', function() {
-    $('#description-preview').html(
-        converter.makeHtml($('#description').val()));
+  $("#description").on("keyup", function () {
+    $("#description-preview").html(converter.makeHtml($("#description").val()));
   });
 
-  $('#description').textcomplete([{
-    match : /\B#([\-+\w]*)$/,
-    search : function(term, callback) {
-      var regexp = new RegExp('\\b' + term, 'i');
-      // In the Notes section, we want to allow completion for *all* cards regardless of side.
-      callback(NRDB.data.cards.find({
-        title : regexp
-      }));
+  $("#description").textcomplete([
+    {
+      match: /\B#([\-+\w]*)$/,
+      search: function (term, callback) {
+        var regexp = new RegExp("\\b" + term, "i");
+        // In the Notes section, we want to allow completion for *all* cards regardless of side.
+        callback(
+          NRDB.data.cards.find({
+            title: regexp,
+          })
+        );
+      },
+      template: function (value) {
+        return value.title + " (" + value.pack.name + ")";
+      },
+      replace: function (value) {
+        return (
+          "[" +
+          value.title +
+          "](" +
+          Routing.generate("cards_zoom", { card_code: value.code }) +
+          ")"
+        );
+      },
+      index: 1,
     },
-    template : function(value) {
-      return value.title + ' (' + value.pack.name + ')';
+    {
+      match: /\$([\-+\w]*)$/,
+      search: function (term, callback) {
+        var regexp = new RegExp("^" + term);
+        callback(
+          $.grep(
+            ["mythium", "earth", "moon", "stars", "void"],
+            function (symbol) {
+              return regexp.test(symbol);
+            }
+          )
+        );
+      },
+      template: function (value) {
+        return value;
+      },
+      replace: function (value) {
+        return (
+          '<svg class="icon-wb icon-' +
+          value +
+          '"><use xlink:href="#icon-' +
+          value +
+          '"></use></svg>'
+        );
+      },
+      index: 1,
     },
-    replace : function(value) {
-      return '[' + value.title + ']('
-          + Routing.generate('cards_zoom', {card_code:value.code})
-          + ')';
-    },
-    index : 1
-  }, {
-    match : /\$([\-+\w]*)$/,
-    search : function(term, callback) {
-      var regexp = new RegExp('^' + term);
-      callback($.grep(['mythium', 'earth', 'moon', 'stars', 'void'],
-        function(symbol) { return regexp.test(symbol); }
-      ));
-    },
-    template : function(value) {
-      return value;
-    },
-    replace : function(value) {
-      return '<svg class="icon-wb icon-' + value + '"><use xlink:href="#icon-' + value + '"></use></svg>';
-    },
-    index : 1
-  }]);
-  $('#tbody-history').on('click', 'a[role=button]', load_snapshot);
+  ]);
+  $("#tbody-history").on("click", "a[role=button]", load_snapshot);
   setInterval(autosave_interval, 1000);
 });
 function autosave_interval() {
-  if(Autosave_running) return;
-  if(Autosave_timer < 0 && Deck_uuid) Autosave_timer = Autosave_period;
-  if(Autosave_timer === 0) {
+  if (Autosave_running) return;
+  if (Autosave_timer < 0 && Deck_uuid) Autosave_timer = Autosave_period;
+  if (Autosave_timer === 0) {
     deck_autosave();
   }
   Autosave_timer--;
 }
 // if diff is undefined, consider it is the content at load
 function add_snapshot(snapshot) {
-  snapshot.date_creation = snapshot.date_creation ? moment(snapshot.date_creation) : moment();
+  snapshot.date_creation = snapshot.date_creation
+    ? moment(snapshot.date_creation)
+    : moment();
   Snapshots.push(snapshot);
 
   var list = [];
-  if(snapshot.variation) {
+  if (snapshot.variation) {
     $.each(snapshot.variation[0], function (code, qty) {
       var card = NRDB.data.cards.findById(code);
-      if(!card) return;
-      list.push('+'+qty+' '+'<a href="'+Routing.generate('cards_zoom',{card_code:code})+'" class="card" data-index="'+code+'">'+card.title+'</a>');
+      if (!card) return;
+      list.push(
+        "+" +
+          qty +
+          " " +
+          '<a href="' +
+          Routing.generate("cards_zoom", { card_code: code }) +
+          '" class="card" data-index="' +
+          code +
+          '">' +
+          card.title +
+          "</a>"
+      );
     });
     $.each(snapshot.variation[1], function (code, qty) {
       var card = NRDB.data.cards.findById(code);
-      if(!card) return;
-      list.push('&minus;'+qty+' '+'<a href="'+Routing.generate('cards_zoom',{card_code:code})+'" class="card" data-index="'+code+'">'+card.title+'</a>');
+      if (!card) return;
+      list.push(
+        "&minus;" +
+          qty +
+          " " +
+          '<a href="' +
+          Routing.generate("cards_zoom", { card_code: code }) +
+          '" class="card" data-index="' +
+          code +
+          '">' +
+          card.title +
+          "</a>"
+      );
     });
   } else {
     list.push("First version");
   }
 
-  $('#tbody-history').prepend('<tr'+(snapshot.saved ? '' : ' class="warning"')+'><td>'+snapshot.date_creation.calendar()+(snapshot.saved ? '' : ' (unsaved)')+'</td><td>'+list.join('<br>')+'</td><td><a role="button" href="#" data-index="'+(Snapshots.length-1)+'"">Revert</a></td></tr>');
+  $("#tbody-history").prepend(
+    "<tr" +
+      (snapshot.saved ? "" : ' class="warning"') +
+      "><td>" +
+      snapshot.date_creation.calendar() +
+      (snapshot.saved ? "" : " (unsaved)") +
+      "</td><td>" +
+      list.join("<br>") +
+      '</td><td><a role="button" href="#" data-index="' +
+      (Snapshots.length - 1) +
+      '"">Revert</a></td></tr>'
+  );
 
   Autosave_timer = -1; // start timer
 }
 function load_snapshot(event) {
-  var index = $(this).data('index');
+  var index = $(this).data("index");
   var snapshot = Snapshots[index];
-  if(!snapshot) return;
+  if (!snapshot) return;
 
-  NRDB.data.cards.find().forEach(function(card) {
+  NRDB.data.cards.find().forEach(function (card) {
     var indeck = 0;
     if (snapshot.content[card.code]) {
       indeck = parseInt(snapshot.content[card.code], 10);
     }
     NRDB.data.cards.updateById(card.code, {
-      indeck : indeck
+      indeck: indeck,
     });
   });
   update_deck();
@@ -372,80 +494,96 @@ function load_snapshot(event) {
 }
 function deck_autosave() {
   // check if deck has been modified since last autosave
-  if(!Deck_changed_since_last_autosave || !Deck_uuid) return;
+  if (!Deck_changed_since_last_autosave || !Deck_uuid) return;
   // compute diff between last snapshot and current deck
-  var last_snapshot = Snapshots[Snapshots.length-1].content;
+  var last_snapshot = Snapshots[Snapshots.length - 1].content;
   var current_deck = get_deck_content();
   Deck_changed_since_last_autosave = false;
   var r = NRDB.diff.compute_simple([current_deck, last_snapshot]);
-  if(!r) return;
+  if (!r) return;
   var diff = JSON.stringify(r[0]);
-  if(diff == '[{},{}]') return;
+  if (diff == "[{},{}]") return;
   // send diff to autosave
-  $('#tab-header-history').html("Autosave...");
+  $("#tab-header-history").html("Autosave...");
   Autosave_running = true;
-  $.ajax(Routing.generate('deck_autosave', {deck_uuid:Deck_uuid}), {
-    data: {diff:diff},
-    type: 'POST',
-    success: function(data, textStatus, jqXHR) {
-      add_snapshot({date_creation: data, variation: r[0], content: current_deck, saved: false});
+  $.ajax(Routing.generate("deck_autosave", { deck_uuid: Deck_uuid }), {
+    data: { diff: diff },
+    type: "POST",
+    success: function (data, textStatus, jqXHR) {
+      add_snapshot({
+        date_creation: data,
+        variation: r[0],
+        content: current_deck,
+        saved: false,
+      });
     },
-    error: function(jqXHR, textStatus, errorThrown) {
-      console.log('['+moment().format('YYYY-MM-DD HH:mm:ss')+'] Error on '+this.url, textStatus, errorThrown);
+    error: function (jqXHR, textStatus, errorThrown) {
+      console.log(
+        "[" + moment().format("YYYY-MM-DD HH:mm:ss") + "] Error on " + this.url,
+        textStatus,
+        errorThrown
+      );
       Deck_changed_since_last_autosave = true;
     },
     complete: function () {
-      $('#tab-header-history').html("History");
+      $("#tab-header-history").html("History");
       Autosave_running = false;
-    }
+    },
   });
 }
 function handle_header_click(event) {
   event.preventDefault();
-  var new_sort = $(this).data('sort');
+  var new_sort = $(this).data("sort");
   if (Sort == new_sort) {
     Order *= -1;
   } else {
     Sort = new_sort;
     Order = 1;
   }
-  $(this).closest('tr').find('th').removeClass('dropup').find('span.caret')
-      .remove();
-  $(this).after('<span class="caret"></span>').closest('th').addClass(
-      Order > 0 ? '' : 'dropup');
+  $(this)
+    .closest("tr")
+    .find("th")
+    .removeClass("dropup")
+    .find("span.caret")
+    .remove();
+  $(this)
+    .after('<span class="caret"></span>')
+    .closest("th")
+    .addClass(Order > 0 ? "" : "dropup");
   refresh_collection();
 }
 
 function update_collection_packs() {
-  var div = $('#pack_code')
+  var div = $("#pack_code");
   var arr = [];
-  div.find("input[type=checkbox]").each(function(index, elt) {
-    var name = $(elt).attr('name');
+  div.find("input[type=checkbox]").each(function (index, elt) {
+    var name = $(elt).attr("name");
 
-    if (name && $(elt).prop('checked')) {
+    if (name && $(elt).prop("checked")) {
       arr.push(name);
     }
 
-    var key = 'pack_code_' + name, value = $(elt).prop('checked') ? "on" : "off";
+    var key = "pack_code_" + name,
+      value = $(elt).prop("checked") ? "on" : "off";
     localforage.setItem(key, value);
   });
-  Filters['pack_code'] = arr;
+  Filters["pack_code"] = arr;
   FilterQuery = get_filter_query(Filters);
   refresh_collection();
 }
 
 function handle_input_change(event) {
-  var div = $(this).closest('.filter');
-  var columnName = div.attr('id');
-  if (columnName == 'pack_code') {
+  var div = $(this).closest(".filter");
+  var columnName = div.attr("id");
+  if (columnName == "pack_code") {
     update_collection_packs();
     return;
   }
   var arr = [];
-  div.find("input[type=checkbox]").each(function(index, elt) {
-    var name = $(elt).attr('name');
+  div.find("input[type=checkbox]").each(function (index, elt) {
+    var name = $(elt).attr("name");
 
-    if (name && $(elt).prop('checked')) {
+    if (name && $(elt).prop("checked")) {
       arr.push(name);
     }
   });
@@ -456,74 +594,91 @@ function handle_input_change(event) {
 
 function get_deck_content() {
   return _.reduce(
-      NRDB.data.cards.find({indeck:{'$gt':0}}),
-      function (acc, card) { acc[card.code] = card.indeck; return acc; },
-      {});
+    NRDB.data.cards.find({ indeck: { $gt: 0 } }),
+    function (acc, card) {
+      acc[card.code] = card.indeck;
+      return acc;
+    },
+    {}
+  );
 }
 function handle_submit(event) {
   Deck_changed_since_last_autosave = false;
   var deck_json = JSON.stringify(get_deck_content());
-  $('input[name=content]').val(deck_json);
-  $('input[name=description]').val($('textarea[name=description_]').val());
-  $('input[name=tags]').val($('input[name=tags_]').val());
+  $("input[name=content]").val(deck_json);
+  $("input[name=description]").val($("textarea[name=description_]").val());
+  $("input[name=tags]").val($("input[name=tags_]").val());
 }
 
 function handle_quantity_change(event) {
-  var index = $(this).closest('.card-container').data('index')
-      || $(this).closest('div.modal').data('index');
-  var in_collection = $(this).closest('#collection').length;
+  var index =
+    $(this).closest(".card-container").data("index") ||
+    $(this).closest("div.modal").data("index");
+  var in_collection = $(this).closest("#collection").length;
   var quantity = parseInt($(this).val(), 10);
-  $(this).closest('.card-container')[quantity ? "addClass" : "removeClass"]('in-deck');
+  $(this)
+    .closest(".card-container")
+    [quantity ? "addClass" : "removeClass"]("in-deck");
   NRDB.data.cards.updateById(index, {
-    indeck : quantity
+    indeck: quantity,
   });
   var card = NRDB.data.cards.findById(index);
   if (card.type_code == "identity") {
-    NRDB.data.cards.update({
-      indeck : {
-        '$gt' : 0
+    NRDB.data.cards.update(
+      {
+        indeck: {
+          $gt: 0,
+        },
+        type_code: "identity",
+        code: {
+          $ne: index,
+        },
       },
-      type_code : 'identity',
-      code : {
-        '$ne' : index
+      {
+        indeck: 0,
       }
-    }, {
-      indeck : 0
-    });
+    );
   }
   update_deck();
   if (card.type_code == "identity") {
-    $.each(CardDivs, function(nbcols, rows) {
+    $.each(CardDivs, function (nbcols, rows) {
       if (rows)
-        $.each(rows, function(index, row) {
-          row.removeClass("disabled").find('label').removeClass(
-              "disabled").find('input[type=radio]').attr(
-              "disabled", false);
+        $.each(rows, function (index, row) {
+          row
+            .removeClass("disabled")
+            .find("label")
+            .removeClass("disabled")
+            .find("input[type=radio]")
+            .attr("disabled", false);
         });
     });
     refresh_collection();
   } else {
-    $.each(CardDivs, function(nbcols, rows) {
+    $.each(CardDivs, function (nbcols, rows) {
       // rows is an array of card rows
       if (rows && rows[index]) {
         // rows[index] is the card row of our card
-        rows[index].find('input[name="qty-' + index + '"]').each(
-          function(i, element) {
+        rows[index]
+          .find('input[name="qty-' + index + '"]')
+          .each(function (i, element) {
             if ($(element).val() != quantity) {
-              $(element).prop('checked', false).closest(
-              'label').removeClass('active');
+              $(element)
+                .prop("checked", false)
+                .closest("label")
+                .removeClass("active");
             } else {
-              if(!in_collection) {
-                $(element).prop('checked', true).closest(
-                'label').addClass('active');
+              if (!in_collection) {
+                $(element)
+                  .prop("checked", true)
+                  .closest("label")
+                  .addClass("active");
               }
             }
-          }
-        );
+          });
       }
     });
   }
-  $('div.modal').modal('hide');
+  $("div.modal").modal("hide");
   NRDB.suggestions.compute();
 
   Deck_changed_since_last_autosave = true;
@@ -531,130 +686,173 @@ function handle_quantity_change(event) {
 
 function build_div(record) {
   var isSignatureCard = !!record.signature;
-  var isOtherSignatureCard = isSignatureCard && Identity && record.signature !== Identity.signature;
-  var radios = '';
+  var isOtherSignatureCard =
+    isSignatureCard && Identity && record.signature !== Identity.signature;
+  var radios = "";
 
   if (!isOtherSignatureCard) {
-      for (var i = 0; i <= record.maxqty; i++) {
-          if(i && !(i%4)) {
-              radios += '<br>';
-          }
-          radios += '<label class="btn btn-xs btn-default'
-              + (i == record.indeck ? ' active' : '')
-              + (isOtherSignatureCard ? ' disabled' : '')
-              + '"'+ (isOtherSignatureCard ? ' title="Signature cards of other Worldbreakers cannot be added."' : '')
-              + '><input type="radio" name="qty-' + record.code
-              + '" value="' + i + '"'
-              + (isOtherSignatureCard ? ' disabled="disabled"' : '')
-              + '>' + i + '</label>';
+    for (var i = 0; i <= record.maxqty; i++) {
+      if (i && !(i % 4)) {
+        radios += "<br>";
       }
+      radios +=
+        '<label class="btn btn-xs btn-default' +
+        (i == record.indeck ? " active" : "") +
+        (isOtherSignatureCard ? " disabled" : "") +
+        '"' +
+        (isOtherSignatureCard
+          ? ' title="Signature cards of other Worldbreakers cannot be added."'
+          : "") +
+        '><input type="radio" name="qty-' +
+        record.code +
+        '" value="' +
+        i +
+        '"' +
+        (isOtherSignatureCard ? ' disabled="disabled"' : "") +
+        ">" +
+        i +
+        "</label>";
+    }
   }
 
-  var title = record.title + (isSignatureCard ? '<span class="card-is-signature glyphicon glyphicon-star" title="Signature Card"></span>' : '');
+  var title =
+    record.title +
+    (isSignatureCard
+      ? '<span class="card-is-signature glyphicon glyphicon-star" title="Signature Card"></span>'
+      : "");
 
-  var div = '';
-  switch (Number(NRDB.settings.getItem('display-columns'))) {
-  case 1:
+  var div = "";
+  switch (Number(NRDB.settings.getItem("display-columns"))) {
+    case 1:
+      div = $(
+        '<tr class="card-container" data-index="' +
+          record.code +
+          '"><td><div class="btn-group" data-toggle="buttons">' +
+          radios +
+          '</div></td><td><a class="card" href="' +
+          Routing.generate("cards_zoom", { card_code: record.code }) +
+          '" data-target="#cardModal" data-remote="false" data-toggle="modal">' +
+          title +
+          "</a> " +
+          '</td><td class=""></td><td class="type" title="' +
+          record.type.name +
+          '">' +
+          record.type.name +
+          '</td><td class="faction" title="' +
+          record.faction.name +
+          '">' +
+          record.faction.name +
+          "</td></tr>"
+      );
+      break;
 
-    div = $('<tr class="card-container" data-index="'
-        + record.code
-        + '"><td><div class="btn-group" data-toggle="buttons">'
-        + radios
-        + '</div></td><td><a class="card" href="'
-        + Routing.generate('cards_zoom', {card_code:record.code})
-        + '" data-target="#cardModal" data-remote="false" data-toggle="modal">'
-        + title + '</a> '+'</td><td class=""></td><td class="type" title="' + record.type.name
-        + '">' + record.type.name
-        + '</td><td class="faction" title="' + record.faction.name + '">'
-        + record.faction.name + '</td></tr>');
-    break;
+    case 2:
+      div = $(
+        '<div class="col-sm-6 card-container" data-index="' +
+          record.code +
+          '">' +
+          '<div class="media"><div class="media-left">' +
+          '<img class="media-object" src="' +
+          record.images.small[0] +
+          '" alt="' +
+          record.title +
+          '">' +
+          '</div><div class="media-body">' +
+          '    <h4 class="media-heading"><a class="card" href="' +
+          Routing.generate("cards_zoom", { card_code: record.code }) +
+          '" data-target="#cardModal" data-remote="false" data-toggle="modal">' +
+          title +
+          "</a></h4>" +
+          '    <div class="btn-group" data-toggle="buttons">' +
+          radios +
+          "</div>" +
+          "</div>" +
+          "</div>" +
+          "</div>"
+      );
+      break;
 
-  case 2:
-
-    div = $('<div class="col-sm-6 card-container" data-index="'
-        + record.code
-        + '">'
-        + '<div class="media"><div class="media-left">'
-        + '<img class="media-object" src="'+record.images.small[0]+'" alt="'+record.title+'">'
-        + '</div><div class="media-body">'
-        + '    <h4 class="media-heading"><a class="card" href="'
-        + Routing.generate('cards_zoom', {card_code:record.code})
-        + '" data-target="#cardModal" data-remote="false" data-toggle="modal">'
-        + title + '</a></h4>'
-        + '    <div class="btn-group" data-toggle="buttons">' + radios
-        + '</div>' + '</div>' + '</div>' + '</div>');
-    break;
-
-  case 3:
-
-    div = $('<div class="col-sm-4 card-container" data-index="'
-        + record.code
-        + '">'
-        + '<div class="media"><div class="media-left">'
-        + '<img class="media-object" src="'+record.images.small[0]+'" alt="'+record.title+'">'
-        + '</div><div class="media-body">'
-        + '    <h5 class="media-heading"><a class="card" href="'
-        + Routing.generate('cards_zoom', {card_code:record.code})
-        + '" data-target="#cardModal" data-remote="false" data-toggle="modal">'
-        + title + '</a></h5>'
-        + '    <div class="btn-group" data-toggle="buttons">' + radios
-        + '</div>' + '</div>' + '</div>' + '</div>');
-    break;
-
+    case 3:
+      div = $(
+        '<div class="col-sm-4 card-container" data-index="' +
+          record.code +
+          '">' +
+          '<div class="media"><div class="media-left">' +
+          '<img class="media-object" src="' +
+          record.images.small[0] +
+          '" alt="' +
+          record.title +
+          '">' +
+          '</div><div class="media-body">' +
+          '    <h5 class="media-heading"><a class="card" href="' +
+          Routing.generate("cards_zoom", { card_code: record.code }) +
+          '" data-target="#cardModal" data-remote="false" data-toggle="modal">' +
+          title +
+          "</a></h5>" +
+          '    <div class="btn-group" data-toggle="buttons">' +
+          radios +
+          "</div>" +
+          "</div>" +
+          "</div>" +
+          "</div>"
+      );
+      break;
   }
 
   return div;
 }
 
 function update_filtered() {
-    $('#collection-table').empty();
-    $('#collection-grid').empty();
+  $("#collection-table").empty();
+  $("#collection-grid").empty();
 
-    var counter = 0;
-    var container = $('#collection-table');
-    var display_columns = NRDB.settings.getItem('display-columns');
-    var SmartFilterQuery = NRDB.smart_filter.get_query(FilterQuery);
+  var counter = 0;
+  var container = $("#collection-table");
+  var display_columns = NRDB.settings.getItem("display-columns");
+  var SmartFilterQuery = NRDB.smart_filter.get_query(FilterQuery);
 
-    var orderBy = {};
-    orderBy[Sort] = Order;
+  var orderBy = {};
+  orderBy[Sort] = Order;
 
-    if(Sort != 'title') orderBy['title'] = 1;
+  if (Sort != "title") orderBy["title"] = 1;
 
-    var matchingCards = NRDB.data.cards.find(SmartFilterQuery, {'$orderBy':orderBy});
-    var sortedCards = select_only_latest_cards(matchingCards);
+  var matchingCards = NRDB.data.cards.find(SmartFilterQuery, {
+    $orderBy: orderBy,
+  });
+  var sortedCards = select_only_latest_cards(matchingCards);
 
-    sortedCards.forEach(function(card) {
-        if (ShowOnlyDeck && !card.indeck)
-            return;
+  sortedCards.forEach(function (card) {
+    if (ShowOnlyDeck && !card.indeck) return;
 
-        var index = card.code;
-        var row = (CardDivs[display_columns][index] || (CardDivs[display_columns][index] = build_div(card)))
-            .data("index", card.code);
-        row.find('input[name="qty-' + card.code + '"]').each(
-            function(i, element) {
-                if ($(element).val() == card.indeck)
-                    $(element).prop('checked', true)
-                    .closest('label').addClass(
-                        'active');
-                else
-                    $(element).prop('checked', false)
-                    .closest('label').removeClass(
-                        'active');
-            });
-
-        if (display_columns > 1
-            && counter % display_columns === 0) {
-            container = $('<div class="row"></div>').appendTo(
-                $('#collection-grid'));
-        }
-        container.append(row);
-        counter++;
+    var index = card.code;
+    var row = (
+      CardDivs[display_columns][index] ||
+      (CardDivs[display_columns][index] = build_div(card))
+    ).data("index", card.code);
+    row.find('input[name="qty-' + card.code + '"]').each(function (i, element) {
+      if ($(element).val() == card.indeck)
+        $(element).prop("checked", true).closest("label").addClass("active");
+      else
+        $(element)
+          .prop("checked", false)
+          .closest("label")
+          .removeClass("active");
     });
+
+    if (display_columns > 1 && counter % display_columns === 0) {
+      container = $('<div class="row"></div>').appendTo($("#collection-grid"));
+    }
+    container.append(row);
+    counter++;
+  });
 }
 var refresh_collection = debounce(update_filtered, 250);
 
 function alert_if_unsaved(event) {
-  if(Deck_changed_since_last_autosave && !window.confirm("Deck is not saved. Do you really want to leave?")) {
+  if (
+    Deck_changed_since_last_autosave &&
+    !window.confirm("Deck is not saved. Do you really want to leave?")
+  ) {
     event.preventDefault();
     return false;
   }

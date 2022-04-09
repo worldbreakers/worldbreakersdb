@@ -1,30 +1,39 @@
-(function(deck_gallery, $) {
+(function (deck_gallery, $) {
   var images = null;
 
-  deck_gallery.update = function() {
-
-    images = [ Identity.images.large[0] ];
-    qtys = [ 1 ];
-    NRDB.data.cards.find({
-      indeck : {
-        '$gt' : 0
-      },
-      type_code : {
-        '$ne' : 'identity'
-      }
-    }, {
-      '$orderBy': {
-        type_code: 1,
-        title: 1
-      }
-    }).forEach(function(card) {
-      images.push(card.images.large[0]);
-      qtys.push(card.indeck);
-    });
+  deck_gallery.update = function () {
+    images = [Identity.images.large[0]];
+    qtys = [1];
+    NRDB.data.cards
+      .find(
+        {
+          indeck: {
+            $gt: 0,
+          },
+          type_code: {
+            $ne: "identity",
+          },
+        },
+        {
+          $orderBy: {
+            type_code: 1,
+            title: 1,
+          },
+        }
+      )
+      .forEach(function (card) {
+        images.push(card.images.large[0]);
+        qtys.push(card.indeck);
+      });
     for (var i = 0; i < images.length; i++) {
-      var cell = $('<td><div><img data-src="' + images[i] + '" class="lazyload" alt="Card Image"><div>'+qtys[i]+'</div></div></td>');
-      $('#deck_gallery tr').append(cell.data('index', i));
+      var cell = $(
+        '<td><div><img data-src="' +
+          images[i] +
+          '" class="lazyload" alt="Card Image"><div>' +
+          qtys[i] +
+          "</div></div></td>"
+      );
+      $("#deck_gallery tr").append(cell.data("index", i));
     }
   };
-
-})(NRDB.deck_gallery = {}, jQuery);
+})((NRDB.deck_gallery = {}), jQuery);

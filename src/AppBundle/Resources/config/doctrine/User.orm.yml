@@ -102,11 +102,6 @@ AppBundle\Entity\User:
             nullable: false
             options:
                 default: false
-        autoload_images:
-            type: boolean
-            nullable: true
-            options:
-                default: true
         introductions:
             type: json_array
             nullable: true
