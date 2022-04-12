@@ -1,3 +1,4 @@
+/* global $, Routing, WBDB */
 export const user = {};
 
 user.params = {};
@@ -15,11 +16,11 @@ user.query = function () {
   $.ajax(Routing.generate("user_info", user.params), {
     cache: false,
     dataType: "json",
-    success: function (data, textStatus, jqXHR) {
+    success: function (data) {
       user.data = data;
       user.deferred.resolve();
     },
-    error: function (jqXHR, textStatus, errorThrown) {
+    error: function () {
       user.deferred.resolve();
     },
   });
@@ -72,6 +73,6 @@ user.always = function () {
 
 user.showAds = function () {};
 
-user.promise = new Promise(function (resolve, reject) {
+user.promise = new Promise(function (resolve) {
   $(document).on("user.app", resolve);
 });

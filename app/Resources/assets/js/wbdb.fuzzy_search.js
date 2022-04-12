@@ -1,3 +1,4 @@
+/* global WBDB */
 export const fuzzy_search = {};
 
 var types = ["event", "follower", "location", "worldbreaker"];
@@ -10,7 +11,7 @@ fuzzy_search.lookup = function (input, max_results) {
   var qty = null,
     name = input
       .replace(/\(.*\)/, "")
-      .replace(/[^0-9\.\-A-Za-z\u00C0-\u024F]+/g, " ")
+      .replace(/[^0-9.\-A-Za-z\u00C0-\u024F]+/g, " ")
       .replace(/\s+/, " ")
       .trim()
       .toLowerCase();

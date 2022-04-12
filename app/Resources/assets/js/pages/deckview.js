@@ -1,3 +1,4 @@
+/* global $, Markdown, Routing, WBDB */
 import { show_publish_deck_form } from "./publish_deck_form.js";
 
 export function enhanceDeckviewPage() {
@@ -5,8 +6,8 @@ export function enhanceDeckviewPage() {
     var sets_in_deck = {};
     WBDB.data.cards.find().forEach(function (card) {
       var indeck = 0;
-      if (SelectedDeck.slots[card.code]) {
-        indeck = parseInt(SelectedDeck.slots[card.code], 10);
+      if (WBDB.SelectedDeck.slots[card.code]) {
+        indeck = parseInt(WBDB.SelectedDeck.slots[card.code], 10);
         sets_in_deck[card.pack_code] = 1;
       }
       WBDB.data.cards.updateById(card.code, {
@@ -14,24 +15,24 @@ export function enhanceDeckviewPage() {
       });
     });
 
-    update_deck();
-    update_charts();
+    WBDB.deck.update();
+    WBDB.charts.update();
   });
 
-  function do_action_deck(event) {
+  function do_action_deck() {
     var action_id = $(this).attr("id");
-    if (!action_id || !SelectedDeck) return;
+    if (!action_id || !WBDB.SelectedDeck) return;
     switch (action_id) {
       case "btn-edit":
         location.href = Routing.generate("deck_edit", {
-          deck_uuid: SelectedDeck.uuid,
+          deck_uuid: WBDB.SelectedDeck.uuid,
         });
         break;
       case "btn-publish":
         show_publish_deck_form(
-          SelectedDeck.uuid,
-          SelectedDeck.name,
-          SelectedDeck.description
+          WBDB.SelectedDeck.uuid,
+          WBDB.SelectedDeck.name,
+          WBDB.SelectedDeck.description
         );
         break;
       case "btn-delete":
@@ -39,53 +40,53 @@ export function enhanceDeckviewPage() {
         break;
       case "btn-download-text":
         location.href = Routing.generate("deck_export_text", {
-          deck_uuid: SelectedDeck.uuid,
+          deck_uuid: WBDB.SelectedDeck.uuid,
         });
         break;
-      case "btn-download-tts":
-        download_tts();
+      case "btn-export-tts":
+        WBDB.exporter.tts();
         break;
       case "btn-print":
         window.print();
         break;
       case "btn-sort-type":
-        DisplaySort = "type";
-        DisplaySortSecondary = null;
+        WBDB.DisplaySort = "type";
+        WBDB.DisplaySortSecondary = null;
         switch_to_web_view();
         break;
       case "btn-sort-number":
-        DisplaySort = "number";
-        DisplaySortSecondary = null;
+        WBDB.DisplaySort = "number";
+        WBDB.DisplaySortSecondary = null;
         switch_to_web_view();
         break;
       case "btn-sort-faction":
-        DisplaySort = "faction";
-        DisplaySortSecondary = null;
+        WBDB.DisplaySort = "faction";
+        WBDB.DisplaySortSecondary = null;
         switch_to_web_view();
         break;
       case "btn-sort-faction-type":
-        DisplaySort = "faction";
-        DisplaySortSecondary = "type";
+        WBDB.DisplaySort = "faction";
+        WBDB.DisplaySortSecondary = "type";
         switch_to_web_view();
         break;
       case "btn-sort-faction-number":
-        DisplaySort = "faction";
-        DisplaySortSecondary = "number";
+        WBDB.DisplaySort = "faction";
+        WBDB.DisplaySortSecondary = "number";
         switch_to_web_view();
         break;
       case "btn-sort-title":
-        DisplaySort = "title";
-        DisplaySortSecondary = null;
+        WBDB.DisplaySort = "title";
+        WBDB.DisplaySortSecondary = null;
         switch_to_web_view();
         break;
       case "btn-display-plain":
-        export_plaintext();
+        WBDB.exporter.plaintext();
         break;
       case "btn-display-bbcode":
-        export_bbcode();
+        WBDB.exporter.bbcode();
         break;
       case "btn-display-markdown":
-        export_markdown();
+        WBDB.exporter.markdown();
         break;
     }
   }
@@ -101,8 +102,8 @@ export function enhanceDeckviewPage() {
     var converter = new Markdown.Converter();
     $("#description").html(
       converter.makeHtml(
-        SelectedDeck.description
-          ? SelectedDeck.description
+        WBDB.SelectedDeck.description
+          ? WBDB.SelectedDeck.description
           : "<i>No description.</i>"
       )
     );
@@ -114,12 +115,12 @@ export function enhanceDeckviewPage() {
       "button[id],a[id]"
     );
 
-    $("#btn-publish").prop("disabled", !!SelectedDeck.problem);
+    $("#btn-publish").prop("disabled", !!WBDB.SelectedDeck.problem);
   });
 
   function confirm_delete() {
-    $("#delete-deck-name").text(SelectedDeck.name);
-    $("#delete-deck-uuid").val(SelectedDeck.uuid);
+    $("#delete-deck-name").text(WBDB.SelectedDeck.name);
+    $("#delete-deck-uuid").val(WBDB.SelectedDeck.uuid);
     $("#deleteModal").modal("show");
   }
 
@@ -127,6 +128,6 @@ export function enhanceDeckviewPage() {
     $("#deck").html(
       '<div class="row"><div class="col-sm-12"><h3 id="identity"></h3><div id="cardcount"></div><div id="latestpack"></div><div id="limited"></div></div></div><div class="row" id="deck-content" style="margin-bottom:10px"></div>'
     );
-    update_deck();
+    WBDB.deck.update();
   }
 }

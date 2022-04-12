@@ -1,6 +1,9 @@
+/* global _, $, moment, Routing, WBDB */
 import { show_publish_deck_form } from "./publish_deck_form.js";
 
-export function enhanceDecksPage() {
+let lastClickedDeck = null;
+
+export function enhanceDecksPage({ Decks }) {
   $(document).on("data.app", function () {
     $("#btn-group-deck").on("click", "button[id],a[id]", do_action_deck);
     $("#btn-group-selection").on(
@@ -15,14 +18,14 @@ export function enhanceDecksPage() {
 
     $("#menu-sort").on(
       {
-        change: function (event) {
+        change: function () {
           if (
             $(this)
               .attr("id")
               .match(/btn-sort-(\w+)/)
           ) {
-            DisplaySort = RegExp.$1;
-            update_deck();
+            WBDB.DisplaySort = RegExp.$1;
+            WBDB.deck.update();
           }
         },
       },
@@ -41,10 +44,10 @@ export function enhanceDecksPage() {
     update_tag_toggles();
 
     // Selects a decklist with its checkbox
-    $("a.deck-list-group-item :checkbox").change(function (event) {
+    $("a.deck-list-group-item :checkbox").change(function () {
       let deck = $(`#deck_${$(this).val()}`);
       if (this.checked) {
-        LastClickedDeck = deck;
+        lastClickedDeck = deck;
         select_deck(deck);
       } else {
         deselect_deck(deck);
@@ -56,8 +59,8 @@ export function enhanceDecksPage() {
     });
 
     // Expands a decklist by clicking anywhere else on it
-    $("body").on("click", "a.deck-list-group-item", function (event) {
-      LastClickedDeck = this;
+    $("body").on("click", "a.deck-list-group-item", function () {
+      lastClickedDeck = this;
       show_deck();
     });
     // Close a deck by clicking on its exit button while its expanded
@@ -83,7 +86,7 @@ export function enhanceDecksPage() {
     });
 
     // On load, reset all decklists with checked checkboxes as selected
-    $("a.deck-list-group-item :checkbox").each(function (i, e) {
+    $("a.deck-list-group-item :checkbox").each(function () {
       if ($(this).is(":checked")) select_deck($(`#deck_${$(this).val()}`));
     });
   });
@@ -99,7 +102,7 @@ export function enhanceDecksPage() {
   }
 
   function select_all_visible() {
-    $("a.deck-list-group-item").each(function (i, e) {
+    $("a.deck-list-group-item").each(function () {
       if ($(this).is(":visible")) {
         select_deck($(this));
       }
@@ -107,7 +110,7 @@ export function enhanceDecksPage() {
   }
 
   function deselect_all() {
-    $("a.deck-list-group-item").each(function (i, e) {
+    $("a.deck-list-group-item").each(function () {
       deselect_deck($(this));
     });
   }
@@ -154,8 +157,8 @@ export function enhanceDecksPage() {
 
     for (var i = 0; i < listings.length; i++) {
       container.append("<h4>Cards only in <b>" + names[i] + "</b></h4>");
-      var list = $("<ul></ul>").appendTo(container);
-      var cards = $.map(listings[i], function (qty, card_code) {
+      list = $("<ul></ul>").appendTo(container);
+      cards = $.map(listings[i], function (qty, card_code) {
         var card = WBDB.data.cards.findById(card_code);
         if (card) return { title: card.title, qty: qty };
       }).sort(function (a, b) {
@@ -194,29 +197,29 @@ export function enhanceDecksPage() {
     }
 
     var imax = 0;
-    for (var i = 0; i < lengths.length; i++) {
+    for (let i = 0; i < lengths.length; i++) {
       if (lengths[imax] < lengths[i]) imax = i;
     }
     var collection = ensembles.splice(imax, 1);
     var rest = [];
-    for (var i = 0; i < ensembles.length; i++) {
+    for (let i = 0; i < ensembles.length; i++) {
       rest = rest.concat(ensembles[i]);
     }
     ensembles = [collection[0], rest];
     var names = [decks[imax].name, "The rest"];
 
     var conjunction = [];
-    for (var i = 0; i < ensembles[0].length; i++) {
+    for (let i = 0; i < ensembles[0].length; i++) {
       var code = ensembles[0][i];
       var indexes = [i];
-      for (var j = 1; j < ensembles.length; j++) {
+      for (let j = 1; j < ensembles.length; j++) {
         var index = ensembles[j].indexOf(code);
         if (index > -1) indexes.push(index);
         else break;
       }
       if (indexes.length === ensembles.length) {
         conjunction.push(code);
-        for (var j = 0; j < indexes.length; j++) {
+        for (let j = 0; j < indexes.length; j++) {
           ensembles[j].splice(indexes[j], 1);
         }
         i--;
@@ -238,9 +241,9 @@ export function enhanceDecksPage() {
       if (card) list.append("<li>" + card.title + " x" + qty + "</li>");
     });
 
-    for (var i = 0; i < listings.length; i++) {
+    for (let i = 0; i < listings.length; i++) {
       container.append("<h4>Cards only in <b>" + names[i] + "</b></h4>");
-      var list = $("<ul></ul>").appendTo(container);
+      list = $("<ul></ul>").appendTo(container);
       $.each(listings[i], function (card_code, qty) {
         var card = WBDB.data.cards.findById(card_code);
         if (card) list.append("<li>" + card.title + " x" + qty + "</li>");
@@ -253,7 +256,7 @@ export function enhanceDecksPage() {
   // is a key of the object and the value is the number of occurences of the string in the array
   function array_count(list) {
     var obj = {};
-    var list = list.sort();
+    list = list.sort();
     for (var i = 0; i < list.length; ) {
       for (var j = i + 1; j < list.length; j++) {
         if (list[i] !== list[j]) break;
@@ -286,7 +289,7 @@ export function enhanceDecksPage() {
     if (event.shiftKey || event.altKey || event.ctrlKey || event.metaKey)
       return;
     var deck_uuid = $(this).closest(".deck-list-group-item").data("uuid");
-    var deck = (SelectedDeck = _.find(Decks, function (deck) {
+    var deck = (WBDB.SelectedDeck = _.find(Decks, function (deck) {
       return deck.uuid == deck_uuid;
     }));
     if (!deck) return;
@@ -323,23 +326,23 @@ export function enhanceDecksPage() {
           _locale: WBDB.locale,
         });
         break;
-      case "btn-download-tts":
-        download_tts(deck);
+      case "btn-export-tts":
+        WBDB.exporter.tts(deck);
         break;
       case "btn-export-bbcode":
-        export_bbcode(deck);
+        WBDB.exporter.bbcode(deck);
         break;
       case "btn-export-markdown":
-        export_markdown(deck);
+        WBDB.exporter.markdown(deck);
         break;
       case "btn-export-plaintext":
-        export_plaintext(deck);
+        WBDB.exporter.plaintext(deck);
         break;
     }
     return false;
   }
 
-  function do_action_selection(event) {
+  function do_action_selection() {
     var action_id = $(this).attr("id");
     var uuids = [];
     $("#decks a.deck-list-group-item.selected").each(function (index, elt) {
@@ -479,32 +482,7 @@ export function enhanceDecksPage() {
     var uuids = $("#tag_add_uuids").val().split(/,/);
     var tags = $("#tag_add_tags").val().split(/\s+/);
     if (!uuids.length || !tags.length) return;
-    $.ajax(Routing.generate("tag_add"), {
-      type: "POST",
-      data: { uuids: uuids, tags: tags },
-      dataType: "json",
-      success: function (data, textStatus, jqXHR) {
-        var response = jqXHR.responseJSON;
-        if (!response.success) {
-          alert("An error occured while updating the tags.");
-          return;
-        }
-        $.each(response.tags, function (uuid, tags) {
-          set_tags(uuid, tags);
-        });
-      },
-      error: function (jqXHR, textStatus, errorThrown) {
-        console.log(
-          "[" +
-            moment().format("YYYY-MM-DD HH:mm:ss") +
-            "] Error on " +
-            this.url,
-          textStatus,
-          errorThrown
-        );
-        alert("An error occured while updating the tags.");
-      },
-    });
+    sendPostRequest("tag_add", uuids, tags);
   };
 
   function tag_remove(uuids) {
@@ -521,32 +499,7 @@ export function enhanceDecksPage() {
     var uuids = $("#tag_remove_uuids").val().split(/,/);
     var tags = $("#tag_remove_tags").val().split(/\s+/);
     if (!uuids.length || !tags.length) return;
-    $.ajax(Routing.generate("tag_remove"), {
-      type: "POST",
-      data: { uuids: uuids, tags: tags },
-      dataType: "json",
-      success: function (data, textStatus, jqXHR) {
-        var response = jqXHR.responseJSON;
-        if (!response.success) {
-          alert("An error occured while updating the tags.");
-          return;
-        }
-        $.each(response.tags, function (uuid, tags) {
-          set_tags(uuid, tags);
-        });
-      },
-      error: function (jqXHR, textStatus, errorThrown) {
-        console.log(
-          "[" +
-            moment().format("YYYY-MM-DD HH:mm:ss") +
-            "] Error on " +
-            this.url,
-          textStatus,
-          errorThrown
-        );
-        alert("An error occured while updating the tags.");
-      },
-    });
+    sendPostRequest("tag_remove", uuids, tags);
   };
 
   function tag_clear(uuids) {
@@ -559,32 +512,7 @@ export function enhanceDecksPage() {
     event.preventDefault();
     var uuids = $("#tag_clear_uuids").val().split(/,/);
     if (!uuids.length) return;
-    $.ajax(Routing.generate("tag_clear"), {
-      type: "POST",
-      data: { uuids: uuids },
-      dataType: "json",
-      success: function (data, textStatus, jqXHR) {
-        var response = jqXHR.responseJSON;
-        if (!response.success) {
-          alert("An error occured while updating the tags.");
-          return;
-        }
-        $.each(response.tags, function (uuid, tags) {
-          set_tags(uuid, tags);
-        });
-      },
-      error: function (jqXHR, textStatus, errorThrown) {
-        console.log(
-          "[" +
-            moment().format("YYYY-MM-DD HH:mm:ss") +
-            "] Error on " +
-            this.url,
-          textStatus,
-          errorThrown
-        );
-        alert("An error occured while updating the tags.");
-      },
-    });
+    sendPostRequest("tag_clear", uuids);
   };
 
   function confirm_delete(deck) {
@@ -604,7 +532,7 @@ export function enhanceDecksPage() {
   }
 
   function show_deck() {
-    var deck_uuid = $(LastClickedDeck).data("uuid");
+    var deck_uuid = $(lastClickedDeck).data("uuid");
     var deck = _.find(Decks, function (deck) {
       return deck.uuid === deck_uuid;
     });
@@ -645,7 +573,7 @@ export function enhanceDecksPage() {
       })
     );
 
-    update_deck();
+    WBDB.deck.update();
     // convert date from UTC to local
     $("#date_creation").html(
       "Creation: " + moment(deck.date_creation).format("LLLL")
@@ -654,5 +582,38 @@ export function enhanceDecksPage() {
       "Last update: " + moment(deck.date_update).format("LLLL")
     );
     $("#btn-publish").prop("disabled", deck.problem || deck.unsaved);
+  }
+
+  function sendPostRequest(route, uuids, tags = null) {
+    const data = { uuids };
+    if (tags) {
+      data.tags = tags;
+    }
+    $.ajax(Routing.generate(route), {
+      type: "POST",
+      data,
+      dataType: "json",
+      success: function (data, textStatus, jqXHR) {
+        var response = jqXHR.responseJSON;
+        if (!response.success) {
+          alert("An error occured while updating the tags.");
+          return;
+        }
+        $.each(response.tags, function (uuid, tags) {
+          set_tags(uuid, tags);
+        });
+      },
+      error: function (jqXHR, textStatus, errorThrown) {
+        console.log(
+          "[" +
+            moment().format("YYYY-MM-DD HH:mm:ss") +
+            "] Error on " +
+            this.url,
+          textStatus,
+          errorThrown
+        );
+        alert("An error occured while updating the tags.");
+      },
+    });
   }
 }

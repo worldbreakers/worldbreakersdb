@@ -1,3 +1,4 @@
+/* global $, moment, Markdown, Routing, WBDB */
 export function show_publish_deck_form(deck_uuid, deck_name, deck_description) {
   $("#publish-form-warning").remove();
   $("#btn-publish-submit").text("Checking...").prop("disabled", true);
@@ -49,58 +50,5 @@ function initialize_publish_deck_form_typeahead() {
     );
   });
 
-  $("#publish-decklist-description").textcomplete([
-    {
-      match: /\B#([\-+\w]*)$/,
-      search: function (term, callback) {
-        var regexp = new RegExp("\\b" + term, "i");
-        // In the Notes section, we want to allow completion for *all* cards regardless of side.
-        callback(
-          WBDB.data.cards.find({
-            title: regexp,
-          })
-        );
-      },
-      template: function (value) {
-        return value.title + " (" + value.pack.name + ")";
-      },
-      replace: function (value) {
-        return (
-          "[" +
-          value.title +
-          "](" +
-          Routing.generate("cards_zoom", { card_code: value.code }) +
-          ")"
-        );
-      },
-      index: 1,
-    },
-    {
-      match: /\$([\-+\w]*)$/,
-      search: function (term, callback) {
-        var regexp = new RegExp("^" + term);
-        callback(
-          $.grep(
-            ["mythium", "earth", "moon", "stars", "void"],
-            function (symbol) {
-              return regexp.test(symbol);
-            }
-          )
-        );
-      },
-      template: function (value) {
-        return value;
-      },
-      replace: function (value) {
-        return (
-          '<svg class="icon-wb icon-' +
-          value +
-          '"><use xlink:href="#icon-' +
-          value +
-          '"></use></svg>'
-        );
-      },
-      index: 1,
-    },
-  ]);
+  WBDB.ui.enhanceTextarea("#publish-decklist-description");
 }

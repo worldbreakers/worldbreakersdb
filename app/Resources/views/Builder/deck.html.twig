@@ -3,23 +3,15 @@
 {% block head %}
 
 <script>
-WBDB.pages.enhanceDeckPage();
+WBDB.pages.enhanceDeckPage({
+    deck_uuid: {{ deck.uuid|json_encode|raw }},
+    history: {{ deck.history|json_encode|raw }}
+});
 WBDB.initCardModal();
 WBDB.initSettings();
-
-var Filters = {},
-var FilterQuery = {};
-var CardDivs = [null, {}, {}, {}];
-var Sort = "title";
-var Order = 1;
-var Identity = null;
-var Deck = {{ deck.slots|json_encode|raw }};
-var Deck_uuid = {{ deck.uuid|json_encode|raw }};
-var History = {{ deck.history|json_encode|raw }};
-var DisplaySort = 'type';
-var DisplaySortSecondary = 'name';
-var HideDisabled = true;
-var ShowOnlyDeck = false;
+WBDB.Identity = null;
+WBDB.Deck = {{ deck.slots|json_encode|raw }};
+WBDB.Filters = {};
 </script>
 
 {% endblock %}

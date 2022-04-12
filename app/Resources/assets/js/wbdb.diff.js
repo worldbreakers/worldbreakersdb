@@ -1,3 +1,4 @@
+/* global $ */
 export const diff = {};
 
 // TODO: DRY this
@@ -5,7 +6,7 @@ export const diff = {};
 // is a key of the object and the value is the number of occurences of the string in the array
 function array_count(list) {
   var obj = {};
-  var list = list.sort();
+  list = list.sort();
   for (var i = 0; i < list.length; ) {
     for (var j = i + 1; j < list.length; j++) {
       if (list[i] !== list[j]) break;
@@ -43,16 +44,16 @@ diff.compute_simple = function (contents) {
     }
     if (indexes.length === ensembles.length) {
       conjunction.push(code);
-      for (var j = 0; j < indexes.length; j++) {
-        ensembles[j].splice(indexes[j], 1);
+      for (var k = 0; k < indexes.length; k++) {
+        ensembles[k].splice(indexes[k], 1);
       }
       i--;
     }
   }
 
   var listings = [];
-  for (var i = 0; i < ensembles.length; i++) {
-    listings[i] = array_count(ensembles[i]);
+  for (var l = 0; l < ensembles.length; l++) {
+    listings[l] = array_count(ensembles[l]);
   }
   var intersect = array_count(conjunction);
 

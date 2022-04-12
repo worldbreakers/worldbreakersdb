@@ -2,17 +2,13 @@
 
 {% block head %}
 <script type="text/javascript">
-WBDB.pages.enhanceDecklistPage();
+WBDB.pages.enhanceDecklistPage({ commenters: {{ commenters|json_encode|raw }} });
 WBDB.initCardModal();
 
-var Identity = null;
-var Decklist = {{ decklist|json_encode|raw }};
-var Commenters = {{ commenters|json_encode|raw }};
-var SelectedDeck = Decklist;
-var DisplaySort = 'type';
-var DisplaySortSecondary = 'name';
-
-WBDB.user.params.decklist_id = Decklist.id;
+WBDB.Decklist = {{ decklist|json_encode|raw }};
+WBDB.SelectedDeck = WBDB.Decklist;
+WBDB.Identity = null;
+WBDB.user.params.decklist_id = WBDB.Decklist.id;
 
 </script>
 {% endblock %}
@@ -217,7 +213,7 @@ WBDB.user.params.decklist_id = Decklist.id;
                         <li><a href="#" id="btn-compare">Compare with another decklist</a></li>
                         <li class="dropdown-header"><span class="glyphicon glyphicon-download"></span> Download</li>
                         <li><a href="#" id="btn-download-text">Text file</a></li>
-                        <li><a href="#" id="btn-download-tts">Tabletop Simulator file</a></li>
+                        <li><a href="#" id="btn-export-tts">Tabletop Simulator file</a></li>
                         <li class="dropdown-header"><span class="glyphicon glyphicon-export"></span> Export</li>
                         <li><a href="#" id="btn-export-bbcode">bbCode</a></li>
                         <li><a href="#" id="btn-export-markdown">Markdown (Reddit)</a></li>

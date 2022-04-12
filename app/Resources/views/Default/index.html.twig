@@ -3,10 +3,8 @@
 {% block head %}
 <script type="text/javascript">
 WBDB.pages.enhanceIndexPage();
-var Identity = null,
-  Decklist = {{ decklist|json_encode|raw }},
-  DisplaySort = 'type',
-  DisplaySortSecondary = 'name';
+WBDB.Identity = null;
+WBDB.Decklist = {{ decklist|json_encode|raw }};
 
 </script>
 <script type="application/ld+json">

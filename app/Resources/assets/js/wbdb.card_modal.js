@@ -1,3 +1,4 @@
+/* global $, WBDB, Routing */
 export const card_modal = {};
 
 var modal = null;
@@ -21,7 +22,7 @@ card_modal.display_modal = function (event, element) {
 card_modal.typeahead = function (event, data) {
   fill_modal(data.code);
   $("#cardModal").modal("show");
-  InputByTitle = true;
+  WBDB.InputByTitle = true;
 };
 
 function fill_modal(code) {
@@ -78,9 +79,9 @@ function fill_modal(code) {
 
   var isSignatureCard = !!card.signature;
   var isOtherSignatureCard =
-    isSignatureCard && Identity && card.signature !== Identity.signature;
+    isSignatureCard && WBDB.Identity && card.signature !== WBDB.Identity.signature;
 
-  if (qtyelt && typeof Filters != "undefined") {
+  if (qtyelt && WBDB.Filters !== null) {
     var qty = "";
     if (!isOtherSignatureCard) {
       for (var i = 0; i <= card.maxqty; i++) {
@@ -98,7 +99,7 @@ function fill_modal(code) {
       if (index == card.indeck) $(element).addClass("active");
       else $(element).removeClass("active");
     });
-    if (card.code == Identity.code) {
+    if (card.code == WBDB.Identity.code) {
       qtyelt
         .find("label")
         .addClass("disabled")

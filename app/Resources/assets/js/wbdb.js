@@ -1,8 +1,13 @@
+/* global $, Routing */
 import { card_modal } from "./wbdb.card_modal.js";
+import { charts } from "./wbdb.charts.js";
 import { data } from "./wbdb.data.js";
+import { deck } from "./wbdb.deck.js";
 import { diff } from "./wbdb.diff.js";
+import { exporter } from "./wbdb.exporter.js";
 import { format } from "./wbdb.format.js";
 import { fuzzy_search } from "./wbdb.fuzzy_search.js";
+import { search } from "./wbdb.search.js";
 import { settings } from "./wbdb.settings.js";
 import { smart_filter } from "./wbdb.smart_filter.js";
 import { tip } from "./wbdb.tip.js";
@@ -13,10 +18,14 @@ import * as pages from "./pages.js";
 
 const WBDB = {
   card_modal,
+  charts,
   data,
+  deck,
   diff,
+  exporter,
   format,
   fuzzy_search,
+  search,
   settings,
   smart_filter,
   tip,
@@ -25,7 +34,15 @@ const WBDB = {
 
   pages,
 
+  Deck: null,
   DeckSize: 0,
+  Decklist: null,
+  Filters: null,
+  InputByTitle: false,
+  SelectedDeck: null,
+
+  DisplaySort: "type",
+  DisplaySortSecondary: "name",
 
   init({ locale, card_image_url, worldbreakersdb_url }) {
     WBDB.locale = locale;
@@ -57,23 +74,9 @@ const WBDB = {
     Promise.all([WBDB.data.promise, WBDB.ui.promise]).then(function () {
       var all_cards = WBDB.data.cards.find();
 
-      function findMatches(q, cb) {
-        if (q.match(/^\w:/)) {
-          return;
-        }
-
-        var regexp = new RegExp(q, "i");
-        var matchingCards = _.filter(all_cards, function (card) {
-          return regexp.test(_.deburr(card.title).toLowerCase().trim());
-        });
-        cb(_.sortBy(matchingCards, "title"));
-      }
-      $("#top_nav_card_search_menu").on(
-        "shown.bs.dropdown",
-        function (element) {
-          $("#top_nav_card_search").focus();
-        }
-      );
+      $("#top_nav_card_search_menu").on("shown.bs.dropdown", function () {
+        $("#top_nav_card_search").focus();
+      });
       $("#top_nav_card_search").typeahead(
         {
           hint: true,
@@ -84,7 +87,7 @@ const WBDB = {
           display: function (card) {
             return card.title + " (" + card.pack.name + ")";
           },
-          source: findMatches,
+          source: WBDB.search.findMatches(all_cards),
         }
       );
       $("#top_nav_card_search").on(
@@ -109,6 +112,27 @@ const WBDB = {
   initCardModal() {
     $(function () {
       WBDB.card_modal.create_element();
+
+      $("body").on(
+        {
+          click: function (event) {
+            var element = $(this);
+            if (
+              event.shiftKey ||
+              event.altKey ||
+              event.ctrlKey ||
+              event.metaKey
+            ) {
+              event.stopPropagation();
+              return;
+            }
+            if (WBDB.card_modal) {
+              WBDB.card_modal.display_modal(event, element);
+            }
+          },
+        },
+        ".card"
+      );
     });
   },
 
@@ -117,7 +141,7 @@ const WBDB = {
       WBDB.data.cards.find().forEach(function (card) {
         WBDB.data.cards.updateById(card.code, {
           token: card.title
-            .replace(/[^0-9\.\-A-Za-z\u00C0-\u017F]+/g, " ")
+            .replace(/[^0-9.\-A-Za-z\u00C0-\u017F]+/g, " ")
             .trim()
             .toLowerCase(),
         });
@@ -129,6 +153,12 @@ const WBDB = {
     $(function () {
       WBDB.settings.load();
     });
+  },
+
+  find_identity() {
+    WBDB.Identity = WBDB.data.cards
+      .find({ indeck: { $gt: 0 }, type_code: "identity" })
+      .pop();
   },
 };
 

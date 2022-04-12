@@ -2,10 +2,7 @@
 
 {% block head %}
 <script>
-    WBDB.pages.enhanceProfilePage();
-</script>
-<script type="text/javascript">
-var UserId = {{ user.id }};
+WBDB.pages.enhanceProfilePage({{ user.id }});
 </script>
 {% endblock %}
 {% block body %}

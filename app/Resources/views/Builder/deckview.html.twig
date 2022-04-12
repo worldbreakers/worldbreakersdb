@@ -5,15 +5,9 @@
 <script type="text/javascript">
 WBDB.initCardModal();
 WBDB.pages.enhanceDeckviewPage();
-
-var Identity = null;
-var Deck = {{ deck|json_encode|raw }};
-var SelectedDeck = Deck;
-var DisplaySort = 'type';
-var DisplaySortSecondary = 'name';
-var Order = 1;
-var Identity = null;
-
+WBDB.Deck = {{ deck|json_encode|raw }};
+WBDB.SelectedDeck = WBDB.Deck;
+WBDB.Identity = null;
 </script>
 {% endblock %}
 
@@ -71,7 +65,7 @@ var Identity = null;
     </button>
     <ul class="dropdown-menu" role="menu">
       <li><a href="#" id="btn-download-text">Text file</a></li>
-      <li><a href="#" id="btn-download-tts">Tabletop Simulator file</a></li>
+      <li><a href="#" id="btn-export-tts">Tabletop Simulator file</a></li>
     </ul>
   </div>
   <div class="btn-group" style="margin-bottom:5px">

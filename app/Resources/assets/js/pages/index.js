@@ -1,8 +1,9 @@
+/* global $, WBDB */
 export function enhanceIndexPage() {
   $(document).on("data.app", function () {
-    if (Decklist) {
-      for (var i = 0; i < Decklist.cards.length; i++) {
-        var slot = Decklist.cards[i];
+    if (WBDB.Decklist) {
+      for (var i = 0; i < WBDB.Decklist.cards.length; i++) {
+        var slot = WBDB.Decklist.cards[i];
         WBDB.data.cards.update(
           {
             code: slot.card_code,
@@ -13,6 +14,6 @@ export function enhanceIndexPage() {
         );
       }
     }
-    update_deck();
+    WBDB.deck.update();
   });
 }

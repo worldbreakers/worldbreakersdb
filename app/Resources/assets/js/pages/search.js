@@ -1,15 +1,7 @@
+/* global $, WBDB */
 export function enhanceSearchPage() {
   $(document).on("data.app", function () {
-    var latestCards = select_only_latest_cards(WBDB.data.cards.find());
-
-    function findMatches(q, cb) {
-      if (q.match(/^\w:/)) return;
-      var regexp = new RegExp(q, "i");
-      var matchingCards = _.filter(latestCards, function (card) {
-        return regexp.test(_.deburr(card.title).toLowerCase().trim());
-      });
-      cb(_.sortBy(matchingCards, "title"));
-    }
+    var latestCards = WBDB.search.latestCards();
 
     $("#filter-text").typeahead(
       {
@@ -22,7 +14,7 @@ export function enhanceSearchPage() {
         display: function (card) {
           return card.title;
         },
-        source: findMatches,
+        source: WBDB.search.findMatches(latestCards),
       }
     );
 
@@ -43,7 +35,7 @@ export function enhanceSearchPage() {
             ")</p>"
         );
         line.on({
-          click: function (event) {
+          click: function () {
             line.remove();
           },
         });
@@ -52,17 +44,4 @@ export function enhanceSearchPage() {
       }
     );
   });
-
-  function select_only_latest_cards(matchingCards) {
-    var latestCardsByTitle = {};
-    for (var card of matchingCards) {
-      var latestCard = latestCardsByTitle[card.title];
-      if (!latestCard || card.code > latestCard.code) {
-        latestCardsByTitle[card.title] = card;
-      }
-    }
-    return matchingCards.filter(function (value, index, arr) {
-      return value.code == latestCardsByTitle[value.title].code;
-    });
-  }
 }

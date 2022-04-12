@@ -1,3 +1,4 @@
+/* global $, _ */
 export const settings = {};
 
 // all the settings, initialized with their default value
@@ -42,6 +43,6 @@ settings.getItem = function (key) {
   return cache[key];
 };
 
-settings.promise = new Promise(function (resolve, reject) {
+settings.promise = new Promise(function (resolve) {
   $(document).on("settings.app", resolve);
 });

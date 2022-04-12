@@ -1,9 +1,10 @@
+/* global $, WBDB */
 export const tip = {};
 
 var hide_event = "mouseout";
 var prevent_all = false;
 
-tip.prevent = function (event) {
+tip.prevent = function () {
   prevent_all = true;
 };
 

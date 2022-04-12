@@ -1,3 +1,4 @@
+/* global _, $, ForerunnerDB, Routing, WBDB */
 export const data = {};
 
 var force_update = false;
@@ -239,6 +240,6 @@ data.update = function update() {
   data.load();
 };
 
-data.promise = new Promise(function (resolve, reject) {
+data.promise = new Promise(function (resolve) {
   $(document).on("data.app", resolve);
 });

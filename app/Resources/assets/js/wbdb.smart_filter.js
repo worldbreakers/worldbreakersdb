@@ -1,3 +1,4 @@
+/* global _ */
 export const smart_filter = {};
 
 var SmartFilterQuery = [];
@@ -104,20 +105,7 @@ function add_string_sf(key, operator, values) {
       break;
   }
 }
-function add_boolean_sf(key, operator, values) {
-  var condition = {},
-    value = parseInt(values.shift());
-  switch (operator) {
-    case ":":
-      SmartFilterQuery[key] = !!value;
-      break;
-    case "!":
-      SmartFilterQuery[key] = {
-        $ne: !!value,
-      };
-      break;
-  }
-}
+
 function filterSyntax(query) {
   // renvoie une liste de conditions (array)
   // chaque condition est un tableau à n>1 éléments

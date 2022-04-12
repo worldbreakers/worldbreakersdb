@@ -1,3 +1,4 @@
+/* global _, $, Routing, WBDB */
 export function enhanceDecklistsPage() {
   Promise.all([WBDB.user.promise, WBDB.ui.promise]).then(function () {
     if (WBDB.user.data.is_moderator) {

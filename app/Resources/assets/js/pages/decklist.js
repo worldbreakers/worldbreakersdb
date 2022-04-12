@@ -1,15 +1,16 @@
-export function enhanceDecklistPage() {
+/* global $, Markdown, moment, Routing, WBDB */
+export function enhanceDecklistPage({ commenters }) {
   WBDB.data.promise.then(function () {
     $(this).closest("tr").siblings().removeClass("active");
     $(this).closest("tr").addClass("active");
-    for (var i = 0; i < Decklist.cards.length; i++) {
-      var slot = Decklist.cards[i];
+    for (var i = 0; i < WBDB.Decklist.cards.length; i++) {
+      var slot = WBDB.Decklist.cards[i];
       WBDB.data.cards.updateById(slot.card_code, {
         indeck: parseInt(slot.qty, 10),
       });
     }
-    update_deck();
-    update_charts();
+    WBDB.deck.update();
+    WBDB.charts.update();
   });
 
   Promise.all([WBDB.data.promise, WBDB.user.promise]).then(function () {
@@ -94,7 +95,7 @@ export function enhanceDecklistPage() {
       '<form method="POST" action="' +
         Routing.generate("decklist_comment") +
         '"><input type="hidden" name="uuid" value="' +
-        Decklist.uuid +
+        WBDB.Decklist.uuid +
         '"><div class="form-group">' +
         '<textarea id="comment-form-text" class="form-control" maxlength="10000" rows="4" name="comment" placeholder="Enter your comment in Markdown format. Type # to enter a card name. Type $ to enter a symbol. Type @ to enter a user name."></textarea>' +
         '</div><div class="well text-muted" id="comment-form-preview"><small>Preview. Look <a href="http://daringfireball.net/projects/markdown/dingus">here</a> for a Markdown syntax reference.</small></div>' +
@@ -113,7 +114,7 @@ export function enhanceDecklistPage() {
       $.ajax(Routing.generate("decklist_comment"), {
         data: data,
         type: "POST",
-        success: function (data, textStatus, jqXHR) {
+        success: function () {
           form.replaceWith(
             '<div class="alert alert-success" role="alert">Your comment has been posted. It will appear on the site in a few minutes.</div>'
           );
@@ -149,7 +150,7 @@ export function enhanceDecklistPage() {
 
     $("#comment-form-text").textcomplete([
       {
-        match: /\B#([\-+\w]*)$/,
+        match: /\B#([-+\w]*)$/,
         search: function (term, callback) {
           var regexp = new RegExp("\\b" + term, "i");
           var result = WBDB.data.cards.find({
@@ -173,11 +174,11 @@ export function enhanceDecklistPage() {
         idProperty: "code",
       },
       {
-        match: /\B@([\-+\w]*)$/,
+        match: /\B@([-+\w]*)$/,
         search: function (term, callback) {
           var regexp = new RegExp("^" + term);
           callback(
-            $.grep(Commenters, function (commenter) {
+            $.grep(commenters, function (commenter) {
               return regexp.test(commenter);
             })
           );
@@ -191,10 +192,9 @@ export function enhanceDecklistPage() {
         index: 1,
       },
       {
-        match: /\$([\-+\w]*)$/,
+        match: /\$([-+\w]*)$/,
         search: function (term, callback) {
           var regexp = new RegExp("^" + term);
-          // TODO: was passiert hier?
           callback(
             $.grep(
               ["mythium", "earth", "moon", "stars", "void"],
@@ -222,32 +222,33 @@ export function enhanceDecklistPage() {
   }
 
   function setup_social_icons() {
+    var element;
     if (
       !WBDB.user.data.is_authenticated ||
       WBDB.user.data.is_author ||
       WBDB.user.data.is_liked
     ) {
-      var element = $("#social-icon-like");
+      element = $("#social-icon-like");
       element.replaceWith(
         $('<span class="social-icon-like"></span>').html(element.html())
       );
     }
 
     if (!WBDB.user.data.is_authenticated) {
-      var element = $("#social-icon-favorite");
+      element = $("#social-icon-favorite");
       element.replaceWith(
         $('<span class="social-icon-favorite"></span>').html(element.html())
       );
     } else if (WBDB.user.data.is_favorite) {
-      var element = $("#social-icon-favorite");
+      element = $("#social-icon-favorite");
       element.attr("title", "Remove from favorites");
     } else {
-      var element = $("#social-icon-favorite");
+      element = $("#social-icon-favorite");
       element.attr("title", "Add to favorites");
     }
 
     if (!WBDB.user.data.is_authenticated) {
-      var element = $("#social-icon-comment");
+      element = $("#social-icon-comment");
       element.replaceWith(
         $('<span class="social-icon-comment"></span>').html(element.html())
       );
@@ -275,7 +276,7 @@ export function enhanceDecklistPage() {
         '<a href="#" class="comment-hide-button"><span class="text-danger glyphicon glyphicon-remove" style="margin-left:.5em"></span></a>'
       )
         .appendTo(".collapse.in > .comment-date")
-        .on("click", function (event) {
+        .on("click", function () {
           if (
             confirm("Do you really want to hide this comment for everybody?")
           ) {
@@ -287,7 +288,7 @@ export function enhanceDecklistPage() {
         '<a href="#" class="comment-hide-button"><span class="text-success glyphicon glyphicon-ok" style="margin-left:.5em"></span></a>'
       )
         .appendTo(".collapse:not(.in) > .comment-date")
-        .on("click", function (event) {
+        .on("click", function () {
           if (confirm("Do you really want to unhide this comment?")) {
             unhide_comment($(this).closest("td"));
           }
@@ -303,7 +304,7 @@ export function enhanceDecklistPage() {
       {
         type: "POST",
         dataType: "json",
-        success: function (data, textStatus, jqXHR) {
+        success: function (data) {
           if (data === true) {
             $(element).find(".collapse").collapse("hide");
             $(element)
@@ -343,7 +344,7 @@ export function enhanceDecklistPage() {
       {
         type: "POST",
         dataType: "json",
-        success: function (data, textStatus, jqXHR) {
+        success: function (data) {
           if (data === true) {
             $(element).find(".collapse").collapse("show");
             $(element).find(".comment-toggler").hide();
@@ -371,13 +372,13 @@ export function enhanceDecklistPage() {
     );
   }
 
-  function do_action_decklist(event) {
+  function do_action_decklist() {
     var action_id = $(this).attr("id");
-    if (!action_id || !SelectedDeck) return;
+    if (!action_id || !WBDB.SelectedDeck) return;
     switch (action_id) {
       case "btn-download-text":
         location.href = Routing.generate("decklist_text_export", {
-          decklist_uuid: Decklist.uuid,
+          decklist_uuid: WBDB.Decklist.uuid,
         });
         break;
     }
@@ -402,10 +403,10 @@ export function enhanceDecklistPage() {
     $(document).on("click", "#social-icon-like", send_like);
     $(document).on("click", "#social-icon-favorite", send_favorite);
     $(document).on("click", "#btn-download-text", do_action_decklist);
-    $(document).on("click", "#btn-download-tts", download_tts);
-    $(document).on("click", "#btn-export-bbcode", export_bbcode);
-    $(document).on("click", "#btn-export-markdown", export_markdown);
-    $(document).on("click", "#btn-export-plaintext", export_plaintext);
+    $(document).on("click", "#btn-export-tts", WBDB.exporter.tts);
+    $(document).on("click", "#btn-export-bbcode", WBDB.exporter.bbcode);
+    $(document).on("click", "#btn-export-markdown", WBDB.exporter.markdown);
+    $(document).on("click", "#btn-export-plaintext", WBDB.exporter.plaintext);
     $(document).on("click", "#btn-compare", compare_form);
     $(document).on("click", "#btn-compare-submit", compare_submit);
     $(document).on("click", "#btn-copy-decklist", copy_decklist);
@@ -415,14 +416,14 @@ export function enhanceDecklistPage() {
     $(document).on("click", "#btn-moderation-delete", moderation_delete);
 
     $("div.collapse").each(function (index, element) {
-      $(element).on("show.bs.collapse", function (event) {
+      $(element).on("show.bs.collapse", function () {
         $(this)
           .closest("td")
           .find(".glyphicon-eye-open")
           .removeClass("glyphicon-eye-open")
           .addClass("glyphicon-eye-close");
       });
-      $(element).on("hide.bs.collapse", function (event) {
+      $(element).on("hide.bs.collapse", function () {
         $(this)
           .closest("td")
           .find(".glyphicon-eye-close")
@@ -440,18 +441,18 @@ export function enhanceDecklistPage() {
               .attr("id")
               .match(/btn-sort-(\w+)/)
           ) {
-            DisplaySort = RegExp.$1;
-            DisplaySortSecondary = null;
-            update_deck();
+            WBDB.DisplaySort = RegExp.$1;
+            WBDB.DisplaySortSecondary = null;
+            WBDB.deck.update();
           }
           if (
             $(this)
               .attr("id")
               .match(/btn-sort-(\w+)-(\w+)/)
           ) {
-            DisplaySort = RegExp.$1;
-            DisplaySortSecondary = RegExp.$2;
-            update_deck();
+            WBDB.DisplaySort = RegExp.$1;
+            WBDB.DisplaySortSecondary = RegExp.$2;
+            WBDB.deck.update();
           }
         },
       },
@@ -471,27 +472,30 @@ export function enhanceDecklistPage() {
   });
 
   function copy_decklist() {
-    $.ajax(Routing.generate("deck_copy", { decklist_uuid: Decklist.uuid }), {
-      type: "POST",
-      success: function (data, textStatus, jqXHR) {
-        alert("Decklist copied");
-      },
-      error: function (jqXHR, textStatus, errorThrown) {
-        console.log(
-          "[" +
-            moment().format("YYYY-MM-DD HH:mm:ss") +
-            "] Error on " +
-            this.url,
-          textStatus,
-          errorThrown
-        );
-        alert(
-          "An error occured while copying this decklist (" +
-            jqXHR.statusText +
-            "). Reload the page and try again."
-        );
-      },
-    });
+    $.ajax(
+      Routing.generate("deck_copy", { decklist_uuid: WBDB.Decklist.uuid }),
+      {
+        type: "POST",
+        success: function () {
+          alert("Decklist copied");
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+          console.log(
+            "[" +
+              moment().format("YYYY-MM-DD HH:mm:ss") +
+              "] Error on " +
+              this.url,
+            textStatus,
+            errorThrown
+          );
+          alert(
+            "An error occured while copying this decklist (" +
+              jqXHR.statusText +
+              "). Reload the page and try again."
+          );
+        },
+      }
+    );
   }
 
   function compare_submit() {
@@ -509,7 +513,7 @@ export function enhanceDecklistPage() {
     }
     if (uuid) {
       location.href = Routing.generate("decklists_diff", {
-        decklist1_uuid: Decklist.uuid,
+        decklist1_uuid: WBDB.Decklist.uuid,
         decklist2_uuid: uuid,
       });
     }
@@ -535,61 +539,7 @@ export function enhanceDecklistPage() {
       );
     });
 
-    $("#publish-decklist-description").textcomplete([
-      {
-        match: /\B#([\-+\w]*)$/,
-        search: function (term, callback) {
-          var regexp = new RegExp("\\b" + term, "i");
-          // In the Notes section, we want to allow completion for *all* cards regardless of side.
-          callback(
-            WBDB.data.cards.find({
-              title: regexp,
-            })
-          );
-        },
-        template: function (value) {
-          return value.title + " (" + value.pack.name + ")";
-        },
-        replace: function (value) {
-          return (
-            "[" +
-            value.title +
-            "](" +
-            Routing.generate("cards_zoom", { card_code: value.code }) +
-            ")"
-          );
-        },
-        index: 1,
-      },
-      {
-        match: /\$([\-+\w]*)$/,
-        search: function (term, callback) {
-          var regexp = new RegExp("^" + term);
-          // TODO:
-          callback(
-            $.grep(
-              ["mythium", "earth", "moon", "stars", "void"],
-              function (symbol) {
-                return regexp.test(symbol);
-              }
-            )
-          );
-        },
-        template: function (value) {
-          return value;
-        },
-        replace: function (value) {
-          return (
-            '<svg class="icon-wb icon-' +
-            value +
-            '"><use xlink:href="#icon-' +
-            value +
-            '"></use></svg>'
-          );
-        },
-        index: 1,
-      },
-    ]);
+    WBDB.ui.enhanceTextarea("#publish-decklist-description");
   }
 
   function delete_form() {
@@ -601,9 +551,9 @@ export function enhanceDecklistPage() {
     $.post(
       Routing.generate("decklist_like"),
       {
-        uuid: Decklist.uuid,
+        uuid: WBDB.Decklist.uuid,
       },
-      function (data, textStatus, jqXHR) {
+      function (data) {
         obj.find(".num").text(data);
       }
     );
@@ -614,9 +564,9 @@ export function enhanceDecklistPage() {
     $.post(
       Routing.generate("decklist_favorite"),
       {
-        uuid: Decklist.uuid,
+        uuid: WBDB.Decklist.uuid,
       },
-      function (data, textStatus, jqXHR) {
+      function (data) {
         obj.find(".num").text(data);
         var title = obj.data("original-tooltip");
         obj.data(
@@ -632,21 +582,21 @@ export function enhanceDecklistPage() {
     send_like.call($("#social-icon-like"));
   }
 
-  function moderation_absolve(event) {
+  function moderation_absolve() {
     if ($(this).parent().hasClass("disabled")) {
       return;
     }
     change_moderation_status(0);
   }
 
-  function moderation_restore(event) {
+  function moderation_restore() {
     if ($(this).parent().hasClass("disabled")) {
       return;
     }
     change_moderation_status(1);
   }
 
-  function moderation_trash(event) {
+  function moderation_trash() {
     if ($(this).parent().hasClass("disabled")) {
       return;
     }
@@ -655,7 +605,7 @@ export function enhanceDecklistPage() {
     });
   }
 
-  function moderation_delete(event) {
+  function moderation_delete() {
     if ($(this).parent().hasClass("disabled")) {
       return;
     }
@@ -667,7 +617,7 @@ export function enhanceDecklistPage() {
   }
 
   function get_modflags() {
-    return new Promise(function (resolve, reject) {
+    return new Promise(function (resolve) {
       var url = Routing.generate("modflags_get");
       $.get(url).then(function (response) {
         resolve(response.data);
@@ -676,7 +626,7 @@ export function enhanceDecklistPage() {
   }
 
   function show_modflag_modal(data) {
-    return new Promise(function (resolve, reject) {
+    return new Promise(function (resolve) {
       var $modal = $("#moderationModal");
       var $list = $("#moderation-reason");
       data.forEach(function (modflag) {
@@ -687,7 +637,7 @@ export function enhanceDecklistPage() {
         );
       });
       var $button = $("#btn-moderation-submit");
-      $button.click(function (event) {
+      $button.click(function () {
         $modal.modal("hide");
         resolve($list.val());
       });
@@ -697,7 +647,7 @@ export function enhanceDecklistPage() {
 
   function change_moderation_status(status, modflag_id) {
     var url = Routing.generate("decklist_moderate", {
-      decklist_uuid: Decklist.uuid,
+      decklist_uuid: WBDB.Decklist.uuid,
       status: status,
       modflag_id: modflag_id,
     });

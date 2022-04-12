@@ -1,3 +1,4 @@
+/* global $, Markdown, moment, Routing, WBDB */
 export function enhanceZoomPage() {
   $(function () {
     $(window.document).on("click", ".review-button", write_review_open);
@@ -39,7 +40,7 @@ export function enhanceZoomPage() {
     }
   });
 
-  function add_ruling(event) {
+  function add_ruling() {
     var cardId = $(this).closest(".rulings").data("card-id");
     $("#add-ruling-card-id").val(cardId);
 
@@ -50,67 +51,15 @@ export function enhanceZoomPage() {
       );
     });
 
-    $("#add-ruling-form-text").textcomplete([
-      {
-        match: /\B#([\-+\w]*)$/,
-        search: function (term, callback) {
-          var regexp = new RegExp("\\b" + term, "i");
-          callback(
-            WBDB.data.cards.find({
-              title: regexp,
-            })
-          );
-        },
-        template: function (value) {
-          return value.title;
-        },
-        replace: function (value) {
-          return (
-            "[" +
-            value.title +
-            "](" +
-            Routing.generate("cards_zoom", { card_code: value.code }) +
-            ")"
-          );
-        },
-        index: 1,
-      },
-      {
-        match: /\$([\-+\w]*)$/,
-        search: function (term, callback) {
-          var regexp = new RegExp("^" + term);
-          callback(
-            $.grep(
-              ["mythium", "earth", "moon", "stars", "void"],
-              function (symbol) {
-                return regexp.test(symbol);
-              }
-            )
-          );
-        },
-        template: function (value) {
-          return value;
-        },
-        replace: function (value) {
-          return (
-            '<svg class="icon-wb icon-' +
-            value +
-            '"><use xlink:href="#icon-' +
-            value +
-            '"></use></svg>'
-          );
-        },
-        index: 1,
-      },
-    ]);
+    WBDB.ui.enhanceTextarea("#add-ruling-form-text");
   }
 
-  function delete_ruling(event) {
+  function delete_ruling() {
     var rulingId = $(this).closest("li").data("ruling-id");
     $("#delete-ruling-id").val(rulingId);
   }
 
-  function edit_ruling(event) {
+  function edit_ruling() {
     var cardId = $(this).closest(".rulings").data("card-id");
     $("#edit-ruling-card-id").val(cardId);
     var rulingId = $(this).closest("li").data("ruling-id");
@@ -125,59 +74,7 @@ export function enhanceZoomPage() {
       );
     });
 
-    $("#edit-ruling-form-text").textcomplete([
-      {
-        match: /\B#([\-+\w]*)$/,
-        search: function (term, callback) {
-          var regexp = new RegExp("\\b" + term, "i");
-          callback(
-            WBDB.data.cards.find({
-              title: regexp,
-            })
-          );
-        },
-        template: function (value) {
-          return value.title;
-        },
-        replace: function (value) {
-          return (
-            "[" +
-            value.title +
-            "](" +
-            Routing.generate("cards_zoom", { card_code: value.code }) +
-            ")"
-          );
-        },
-        index: 1,
-      },
-      {
-        match: /\$([\-+\w]*)$/,
-        search: function (term, callback) {
-          var regexp = new RegExp("^" + term);
-          callback(
-            $.grep(
-              ["mythium", "earth", "moon", "stars", "void"],
-              function (symbol) {
-                return regexp.test(symbol);
-              }
-            )
-          );
-        },
-        template: function (value) {
-          return value;
-        },
-        replace: function (value) {
-          return (
-            '<svg class="icon-wb icon-' +
-            value +
-            '"><use xlink:href="#icon-' +
-            value +
-            '"></use></svg>'
-          );
-        },
-        index: 1,
-      },
-    ]);
+    WBDB.ui.enhanceTextarea("#edit-ruling-form-text");
   }
 
   // TODO(plural): Share the preview functionality with the review method as well.
@@ -207,59 +104,7 @@ export function enhanceZoomPage() {
       );
     });
 
-    $(".comment-form-text").textcomplete([
-      {
-        match: /\B#([\-+\w]*)$/,
-        search: function (term, callback) {
-          var regexp = new RegExp("\\b" + term, "i");
-          callback(
-            WBDB.data.cards.find({
-              title: regexp,
-            })
-          );
-        },
-        template: function (value) {
-          return value.title;
-        },
-        replace: function (value) {
-          return (
-            "[" +
-            value.title +
-            "](" +
-            Routing.generate("cards_zoom", { card_code: value.code }) +
-            ")"
-          );
-        },
-        index: 1,
-      },
-      {
-        match: /\$([\-+\w]*)$/,
-        search: function (term, callback) {
-          var regexp = new RegExp("^" + term);
-          callback(
-            $.grep(
-              ["mythium", "earth", "moon", "stars", "void"],
-              function (symbol) {
-                return regexp.test(symbol);
-              }
-            )
-          );
-        },
-        template: function (value) {
-          return value;
-        },
-        replace: function (value) {
-          return (
-            '<svg class="icon-wb icon-' +
-            value +
-            '"><use xlink:href="#icon-' +
-            value +
-            '"></use></svg>'
-          );
-        },
-        index: 1,
-      },
-    ]);
+    WBDB.ui.enhanceTextarea(".comment-form-text");
   }
 
   function form_comment_submit(event) {
@@ -271,7 +116,7 @@ export function enhanceZoomPage() {
       data: form.serialize(),
       type: "POST",
       dataType: "json",
-      success: function (data, textStatus, jqXHR) {
+      success: function (data) {
         if (data === true) {
           form.replaceWith(
             '<div class="alert alert-success" role="alert">Your comment has been posted. It will appear on the site in a few minutes.</div>'
@@ -326,13 +171,13 @@ export function enhanceZoomPage() {
       {
         id: review_id,
       },
-      function (data, textStatus, jqXHR) {
+      function (data) {
         obj.find(".num").text(data);
       }
     );
   }
 
-  function write_review_open(event) {
+  function write_review_open() {
     if (!WBDB.user.data.is_authenticated) {
       alert("You must be logged in to write a card review.");
       return;
@@ -362,7 +207,7 @@ export function enhanceZoomPage() {
         data: data,
         type: "POST",
         dataType: "json",
-        success: function (data, textStatus, jqXHR) {
+        success: function (data) {
           if (data === true) {
             form.replaceWith(
               '<div class="alert alert-success" role="alert">Your review has been posted. It will appear on the site in a few minutes.</div>'
@@ -400,59 +245,7 @@ export function enhanceZoomPage() {
       );
     });
 
-    $(".review-form-text").textcomplete([
-      {
-        match: /\B#([\-+\w]*)$/,
-        search: function (term, callback) {
-          var regexp = new RegExp("\\b" + term, "i");
-          callback(
-            WBDB.data.cards.find({
-              title: regexp,
-            })
-          );
-        },
-        template: function (value) {
-          return value.title;
-        },
-        replace: function (value) {
-          return (
-            "[" +
-            value.title +
-            "](" +
-            Routing.generate("cards_zoom", { card_code: value.code }) +
-            ")"
-          );
-        },
-        index: 1,
-      },
-      {
-        match: /\$([\-+\w]*)$/,
-        search: function (term, callback) {
-          var regexp = new RegExp("^" + term);
-          callback(
-            $.grep(
-              ["mythium", "earth", "moon", "stars", "void"],
-              function (symbol) {
-                return regexp.test(symbol);
-              }
-            )
-          );
-        },
-        template: function (value) {
-          return value;
-        },
-        replace: function (value) {
-          return (
-            '<svg class="icon-wb icon-' +
-            value +
-            '"><use xlink:href="#icon-' +
-            value +
-            '"></use></svg>'
-          );
-        },
-        index: 1,
-      },
-    ]);
+    WBDB.ui.enhanceTextarea(".review-form-text");
 
     if (WBDB.user.data.review_id) {
       $(".review-form-text").val(WBDB.user.data.review_text).trigger("keyup");

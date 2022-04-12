@@ -1,3 +1,4 @@
+/* global $, WBDB */
 export function enhanceDirectImportPage() {
   $(document).on("data.app", function () {
     $("#btn-import").prop("disabled", false);
@@ -18,7 +19,7 @@ export function enhanceDirectImportPage() {
     );
   });
 
-  function click_trash(event) {
+  function click_trash() {
     $(this).closest("li.list-group-item").remove();
     update_stats();
   }
@@ -103,7 +104,7 @@ export function enhanceDirectImportPage() {
       return text;
     }
   }
-  function click_option(event) {
+  function click_option() {
     var name = $(this).text();
     var code = $(this).data("code");
     var input = $(this)

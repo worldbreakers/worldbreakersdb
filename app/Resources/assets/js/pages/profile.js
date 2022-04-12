@@ -1,8 +1,9 @@
-export function enhanceProfilePage() {
+/* global $, WBDB */
+export function enhanceProfilePage(userId) {
   $(function () {
     $.when(WBDB.user.deferred).then(function () {
       if (WBDB.user.data.is_authenticated) {
-        if (WBDB.user.data.following.indexOf(UserId) > -1) {
+        if (WBDB.user.data.following.indexOf(userId) > -1) {
           $("#unfollow").show();
         } else {
           $("#follow").show();
@@ -11,7 +12,7 @@ export function enhanceProfilePage() {
     });
 
     $("#unfollow")
-      .mouseover(function (event) {
+      .mouseover(function () {
         $(this)
           .addClass("btn-danger")
           .removeClass("btn-info")
@@ -19,7 +20,7 @@ export function enhanceProfilePage() {
             '<span class="glyphicon glyphicon glyphicon-eye-close"></span> Unfollow'
           );
       })
-      .mouseout(function (event) {
+      .mouseout(function () {
         $(this)
           .addClass("btn-info")
           .removeClass("btn-danger")

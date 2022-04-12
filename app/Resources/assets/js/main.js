@@ -1,5 +1,5 @@
 import "../css/worldbreakersdb.css";
+import "./jquery-customizations.js";
 import WBDB from "./wbdb.js";
-import "./wbdb-globals.js";
 
 window.WBDB = WBDB;

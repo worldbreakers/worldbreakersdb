@@ -1,7 +1,8 @@
+/* global $, WBDB */
 export function enhanceBuildPage() {
   $(function () {
     // Shows a preview of IDs the user mouses over
-    $(".list-group").on("mouseenter touchstart", "a", function (event) {
+    $(".list-group").on("mouseenter touchstart", "a", function () {
       let card_code = $(this).data("code");
       let card = WBDB.data.cards.findById(card_code);
       $("#cardimg")
@@ -40,7 +41,7 @@ export function enhanceBuildPage() {
         .toLowerCase()
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "");
-      $(".identity").each(function (id, i) {
+      $(".identity").each(function () {
         if (
           (faction !== "all" && !$(this).hasClass("faction-" + faction)) ||
           !$(this)
