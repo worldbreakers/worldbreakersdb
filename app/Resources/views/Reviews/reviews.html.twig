@@ -1,7 +1,9 @@
 {% extends '/layout.html.twig' %}
 
 {% block head %}
-    <script src="{{ asset('/js/zoom.js') }}"></script>
+<script>
+WBDB.pages.enhanceZoomPage();
+</script>
 {% endblock %}
 
 {% block body %}
