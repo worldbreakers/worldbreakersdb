@@ -1,22 +1,26 @@
 /* global $, Markdown, Routing, WBDB */
+import { data as Data } from "../wbdb.data.js";
 import { show_publish_deck_form } from "./publish_deck_form.js";
+import { update as updateCharts } from "../charts.js";
+import { update as updateDeck } from "../deck.js";
+import { bbcode, markdown, plaintext, tts } from "../exporter.js";
 
 export function enhanceDeckviewPage() {
   $(document).on("data.app", function () {
     var sets_in_deck = {};
-    WBDB.data.cards.find().forEach(function (card) {
+    Data.cards.find().forEach(function (card) {
       var indeck = 0;
       if (WBDB.SelectedDeck.slots[card.code]) {
         indeck = parseInt(WBDB.SelectedDeck.slots[card.code], 10);
         sets_in_deck[card.pack_code] = 1;
       }
-      WBDB.data.cards.updateById(card.code, {
+      Data.cards.updateById(card.code, {
         indeck: indeck,
       });
     });
 
-    WBDB.deck.update();
-    WBDB.charts.update();
+    updateDeck();
+    updateCharts();
   });
 
   function do_action_deck() {
@@ -44,7 +48,7 @@ export function enhanceDeckviewPage() {
         });
         break;
       case "btn-export-tts":
-        WBDB.exporter.tts();
+        tts();
         break;
       case "btn-print":
         window.print();
@@ -80,13 +84,13 @@ export function enhanceDeckviewPage() {
         switch_to_web_view();
         break;
       case "btn-display-plain":
-        WBDB.exporter.plaintext();
+        plaintext();
         break;
       case "btn-display-bbcode":
-        WBDB.exporter.bbcode();
+        bbcode();
         break;
       case "btn-display-markdown":
-        WBDB.exporter.markdown();
+        markdown();
         break;
     }
   }
@@ -128,6 +132,6 @@ export function enhanceDeckviewPage() {
     $("#deck").html(
       '<div class="row"><div class="col-sm-12"><h3 id="identity"></h3><div id="cardcount"></div><div id="latestpack"></div><div id="limited"></div></div></div><div class="row" id="deck-content" style="margin-bottom:10px"></div>'
     );
-    WBDB.deck.update();
+    updateDeck();
   }
 }

@@ -1,12 +1,11 @@
-/* global WBDB */
-export const fuzzy_search = {};
+import { data as Data } from "./wbdb.data.js";
 
 var types = ["event", "follower", "location", "worldbreaker"];
 
 // takes a card name and fuzzy-searches it in the card db
 // the input can include a qty indicator like 3x
 // returns an array of objects Card with an additional key "qty"
-fuzzy_search.lookup = function (input, max_results) {
+export function lookup(input, max_results) {
   if (max_results == null) max_results = 5;
   var qty = null,
     name = input
@@ -26,7 +25,7 @@ fuzzy_search.lookup = function (input, max_results) {
   if (types.indexOf(name) > -1) return;
 
   var options = [];
-  var query = WBDB.data.cards.find({ token: new RegExp(name, "i") });
+  var query = Data.cards.find({ token: new RegExp(name, "i") });
   if (query.length) {
     query.forEach(function (card) {
       options.push(card);
@@ -39,7 +38,7 @@ fuzzy_search.lookup = function (input, max_results) {
     });
   } else if (typeof String.prototype.score === "function") {
     var matches = [];
-    WBDB.data.cards.find().forEach(function (card) {
+    Data.cards.find().forEach(function (card) {
       matches.push({
         score: card.token.score(name, 0.9),
         card: card,
@@ -63,4 +62,4 @@ fuzzy_search.lookup = function (input, max_results) {
     }
   }
   return { qty: qty, cards: options };
-};
+}

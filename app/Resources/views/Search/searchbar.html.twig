@@ -1,21 +1,3 @@
-    <script type="text/javascript">
-        Promise.all([WBDB.data.promise, WBDB.ui.promise]).then(function() {
-            var all_cards = WBDB.data.cards.find();
-
-            $('#search-input').typeahead({
-                hint: true,
-                highlight: true,
-                minLength: 2
-            }, {
-                display: function(card) { return card.title + ' (' + card.pack.name + ')'; },
-                source: WBDB.search.findMatches(all_cards),
-            });
-            $('#search-input').on('typeahead:selected typeahead:autocomplete', function(event, data) {
-                location.href=Routing.generate('cards_zoom', {card_code:data.code, _locale:WBDB.locale});
-            });
-        });
-    </script>
-
 <div class="row">
   <form method="GET" action="{{ path('cards_find') }}" id="search-form" role="form">
     <div class="col-sm-4">

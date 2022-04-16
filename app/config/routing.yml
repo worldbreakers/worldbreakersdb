@@ -29,22 +29,6 @@ fos_user_change_password:
     resource: "@FOSUserBundle/Resources/config/routing/change_password.xml"
     prefix: /profile
 
-fos_oauth_server_token:
-    resource: "@FOSOAuthServerBundle/Resources/config/routing/token.xml"
-
-fos_oauth_server_authorize:
-    resource: "@FOSOAuthServerBundle/Resources/config/routing/authorize.xml"
-
-oauth_server_auth_login:
-    path:  /oauth/v2/auth_login
-    defaults:
-        _controller: AppBundle:Security:login
-
-oauth_server_auth_login_check:
-    path:  /oauth/v2/auth_login_check
-    defaults:
-        _controller: AppBundle:Security:loginCheck
-
 NelmioApiDocBundle:
     resource: "@NelmioApiDocBundle/Resources/config/routing.yml"
     prefix:   /api/doc

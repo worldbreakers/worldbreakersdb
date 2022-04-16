@@ -1,43 +1,44 @@
 /* global $, Routing, WBDB */
-export const user = {};
-
-user.params = {};
-
-user.deferred = $.Deferred().always(function () {
-  if (user.data.is_authenticated) {
-    user.update();
+export let data = {};
+export const params = {};
+export const deferred = $.Deferred().always(function () {
+  if (data.is_authenticated) {
+    update();
   } else {
-    user.anonymous();
+    anonymous();
   }
-  user.always();
+  $(document).trigger("user.app");
+});
+export const promise = new Promise(function (resolve) {
+  $(document).on("user.app", resolve);
 });
 
-user.query = function () {
-  $.ajax(Routing.generate("user_info", user.params), {
+export function query() {
+  $.ajax(Routing.generate("user_info", params), {
     cache: false,
     dataType: "json",
-    success: function (data) {
-      user.data = data;
-      user.deferred.resolve();
+    success: function (userInfoData) {
+      data = userInfoData;
+      deferred.resolve();
     },
     error: function () {
-      user.deferred.resolve();
+      deferred.resolve();
     },
   });
-};
+}
 
-user.anonymous = function () {
+export function anonymous() {
   $("#login").append(
     '<ul class="dropdown-menu"><li><a href="' +
       Routing.generate("fos_user_security_login") +
       '">Login or Register</a></li></ul>'
   );
-};
+}
 
-user.update = function () {
-  var unchecked_activity_label = user.data.unchecked_activity
+export function update() {
+  var unchecked_activity_label = data.unchecked_activity
     ? '<span class="label label-success label-as-badge">' +
-      user.data.unchecked_activity +
+      data.unchecked_activity +
       "</span>"
     : "";
   $("#login a span").after(unchecked_activity_label);
@@ -50,8 +51,8 @@ user.update = function () {
         '">Edit account</a></li>' +
         '<li><a href="' +
         Routing.generate("user_profile_view", {
-          user_id: user.data.id,
-          user_name: user.data.name,
+          user_id: data.id,
+          user_name: data.name,
           _locale: WBDB.locale,
         }) +
         '">Public profile</a></li>' +
@@ -65,14 +66,4 @@ user.update = function () {
         '">Log out</a></li>' +
         "</ul>"
     );
-};
-
-user.always = function () {
-  $(document).trigger("user.app");
-};
-
-user.showAds = function () {};
-
-user.promise = new Promise(function (resolve) {
-  $(document).on("user.app", resolve);
-});
+}

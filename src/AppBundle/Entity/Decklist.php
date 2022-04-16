@@ -167,12 +167,12 @@ class Decklist implements NormalizableInterface, TimestampableInterface
      */
     private $modflag;
 
-    /**
-     * @var Collection
-     */
-    private $claims;
-
     private $isLegal;
+
+    /**
+     * @var array|null
+     */
+    private $guildDistribution;
 
     public function __construct()
     {
@@ -196,16 +196,22 @@ class Decklist implements NormalizableInterface, TimestampableInterface
         }
 
         return [
-            'id'               => $this->id,
-            'uuid'             => $this->uuid,
-            'date_creation'    => $this->dateCreation->format('c'),
-            'date_update'      => $this->dateUpdate->format('c'),
-            'name'             => $this->name,
-            'description'      => $this->description,
-            'user_id'          => $this->user->getId(),
-            'user_name'        => $this->user->getUsername(),
+            'id' => $this->id,
+            'uuid' => $this->uuid,
+            'date_creation' => $this->dateCreation->format('c'),
+            'date_update' => $this->dateUpdate->format('c'),
+            'name' => $this->name,
+            'prettyname' => $this->getPrettyname(),
+            'description' => $this->description,
+            'user_id' => $this->user->getId(),
+            'user_name' => $this->user->getUsername(),
+            'user_reputation' => $this->user->getReputation(),
             'tournament_badge' => $this->tournament ? true : false,
-            'cards'            => $cards,
+            'cards' => $cards,
+            'guild_distribution' => $this->getGuildDistribution(),
+            'nbcomments' => $this->getNbcomments(),
+            'nbfavorites' => $this->getNbfavorites(),
+            'nbvotes' => $this->getNbvotes(),
         ];
     }
 
@@ -861,35 +867,6 @@ class Decklist implements NormalizableInterface, TimestampableInterface
         return $this;
     }
 
-    /**
-     * Add claim
-     * @param Claim $claim
-     * @return Decklist
-     */
-    public function addClaim(Claim $claim)
-    {
-        $this->claims[] = $claim;
-
-        return $this;
-    }
-
-    /**
-     * Remove claim
-     * @param Claim $claim
-     */
-    public function removeClaim(Claim $claim)
-    {
-        $this->claims->removeElement($claim);
-    }
-
-    /**
-     * @return Collection
-     */
-    public function getClaims()
-    {
-        return $this->claims;
-    }
-
     public function getIsLegal()
     {
         return $this->isLegal;
@@ -898,5 +875,23 @@ class Decklist implements NormalizableInterface, TimestampableInterface
     public function setIsLegal(bool $isLegal)
     {
         $this->isLegal = $isLegal;
+    }
+
+    /**
+     * @return array
+     */
+    public function getGuildDistribution()
+    {
+        return $this->guildDistribution;
+    }
+
+    /**
+     * @param array $guildDistribution
+     *
+     * @return void
+     */
+    public function setGuildDistribution($guildDistribution)
+    {
+        $this->guildDistribution = $guildDistribution;
     }
 }

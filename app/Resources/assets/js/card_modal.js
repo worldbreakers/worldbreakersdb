@@ -1,32 +1,33 @@
 /* global $, WBDB, Routing */
-export const card_modal = {};
+import * as format from "./format.js";
+import { data as Data } from './wbdb.data.js';
 
 var modal = null;
 
-card_modal.create_element = function () {
+export function create_element() {
   modal = $(
     '<div class="modal" id="cardModal" tabindex="-1" role="dialog" aria-labelledby="cardModalLabel" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h3 class="modal-title card-title">Modal title</h3><div class="row"><div class="col-sm-12 text-center"><div class="btn-group modal-qty" data-toggle="buttons"></div></div></div></div><div class="modal-body"><div class="row"><div class="col-sm-6 modal-image"></div><div class="col-sm-6 modal-info"></div></div></div><div class="modal-footer"><a role="button" href="#" class="btn btn-default card-modal-link no-popup">Go to card page</a><button type="button" class="btn btn-primary" data-dismiss="modal">Close</button></div></div></div></div>'
   );
   modal.appendTo("body");
-};
+}
 
-card_modal.display_modal = function (event, element) {
+export function display_modal(event, element) {
   event.preventDefault();
   $(element).qtip("hide");
   var code =
     $(element).data("index") ||
     $(element).closest(".card-container").data("index");
   fill_modal(code);
-};
+}
 
-card_modal.typeahead = function (event, data) {
+export function typeahead(event, data) {
   fill_modal(data.code);
   $("#cardModal").modal("show");
   WBDB.InputByTitle = true;
-};
+}
 
 function fill_modal(code) {
-  var card = WBDB.data.cards.findById(code);
+  var card = Data.cards.findById(code);
   modal.data("index", code);
   modal
     .find(".card-modal-link")
@@ -49,11 +50,11 @@ function fill_modal(code) {
         '">'
     );
 
-  var modalText = WBDB.format.text(card);
+  var modalText = format.text(card);
   if (card.type_code === "location") {
     var stages = card.stages
       .filter((s) => s)
-      .map((stage) => "<li>" + WBDB.format.text({ text: stage }) + "</li>");
+      .map((stage) => "<li>" + format.text({ text: stage }) + "</li>");
     modalText += '<p><ol class="stages">' + stages.join("") + "</ol></p>";
   }
 
@@ -61,7 +62,7 @@ function fill_modal(code) {
     .find(".modal-info")
     .html(
       '<div class="card-info">' +
-        WBDB.format.type(card) +
+        format.type(card) +
         "</div>" +
         "<div><small>" +
         card.faction.name +
@@ -79,7 +80,9 @@ function fill_modal(code) {
 
   var isSignatureCard = !!card.signature;
   var isOtherSignatureCard =
-    isSignatureCard && WBDB.Identity && card.signature !== WBDB.Identity.signature;
+    isSignatureCard &&
+    WBDB.Identity &&
+    card.signature !== WBDB.Identity.signature;
 
   if (qtyelt && WBDB.Filters !== null) {
     var qty = "";

@@ -17,38 +17,41 @@ class IndexController extends Controller
      * @return Response
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function indexAction(Request $request, EntityManagerInterface $entityManager, DecklistManager $decklistManager)
-    {
+    public function indexAction(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        DecklistManager $decklistManager
+    ) {
         $response = new Response();
         $response->setPublic();
-        $response->setMaxAge($this->getParameter('short_cache'));
+        $response->setMaxAge($this->getParameter("short_cache"));
 
         // featured decklist
         $dbh = $entityManager->getConnection();
-        $rows = $dbh->executeQuery("SELECT decklist FROM highlight WHERE id=?", [1])->fetchAll();
-        $decklist = count($rows) ? json_decode($rows[0]['decklist']) : null;
+        $rows = $dbh
+            ->executeQuery("SELECT decklist FROM highlight WHERE id=?", [1])
+            ->fetchAll();
+        $decklist = count($rows) ? json_decode($rows[0]["decklist"]) : null;
 
         // TODO(plural): Remove this lookup once the DOTW contains UUID by default.
         if ($decklist != null) {
-            $decklist_object = $entityManager->getRepository('AppBundle:Decklist')->find($decklist->{'id'});
+            $decklist_object = $entityManager
+                ->getRepository("AppBundle:Decklist")
+                ->find($decklist->{'id'});
             $decklist->{'uuid'} = $decklist_object->getUuid();
         }
-        // recent decklists
-        $decklists_recent = $decklistManager->recent(0, 10, false)['decklists'];
 
         return $this->render(
-
-            'Default/index.html.twig',
+            "Default/index.html.twig",
             [
-                'pagetitle'       => "Worldbreakers Cards and Deckbuilder",
-                'pagedescription' => "Build your deck for Worldbreakers. Browse the cards and the thousand of decklists submitted by the community. Publish your own decks and get feedback.",
-                'decklists'       => $decklists_recent,
-                'decklist'        => $decklist,
-                'url'             => $request->getRequestUri(),
+                "pagetitle" => "Worldbreakers Cards and Deckbuilder",
+                "pagedescription" =>
+                    "Build your deck for Worldbreakers. Browse the cards and the thousand of decklists submitted by the community. Publish your own decks and get feedback.",
+                "decklist" => $decklist,
+                "url" => $request->getRequestUri(),
             ],
 
             $response
-
         );
     }
 }

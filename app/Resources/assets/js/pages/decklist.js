@@ -1,24 +1,31 @@
 /* global $, Markdown, moment, Routing, WBDB */
+import { data as Data } from "../wbdb.data.js";
+import * as User from "../user.js";
+import { enhanceTextarea, showBanner } from "../ui.js";
+import { update as updateDeck } from "../deck.js";
+import { update as updateCharts } from "../charts.js";
+import { bbcode, markdown, plaintext, tts } from "../exporter.js";
+
 export function enhanceDecklistPage({ commenters }) {
-  WBDB.data.promise.then(function () {
+  Data.promise.then(function () {
     $(this).closest("tr").siblings().removeClass("active");
     $(this).closest("tr").addClass("active");
     for (var i = 0; i < WBDB.Decklist.cards.length; i++) {
       var slot = WBDB.Decklist.cards[i];
-      WBDB.data.cards.updateById(slot.card_code, {
+      Data.cards.updateById(slot.card_code, {
         indeck: parseInt(slot.qty, 10),
       });
     }
-    WBDB.deck.update();
-    WBDB.charts.update();
+    updateDeck();
+    updateCharts();
   });
 
-  Promise.all([WBDB.data.promise, WBDB.user.promise]).then(function () {
-    if (WBDB.user.data.moderation_status || WBDB.user.data.is_moderator) {
+  Promise.all([Data.promise, User.promise]).then(function () {
+    if (User.data.moderation_status || User.data.is_moderator) {
       setup_moderation(
-        WBDB.user.data.moderation_status,
-        WBDB.user.data.moderation_reason,
-        WBDB.user.data.is_moderator
+        User.data.moderation_status,
+        User.data.moderation_reason,
+        User.data.is_moderator
       );
     }
   });
@@ -32,13 +39,13 @@ export function enhanceDecklistPage({ commenters }) {
       case 0: // MODERATION_PUBLISHED
         break;
       case 1: // MODERATION_RESTORED
-        WBDB.ui.showBanner(
+        showBanner(
           "This decklist has been restored to the public directories.",
           "info"
         );
         break;
       case 2: // MODERATION_TRASHED
-        WBDB.ui.showBanner(
+        showBanner(
           "This decklist has been removed from the public directories. Reason: <b>" +
             moderation_reason +
             "</b>.",
@@ -46,7 +53,7 @@ export function enhanceDecklistPage({ commenters }) {
         );
         break;
       case 3: // MODERATION_DELETED
-        WBDB.ui.showBanner("This decklist has been deleted.", "warning");
+        showBanner("This decklist has been deleted.", "warning");
         break;
     }
 
@@ -153,7 +160,7 @@ export function enhanceDecklistPage({ commenters }) {
         match: /\B#([-+\w]*)$/,
         search: function (term, callback) {
           var regexp = new RegExp("\\b" + term, "i");
-          var result = WBDB.data.cards.find({
+          var result = Data.cards.find({
             title: regexp,
           });
           callback(result);
@@ -224,9 +231,9 @@ export function enhanceDecklistPage({ commenters }) {
   function setup_social_icons() {
     var element;
     if (
-      !WBDB.user.data.is_authenticated ||
-      WBDB.user.data.is_author ||
-      WBDB.user.data.is_liked
+      !User.data.is_authenticated ||
+      User.data.is_author ||
+      User.data.is_liked
     ) {
       element = $("#social-icon-like");
       element.replaceWith(
@@ -234,12 +241,12 @@ export function enhanceDecklistPage({ commenters }) {
       );
     }
 
-    if (!WBDB.user.data.is_authenticated) {
+    if (!User.data.is_authenticated) {
       element = $("#social-icon-favorite");
       element.replaceWith(
         $('<span class="social-icon-favorite"></span>').html(element.html())
       );
-    } else if (WBDB.user.data.is_favorite) {
+    } else if (User.data.is_favorite) {
       element = $("#social-icon-favorite");
       element.attr("title", "Remove from favorites");
     } else {
@@ -247,7 +254,7 @@ export function enhanceDecklistPage({ commenters }) {
       element.attr("title", "Add to favorites");
     }
 
-    if (!WBDB.user.data.is_authenticated) {
+    if (!User.data.is_authenticated) {
       element = $("#social-icon-comment");
       element.replaceWith(
         $('<span class="social-icon-comment"></span>').html(element.html())
@@ -257,12 +264,12 @@ export function enhanceDecklistPage({ commenters }) {
 
   function setup_title() {
     var title = $("h1.decklist-name");
-    if (WBDB.user.data.is_author && WBDB.user.data.can_delete) {
+    if (User.data.is_author && User.data.can_delete) {
       title.prepend(
         '<a href="#" title="Delete decklist" id="decklist-delete"><span class="glyphicon glyphicon-trash pull-right text-danger"></span></a>'
       );
     }
-    if (WBDB.user.data.is_author) {
+    if (User.data.is_author) {
       title.prepend(
         '<a href="#" title="Edit decklist name / description" id="decklist-edit"><span class="glyphicon glyphicon-pencil pull-right"></span></a>'
       );
@@ -270,7 +277,7 @@ export function enhanceDecklistPage({ commenters }) {
   }
 
   function setup_comment_hide() {
-    if (WBDB.user.data.is_author || WBDB.user.data.is_moderator) {
+    if (User.data.is_author || User.data.is_moderator) {
       $(".comment-hide-button").remove();
       $(
         '<a href="#" class="comment-hide-button"><span class="text-danger glyphicon glyphicon-remove" style="margin-left:.5em"></span></a>'
@@ -385,8 +392,8 @@ export function enhanceDecklistPage({ commenters }) {
   }
 
   $(function () {
-    $.when(WBDB.user.deferred).then(function () {
-      if (WBDB.user.data.is_authenticated) {
+    $.when(User.deferred).then(function () {
+      if (User.data.is_authenticated) {
         setup_comment_form();
         setup_title();
         setup_comment_hide();
@@ -403,10 +410,10 @@ export function enhanceDecklistPage({ commenters }) {
     $(document).on("click", "#social-icon-like", send_like);
     $(document).on("click", "#social-icon-favorite", send_favorite);
     $(document).on("click", "#btn-download-text", do_action_decklist);
-    $(document).on("click", "#btn-export-tts", WBDB.exporter.tts);
-    $(document).on("click", "#btn-export-bbcode", WBDB.exporter.bbcode);
-    $(document).on("click", "#btn-export-markdown", WBDB.exporter.markdown);
-    $(document).on("click", "#btn-export-plaintext", WBDB.exporter.plaintext);
+    $(document).on("click", "#btn-export-tts", tts);
+    $(document).on("click", "#btn-export-bbcode", bbcode);
+    $(document).on("click", "#btn-export-markdown", markdown);
+    $(document).on("click", "#btn-export-plaintext", plaintext);
     $(document).on("click", "#btn-compare", compare_form);
     $(document).on("click", "#btn-compare-submit", compare_submit);
     $(document).on("click", "#btn-copy-decklist", copy_decklist);
@@ -443,7 +450,7 @@ export function enhanceDecklistPage({ commenters }) {
           ) {
             WBDB.DisplaySort = RegExp.$1;
             WBDB.DisplaySortSecondary = null;
-            WBDB.deck.update();
+            updateDeck();
           }
           if (
             $(this)
@@ -452,7 +459,7 @@ export function enhanceDecklistPage({ commenters }) {
           ) {
             WBDB.DisplaySort = RegExp.$1;
             WBDB.DisplaySortSecondary = RegExp.$2;
-            WBDB.deck.update();
+            updateDeck();
           }
         },
       },
@@ -539,7 +546,7 @@ export function enhanceDecklistPage({ commenters }) {
       );
     });
 
-    WBDB.ui.enhanceTextarea("#publish-decklist-description");
+    enhanceTextarea("#publish-decklist-description");
   }
 
   function delete_form() {

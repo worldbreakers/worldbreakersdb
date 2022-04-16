@@ -1,20 +1,22 @@
 /* global _, $, ForerunnerDB, Routing, WBDB */
-export const data = {};
+import { showBanner } from "./ui.js";
 
 var force_update = false;
+var fdb = new ForerunnerDB();
 var dbNames = ["packs", "cards", "factions", "types"];
 
-/**
- * Promise interface to forerunnerdb's load method
- * @param db a Forerunner database
- */
-data.fdb_load = function (db) {
-  return new Promise(function (resolve, reject) {
-    db.load(function (err) {
-      if (err) reject(err);
-      else resolve(db);
-    });
-  });
+export const data = {
+  promise: new Promise(function (resolve) {
+    $(document).on("data.app", resolve);
+  }),
+  db: fdb.db("netrunnerdb"),
+  masters: {},
+
+  find_identity() {
+    return data.cards
+      .find({ indeck: { $gt: 0 }, type_code: "identity" })
+      .pop();
+  },
 };
 
 /**
@@ -23,26 +25,18 @@ data.fdb_load = function (db) {
  * @memberOf data
  */
 data.load = function load() {
-  var fdb = new ForerunnerDB();
-  data.db = fdb.db("netrunnerdb");
-  data.masters = {};
-
-  Promise.resolve(dbNames)
-    .then(function (dbNames) {
-      return Promise.all(
-        _.map(dbNames, function (dbName) {
-          data.masters[dbName] = data.db.collection("master_" + dbName, {
-            primaryKey: "code",
-            changeTimestamp: true,
-          });
-          return data.fdb_load(data.masters[dbName]);
-        })
-      );
+  Promise.all(
+    _.map(dbNames, function (dbName) {
+      data.masters[dbName] = data.db.collection("master_" + dbName, {
+        primaryKey: "code",
+        changeTimestamp: true,
+      });
+      return fdb_load(data.masters[dbName]);
     })
+  )
     .then(function (collections) {
       return Promise.all(
         _.map(collections, function (collection) {
-          // doing various on the collection to make sure we can run with it
           var age_of_database =
             new Date() - new Date(collection.metaData().lastChange);
           if (age_of_database > 864000000) {
@@ -61,10 +55,7 @@ data.load = function load() {
     .then(
       function (collectionsInOrder) {
         console.log("all db successfully reloaded from storage");
-        if (!_.every(collectionsInOrder)) {
-          return false;
-        }
-        return true;
+        return _.every(collectionsInOrder);
       },
       function (message) {
         console.log("error when reloading db", message);
@@ -72,74 +63,13 @@ data.load = function load() {
       }
     )
     .then(function (allCollectionsInOrder) {
-      /*
-       * data has been fetched from local store
-       */
       force_update = !allCollectionsInOrder;
-
-      /*
-       * triggering event that data is loaded
-       */
       if (!force_update) {
         data.release();
       }
     })
     .then(function () {
-      return Promise.all(
-        _.map(dbNames, function (dbName) {
-          return new Promise(function (resolve, reject) {
-            $.ajax(Routing.generate("api_public_" + dbName))
-              .then(function (response, textStatus, jqXHR) {
-                var lastModifiedData = new Date(
-                  jqXHR.getResponseHeader("Last-Modified")
-                );
-                var locale = jqXHR.getResponseHeader("Content-Language");
-                var master = data.masters[dbName];
-                var lastChangeDatabase = new Date(master.metaData().lastChange);
-                var lastLocale = master.metaData().locale;
-                var isCollectionUpdated = false;
-
-                /*
-                 * if we decided to force the update,
-                 * or if the database is fresh,
-                 * or if the database is older than the data,
-                 * or if the locale has changed
-                 * then we update the database
-                 */
-                if (
-                  force_update ||
-                  !lastChangeDatabase ||
-                  lastChangeDatabase < lastModifiedData ||
-                  locale !== lastLocale
-                ) {
-                  console.log(
-                    dbName +
-                      " data is newer than database or update forced or locale has changed => update the database"
-                  );
-                  master.setData(response.data);
-                  master.metaData().locale = locale;
-                  isCollectionUpdated = locale === lastLocale;
-                }
-
-                master.save(function (err) {
-                  if (err) {
-                    console.log("error when saving " + dbName, err);
-                    reject(true);
-                  } else {
-                    resolve(isCollectionUpdated);
-                  }
-                });
-              })
-              .catch(function (jqXHR, textStatus, errorThrown) {
-                console.log(
-                  "error when requesting packs:" + dbName,
-                  errorThrown || jqXHR
-                );
-                reject(false);
-              });
-          });
-        })
-      );
+      return Promise.all(_.map(dbNames, loadDatabase));
     })
     .then(
       function (collectionsUpdated) {
@@ -149,24 +79,16 @@ data.load = function load() {
         }
 
         if (_.find(collectionsUpdated)) {
-          /*
-           * we display a message informing the user that they can reload their page to use the updated data
-           * except if we are on the front page, because data is not essential on the front page
-           */
-          WBDB.ui.showBanner(
+          showBanner(
             'A new version of the data is available. Click <a href="javascript:window.location.reload(true)">here</a> to reload your page.'
           );
         }
       },
       function (dataLoaded) {
-        /*
-         * if not all data has been loaded, we can't run the site properly
-         */
         if (!_.every(dataLoaded)) {
-          WBDB.ui.showBanner(
+          showBanner(
             'Unable to load the data. Click <a href="javascript:window.location.reload(true)">here</a> to reload your page.'
           );
-          return;
         } else {
           data.release();
         }
@@ -240,6 +162,72 @@ data.update = function update() {
   data.load();
 };
 
-data.promise = new Promise(function (resolve) {
-  $(document).on("data.app", resolve);
-});
+/**
+ * Promise interface to forerunnerdb's load method
+ * @param db a Forerunner database
+ */
+function fdb_load(db) {
+  return new Promise(function (resolve, reject) {
+    db.load(function (err) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(db);
+      }
+    });
+  });
+}
+
+function loadDatabase(dbName) {
+  return new Promise(function (resolve, reject) {
+    $.ajax(Routing.generate("api_public_" + dbName))
+      .then(function (response, textStatus, jqXHR) {
+        var lastModifiedData = new Date(
+          jqXHR.getResponseHeader("Last-Modified")
+        );
+        var locale = jqXHR.getResponseHeader("Content-Language");
+        var master = data.masters[dbName];
+        var lastChangeDatabase = new Date(master.metaData().lastChange);
+        var lastLocale = master.metaData().locale;
+        var isCollectionUpdated = false;
+
+        /*
+         * if we decided to force the update,
+         * or if the database is fresh,
+         * or if the database is older than the data,
+         * or if the locale has changed
+         * then we update the database
+         */
+        if (
+          force_update ||
+          !lastChangeDatabase ||
+          lastChangeDatabase < lastModifiedData ||
+          locale !== lastLocale
+        ) {
+          console.log(
+            dbName +
+              " data is newer than database or update forced or locale has changed => update the database"
+          );
+          master.setData(response.data);
+          master.metaData().locale = locale;
+          isCollectionUpdated = locale === lastLocale;
+        }
+
+        master.save(function (err) {
+          if (err) {
+            console.log("error when saving " + dbName, err);
+            reject(true);
+          } else {
+            resolve(isCollectionUpdated);
+          }
+        });
+      })
+      .catch(function (jqXHR, textStatus, errorThrown) {
+        console.log(
+          "error when requesting packs:" + dbName,
+          errorThrown || jqXHR
+        );
+        reject(false);
+      });
+  });
+}

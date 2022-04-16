@@ -1,4 +1,7 @@
-/* global $, Markdown, moment, Routing, WBDB */
+/* global $, Markdown, moment, Routing */
+import { enhanceTextarea } from "../ui.js";
+import * as user from "../user.js";
+
 export function enhanceZoomPage() {
   $(function () {
     $(window.document).on("click", ".review-button", write_review_open);
@@ -7,17 +10,17 @@ export function enhanceZoomPage() {
     $(window.document).on("submit", "form.form-comment", form_comment_submit);
   });
 
-  $.when(WBDB.user.deferred).then(function () {
-    if (WBDB.user.data.is_authenticated) {
-      if (WBDB.user.data.review_id) {
+  $.when(user.deferred).then(function () {
+    if (user.data.is_authenticated) {
+      if (user.data.review_id) {
         setup_edit();
       } else {
         setup_write();
       }
     }
     if (
-      WBDB.user.data.roles &&
-      WBDB.user.data.roles.indexOf("ROLE_GURU") > -1
+      user.data.roles &&
+      user.data.roles.indexOf("ROLE_GURU") > -1
     ) {
       // insert button to create ruling
       $(".rulings").append(
@@ -51,7 +54,7 @@ export function enhanceZoomPage() {
       );
     });
 
-    WBDB.ui.enhanceTextarea("#add-ruling-form-text");
+    enhanceTextarea("#add-ruling-form-text");
   }
 
   function delete_ruling() {
@@ -74,13 +77,13 @@ export function enhanceZoomPage() {
       );
     });
 
-    WBDB.ui.enhanceTextarea("#edit-ruling-form-text");
+    enhanceTextarea("#edit-ruling-form-text");
   }
 
   // TODO(plural): Share the preview functionality with the review method as well.
   function write_comment(event) {
     event.preventDefault();
-    if (!WBDB.user.data.is_authenticated) {
+    if (!user.data.is_authenticated) {
       alert("You must be logged in to leave a comment on a card.");
       return;
     }
@@ -104,7 +107,7 @@ export function enhanceZoomPage() {
       );
     });
 
-    WBDB.ui.enhanceTextarea(".comment-form-text");
+    enhanceTextarea(".comment-form-text");
   }
 
   function form_comment_submit(event) {
@@ -152,7 +155,7 @@ export function enhanceZoomPage() {
   }
 
   function setup_edit() {
-    var review_id = WBDB.user.data.review_id;
+    var review_id = user.data.review_id;
     $("#review-" + review_id + " .review-text").append(
       '<button class="btn btn-default review-button"><span class="glyphicon glyphicon-pencil"></span> Edit review</a>'
     );
@@ -161,7 +164,7 @@ export function enhanceZoomPage() {
 
   function like_review(event) {
     event.preventDefault();
-    if (!WBDB.user.data.is_authenticated) {
+    if (!user.data.is_authenticated) {
       return;
     }
     var obj = $(this);
@@ -178,7 +181,7 @@ export function enhanceZoomPage() {
   }
 
   function write_review_open() {
-    if (!WBDB.user.data.is_authenticated) {
+    if (!user.data.is_authenticated) {
       alert("You must be logged in to write a card review.");
       return;
     }
@@ -199,7 +202,7 @@ export function enhanceZoomPage() {
         return;
       }
       var url = Routing.generate("card_review_post");
-      if (WBDB.user.data.review_id) {
+      if (user.data.review_id) {
         url = Routing.generate("card_review_edit");
       }
       var data = $(this).serialize();
@@ -245,10 +248,10 @@ export function enhanceZoomPage() {
       );
     });
 
-    WBDB.ui.enhanceTextarea(".review-form-text");
+    enhanceTextarea(".review-form-text");
 
-    if (WBDB.user.data.review_id) {
-      $(".review-form-text").val(WBDB.user.data.review_text).trigger("keyup");
+    if (user.data.review_id) {
+      $(".review-form-text").val(user.data.review_text).trigger("keyup");
     }
   }
 }

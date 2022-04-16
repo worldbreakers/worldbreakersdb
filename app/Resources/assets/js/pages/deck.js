@@ -1,4 +1,14 @@
 /* global _, $, localforage, Markdown, moment, Routing, WBDB */
+import { data as Data } from "../wbdb.data.js";
+import * as Settings from "../settings.js";
+import { update as updateCharts } from "../charts.js";
+import { update as updateDeck } from "../deck.js";
+import * as Search from "../search.js";
+import * as SmartFilter from "../smart_filter.js";
+import { typeahead } from "../card_modal.js";
+import { enhanceTextarea } from "../ui.js";
+import { compute_simple } from "../diff.js";
+
 export function enhanceDeckPage({ deck_uuid, history }) {
   var Autosave_timer = null;
   var Autosave_running = false;
@@ -11,36 +21,36 @@ export function enhanceDeckPage({ deck_uuid, history }) {
   var Sort = "title";
 
   function update_max_qty() {
-    WBDB.data.cards.find().forEach(function (card) {
+    Data.cards.find().forEach(function (card) {
       // TODO: hard coded limit
       var max_qty = 1;
       if (card.pack_code == "core") {
-        max_qty = Math.min(WBDB.settings.getItem("core-sets"), max_qty);
+        max_qty = Math.min(Settings.getItem("core-sets"), max_qty);
       }
-      WBDB.data.cards.updateById(card.code, {
+      Data.cards.updateById(card.code, {
         maxqty: max_qty,
       });
     });
   }
 
-  Promise.all([WBDB.data.promise, WBDB.settings.promise]).then(function () {
-    WBDB.data.cards.find().forEach(function (card) {
+  Promise.all([Data.promise, Settings.promise]).then(function () {
+    Data.cards.find().forEach(function (card) {
       var indeck = 0;
       if (WBDB.Deck[card.code]) {
         indeck = parseInt(WBDB.Deck[card.code], 10);
       }
-      WBDB.data.cards.updateById(card.code, {
+      Data.cards.updateById(card.code, {
         indeck: indeck,
       });
     });
 
-    WBDB.find_identity();
+    WBDB.Identity = Data.find_identity();
 
     update_max_qty();
 
     $("#faction_code").empty();
 
-    var factions = WBDB.data.factions.find().sort(function (a, b) {
+    var factions = Data.factions.find().sort(function (a, b) {
       return b.code.substr(0, 7) === "neutral"
         ? -1
         : a.code.substr(0, 7) === "neutral"
@@ -71,7 +81,7 @@ export function enhanceDeckPage({ deck_uuid, history }) {
       });
 
     $("#type_code").empty();
-    var types = WBDB.data.types
+    var types = Data.types
       .find({
         code: { $ne: "identity" },
       })
@@ -100,7 +110,7 @@ export function enhanceDeckPage({ deck_uuid, history }) {
 
     $("input[name=Identity]").prop("checked", false);
 
-    var latestCards = WBDB.search.latestCards();
+    var latestCards = Search.latestCards();
 
     $("#filter-text").typeahead(
       {
@@ -112,7 +122,7 @@ export function enhanceDeckPage({ deck_uuid, history }) {
         display: function (card) {
           return card.title + " (" + card.pack.name + ")";
         },
-        source: WBDB.search.findMatches(latestCards),
+        source: Search.findMatches(latestCards),
       }
     );
 
@@ -135,7 +145,7 @@ export function enhanceDeckPage({ deck_uuid, history }) {
     var initialPackSelection = {};
     var promises = [];
 
-    WBDB.data.packs.find().forEach(function (pack) {
+    Data.packs.find().forEach(function (pack) {
       promises.push(
         localforage.getItem("pack_code_" + pack.code).then(function (value) {
           if (value) initialPackSelection[pack.code] = value === "on";
@@ -145,8 +155,8 @@ export function enhanceDeckPage({ deck_uuid, history }) {
 
     Promise.all(promises).then(function () {
       refresh_collection();
-      WBDB.deck.update();
-      WBDB.charts.update();
+      updateDeck();
+      updateCharts();
     });
   });
 
@@ -191,7 +201,7 @@ export function enhanceDeckPage({ deck_uuid, history }) {
 
     $("#filter-text").on(
       "typeahead:selected typeahead:autocompleted",
-      WBDB.card_modal.typeahead
+      typeahead
     );
 
     $(document).on("hidden.bs.modal", function () {
@@ -218,9 +228,9 @@ export function enhanceDeckPage({ deck_uuid, history }) {
       } else {
         if (
           (!event.shiftKey &&
-            WBDB.settings.getItem("buttons-behavior") === "exclusive") ||
+            Settings.getItem("buttons-behavior") === "exclusive") ||
           (event.shiftKey &&
-            WBDB.settings.getItem("buttons-behavior") === "cumulative")
+            Settings.getItem("buttons-behavior") === "cumulative")
         ) {
           if (!event.altKey) {
             uncheck_all_active.call(this);
@@ -234,9 +244,11 @@ export function enhanceDeckPage({ deck_uuid, history }) {
     $("#filter-text").on({
       input: function () {
         var q = $(this).val();
-        if (q.match(/^\w[:<>!]/))
-          WBDB.smart_filter.handler(q, refresh_collection);
-        else WBDB.smart_filter.handler("", refresh_collection);
+        if (q.match(/^\w[:<>!]/)) {
+          SmartFilter.handler(q, refresh_collection);
+        } else {
+          SmartFilter.handler("", refresh_collection);
+        }
       },
     });
 
@@ -271,7 +283,7 @@ export function enhanceDeckPage({ deck_uuid, history }) {
           var index =
             $(el).closest(".card-container").data("index") ||
             $(el).closest("div.modal").data("index");
-          var card = WBDB.data.cards.findById(index);
+          var card = Data.cards.findById(index);
           if (card.type_code == "identity") {
             var quantity = parseInt($(el).val(), 10);
             if (quantity == 0 && card.indeck == 1) {
@@ -332,7 +344,7 @@ export function enhanceDeckPage({ deck_uuid, history }) {
       );
     });
 
-    WBDB.ui.enhanceTextarea("#description");
+    enhanceTextarea("#description");
     $("#tbody-history").on("click", "a[role=button]", load_snapshot);
     setInterval(autosave_interval, 1000);
   });
@@ -354,7 +366,7 @@ export function enhanceDeckPage({ deck_uuid, history }) {
     var list = [];
     if (snapshot.variation) {
       $.each(snapshot.variation[0], function (code, qty) {
-        var card = WBDB.data.cards.findById(code);
+        var card = Data.cards.findById(code);
         if (!card) return;
         list.push(
           "+" +
@@ -370,7 +382,7 @@ export function enhanceDeckPage({ deck_uuid, history }) {
         );
       });
       $.each(snapshot.variation[1], function (code, qty) {
-        var card = WBDB.data.cards.findById(code);
+        var card = Data.cards.findById(code);
         if (!card) return;
         list.push(
           "&minus;" +
@@ -409,16 +421,16 @@ export function enhanceDeckPage({ deck_uuid, history }) {
     var snapshot = Snapshots[index];
     if (!snapshot) return;
 
-    WBDB.data.cards.find().forEach(function (card) {
+    Data.cards.find().forEach(function (card) {
       var indeck = 0;
       if (snapshot.content[card.code]) {
         indeck = parseInt(snapshot.content[card.code], 10);
       }
-      WBDB.data.cards.updateById(card.code, {
+      Data.cards.updateById(card.code, {
         indeck: indeck,
       });
     });
-    WBDB.deck.update();
+    updateDeck();
     refresh_collection();
     Deck_changed_since_last_autosave = true;
     return false;
@@ -430,7 +442,7 @@ export function enhanceDeckPage({ deck_uuid, history }) {
     var last_snapshot = Snapshots[Snapshots.length - 1].content;
     var current_deck = get_deck_content();
     Deck_changed_since_last_autosave = false;
-    var r = WBDB.diff.compute_simple([current_deck, last_snapshot]);
+    var r = compute_simple([current_deck, last_snapshot]);
     if (!r) return;
     var diff = JSON.stringify(r[0]);
     if (diff == "[{},{}]") return;
@@ -528,7 +540,7 @@ export function enhanceDeckPage({ deck_uuid, history }) {
 
   function get_deck_content() {
     return _.reduce(
-      WBDB.data.cards.find({ indeck: { $gt: 0 } }),
+      Data.cards.find({ indeck: { $gt: 0 } }),
       function (acc, card) {
         acc[card.code] = card.indeck;
         return acc;
@@ -552,12 +564,12 @@ export function enhanceDeckPage({ deck_uuid, history }) {
     var quantity = parseInt($(this).val(), 10);
     var method = quantity ? "addClass" : "removeClass";
     $(this).closest(".card-container")[method]("in-deck");
-    WBDB.data.cards.updateById(index, {
+    Data.cards.updateById(index, {
       indeck: quantity,
     });
-    var card = WBDB.data.cards.findById(index);
+    var card = Data.cards.findById(index);
     if (card.type_code == "identity") {
-      WBDB.data.cards.update(
+      Data.cards.update(
         {
           indeck: {
             $gt: 0,
@@ -572,7 +584,7 @@ export function enhanceDeckPage({ deck_uuid, history }) {
         }
       );
     }
-    WBDB.deck.update();
+    updateDeck();
     if (card.type_code == "identity") {
       $.each(CardDivs, function (nbcols, rows) {
         if (rows)
@@ -612,7 +624,6 @@ export function enhanceDeckPage({ deck_uuid, history }) {
       });
     }
     $("div.modal").modal("hide");
-    WBDB.suggestions.compute();
 
     Deck_changed_since_last_autosave = true;
   }
@@ -657,7 +668,7 @@ export function enhanceDeckPage({ deck_uuid, history }) {
         : "");
 
     var div = "";
-    switch (Number(WBDB.settings.getItem("display-columns"))) {
+    switch (Number(Settings.getItem("display-columns"))) {
       case 1:
         div = $(
           '<tr class="card-container" data-index="' +
@@ -743,18 +754,18 @@ export function enhanceDeckPage({ deck_uuid, history }) {
 
     var counter = 0;
     var container = $("#collection-table");
-    var display_columns = WBDB.settings.getItem("display-columns");
-    var SmartFilterQuery = WBDB.smart_filter.get_query(FilterQuery);
+    var display_columns = Settings.getItem("display-columns");
+    var SmartFilterQuery = SmartFilter.get_query(FilterQuery);
 
     var orderBy = {};
     orderBy[Sort] = Order;
 
     if (Sort != "title") orderBy["title"] = 1;
 
-    var matchingCards = WBDB.data.cards.find(SmartFilterQuery, {
+    var matchingCards = Data.cards.find(SmartFilterQuery, {
       $orderBy: orderBy,
     });
-    var sortedCards = WBDB.search.latestCards(matchingCards);
+    var sortedCards = Search.latestCards(matchingCards);
 
     sortedCards.forEach(function (card) {
       var index = card.code;

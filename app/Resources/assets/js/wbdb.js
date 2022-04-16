@@ -1,78 +1,59 @@
 /* global $, Routing */
-import { card_modal } from "./wbdb.card_modal.js";
-import { charts } from "./wbdb.charts.js";
+import * as card_modal from "./card_modal.js";
 import { data } from "./wbdb.data.js";
-import { deck } from "./wbdb.deck.js";
-import { diff } from "./wbdb.diff.js";
-import { exporter } from "./wbdb.exporter.js";
-import { format } from "./wbdb.format.js";
-import { fuzzy_search } from "./wbdb.fuzzy_search.js";
-import { search } from "./wbdb.search.js";
-import { settings } from "./wbdb.settings.js";
-import { smart_filter } from "./wbdb.smart_filter.js";
-import { tip } from "./wbdb.tip.js";
-import { ui } from "./wbdb.ui.js";
-import { user } from "./wbdb.user.js";
+import * as search from "./search.js";
+import * as settings from "./settings.js";
+import * as tip from "./tip.js";
+import * as ui from "./ui.js";
+import * as user from "./user.js";
 
 import * as pages from "./pages.js";
 
 const WBDB = {
-  card_modal,
-  charts,
-  data,
-  deck,
-  diff,
-  exporter,
-  format,
-  fuzzy_search,
-  search,
-  settings,
-  smart_filter,
-  tip,
-  ui,
+  pages,
   user,
 
-  pages,
+  locale: "",
 
   Deck: null,
-  DeckSize: 0,
   Decklist: null,
   Filters: null,
+  Identity: null,
   InputByTitle: false,
   SelectedDeck: null,
 
   DisplaySort: "type",
   DisplaySortSecondary: "name",
 
-  init({ locale, card_image_url, worldbreakersdb_url }) {
+  setConfig({ locale, card_image_url, worldbreakersdb_url }) {
     WBDB.locale = locale;
     WBDB.card_image_url = card_image_url;
     WBDB.worldbreakersdb_url = worldbreakersdb_url;
+  },
 
+  init() {
     $(function () {
-      WBDB.user.query();
-      WBDB.data.load();
+      user.query();
+      data.load();
     });
 
     $(document).on("data.app", function () {
       $("body").on({
-        touchstart: WBDB.tip.prevent,
+        touchstart: tip.prevent,
       });
       $("body").on(
         {
-          mouseover: WBDB.tip.display,
+          mouseover: tip.display,
         },
         "a"
       );
     });
 
-    Promise.all([WBDB.user.promise, WBDB.data.promise]).then(
-      WBDB.ui.manageImages
-    );
+    Promise.all([user.promise, data.promise]).then(ui.manageImages);
 
     // this was topnav.js
-    Promise.all([WBDB.data.promise, WBDB.ui.promise]).then(function () {
-      var all_cards = WBDB.data.cards.find();
+    Promise.all([data.promise, ui.promise]).then(function () {
+      var all_cards = data.cards.find();
 
       $("#top_nav_card_search_menu").on("shown.bs.dropdown", function () {
         $("#top_nav_card_search").focus();
@@ -87,7 +68,7 @@ const WBDB = {
           display: function (card) {
             return card.title + " (" + card.pack.name + ")";
           },
-          source: WBDB.search.findMatches(all_cards),
+          source: search.findMatches(all_cards),
         }
       );
       $("#top_nav_card_search").on(
@@ -107,11 +88,9 @@ const WBDB = {
         }
       });
     });
-  },
 
-  initCardModal() {
     $(function () {
-      WBDB.card_modal.create_element();
+      card_modal.create_element();
 
       $("body").on(
         {
@@ -126,9 +105,7 @@ const WBDB = {
               event.stopPropagation();
               return;
             }
-            if (WBDB.card_modal) {
-              WBDB.card_modal.display_modal(event, element);
-            }
+            card_modal.display_modal(event, element);
           },
         },
         ".card"
@@ -138,8 +115,8 @@ const WBDB = {
 
   initFuzzySearch() {
     $(document).on("data.app", function () {
-      WBDB.data.cards.find().forEach(function (card) {
-        WBDB.data.cards.updateById(card.code, {
+      data.cards.find().forEach(function (card) {
+        data.cards.updateById(card.code, {
           token: card.title
             .replace(/[^0-9.\-A-Za-z\u00C0-\u017F]+/g, " ")
             .trim()
@@ -151,14 +128,8 @@ const WBDB = {
 
   initSettings() {
     $(function () {
-      WBDB.settings.load();
+      settings.load();
     });
-  },
-
-  find_identity() {
-    WBDB.Identity = WBDB.data.cards
-      .find({ indeck: { $gt: 0 }, type_code: "identity" })
-      .pop();
   },
 };
 

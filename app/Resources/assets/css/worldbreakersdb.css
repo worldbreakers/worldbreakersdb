@@ -1,5 +1,13 @@
 @import "./latofonts.css";
 
+:root {
+  --guild-earth: #c98161;
+  --guild-moon: #476a89;
+  --guild-stars: #aba58b;
+  --guild-void: #48375b;
+}
+
+
 body {
   font-size: 16px;
   font-family: "LatoWeb", sans-serif;

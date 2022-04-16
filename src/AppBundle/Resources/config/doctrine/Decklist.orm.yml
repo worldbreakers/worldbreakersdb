@@ -78,10 +78,6 @@ AppBundle\Entity\Decklist:
         children:
             targetEntity: Deck
             mappedBy: parent
-        claims:
-            targetEntity: Claim
-            mappedBy: decklist
-            cascade: ["remove"]
     manyToMany:
         favorites:
             targetEntity: User
@@ -164,4 +160,8 @@ AppBundle\Entity\Decklist:
         isLegal:
             type: boolean
             column: is_legal
+        guildDistribution:
+            type: json
+            column: guild_distribution
+            nullable: true
     lifecycleCallbacks: {  }

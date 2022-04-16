@@ -388,6 +388,31 @@ class PublicApi20Controller extends FOSRestController
     }
 
     /**
+     * Get all recent decklists
+     *
+     * @ApiDoc(
+     *  section="Decklist",
+     *  resource=true,
+     *  description="Get up to 10 recent decklists",
+     *  parameters={
+     *  },
+     * )
+     */
+    public function recentDecklistsAction(Request $request, EntityManagerInterface $entityManager)
+    {
+        return $this->getFromCache("public-api-recent-decklists", function () use ($entityManager) {
+            $qb = $entityManager->createQueryBuilder();
+            $qb->select('d')->from('AppBundle:Decklist', 'd');
+            $qb->where("d.rawdescription != ''");
+            $qb->andWhere($qb->expr()->in('d.moderationStatus', [0,1]));
+            $qb->orderBy('d.dateCreation', 'DESC');
+            $qb->setMaxResults(10);
+
+            return $qb->getQuery()->execute();
+        }, $request);
+    }
+
+    /**
      * Get a deck
      *
      * @ApiDoc(

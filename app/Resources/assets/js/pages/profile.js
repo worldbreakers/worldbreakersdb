@@ -1,9 +1,11 @@
-/* global $, WBDB */
+/* global $ */
+import * as user from "../user.js";
+
 export function enhanceProfilePage(userId) {
   $(function () {
-    $.when(WBDB.user.deferred).then(function () {
-      if (WBDB.user.data.is_authenticated) {
-        if (WBDB.user.data.following.indexOf(userId) > -1) {
+    $.when(user.deferred).then(function () {
+      if (user.data.is_authenticated) {
+        if (user.data.following.indexOf(userId) > -1) {
           $("#unfollow").show();
         } else {
           $("#follow").show();

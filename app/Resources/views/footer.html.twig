@@ -1,0 +1,37 @@
+<footer class="hidden-print">
+    <div class="container">
+
+        {% block footer %}
+            <div class="row">
+                <div class="col-xs-12">
+
+                    <ul class="list-inline">
+                        <li><a href="{{ path('cards_about') }}">About</a></li>
+                        <li><a href="javascript:localStorage.clear()">Clear data</a></li>
+                    </ul>
+
+                    <p>
+                        Standing on the shoulders of <a href="https://github.com/NetrunnerDB/netrunnerdb" rel="noreferrer noopener">NetrunnerDB</a>. Maintained by <a href="https://github.com/tessaluniki" rel="noreferrer noopener">@tessaluniki</a>.
+                    </p>
+
+                    <p>
+                        Please post bug reports and feature requests on <a href="https://github.com/worldbreakers/worldbreakersdb/issues" rel="noreferrer noopener">Github</a>
+                    </p>
+
+                    <p style="color:#333">
+                        The information presented on this site about Worldbreakers, both literal and graphical, is copyrighted by <a href="https://worldbreakersgame.com" rel="noreferrer noopener">Elli Amir</a>.
+                    </p>
+
+                    <svg width="0" height="0" viewBox="0 0 677 601" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="nrdb_svg_hex">
+                        <defs>
+                            <symbol id="hex"><polygon points="623,302.91412353515625 480,550.5973510742188 194,550.5973510742188 51,302.91412353515625 194,55.23085021972656 480,55.23085021972656 623,302.91412353515625 "/></symbol>
+                            <symbol id="rect"><rect x="0" y="0" width="677" height="601" fill="white" /></symbol>
+                        </defs>
+                    </svg>
+
+                </div>
+            </div>
+        {% endblock %}
+
+    </div>
+</footer>

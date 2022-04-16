@@ -1,4 +1,6 @@
-/* global $, moment, Markdown, Routing, WBDB */
+/* global $, moment, Markdown, Routing */
+import { enhanceTextarea } from "../ui.js";
+
 export function show_publish_deck_form(deck_uuid, deck_name, deck_description) {
   $("#publish-form-warning").remove();
   $("#btn-publish-submit").text("Checking...").prop("disabled", true);
@@ -50,5 +52,5 @@ function initialize_publish_deck_form_typeahead() {
     );
   });
 
-  WBDB.ui.enhanceTextarea("#publish-decklist-description");
+  enhanceTextarea("#publish-decklist-description");
 }

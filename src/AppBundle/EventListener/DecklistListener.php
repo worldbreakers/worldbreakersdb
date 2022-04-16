@@ -28,6 +28,7 @@ class DecklistListener
         return;
       }
       $this->cache->deleteItem('public-api-decklist-' . $entity->getId());
+      $this->cache->deleteItem('public-api-recent-decklists');
     }
 
     public function postPersist(LifecycleEventArgs $args)

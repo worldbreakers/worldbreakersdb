@@ -2,29 +2,14 @@
 
 {% block title %}Advanced Search{% endblock %}
 
+{% block head %}
+<script>
+WBDB.pages.enhanceAdvancedSearchPage();
+</script>
+{% endblock %}
+
 {% block body %}
 <div class="container">
-
-    <script type="text/javascript">
-        Promise.all([WBDB.data.promise, WBDB.ui.promise]).then(function() {
-            var latest_cards = WBDB.search.latestCards();
-
-            $('#q').typeahead({
-                hint: true,
-                highlight: true,
-                minLength: 2
-            }, {
-                display: function(card) { return card.title; },
-                source: WBDB.search.findMatches(latest_cards),
-            });
-        });
-
-        $(function () {
-            $('#faction-select').multiselect({
-                buttonWidth: '100%'
-            });
-        })
-    </script>
 
     <div class="row">
 

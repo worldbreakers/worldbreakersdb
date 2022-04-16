@@ -506,7 +506,8 @@ class DecklistManager
                 p.name lastpack,
                 d.nbvotes,
                 d.nbfavorites,
-                d.nbcomments
+                d.nbcomments,
+                d.guild_distribution
                 from decklist d
                 join user u on d.user_id=u.id
                 join card c on d.identity_id=c.id
@@ -520,6 +521,12 @@ class DecklistManager
         )->fetchAll(\PDO::FETCH_ASSOC);
 
         $count = $dbh->executeQuery("SELECT FOUND_ROWS()")->fetch(\PDO::FETCH_NUM)[0];
+
+        foreach ($rows as &$row) {
+            if ($row['guild_distribution']) {
+                $row['guild_distribution'] = json_decode($row['guild_distribution'], true);
+            }
+        }
 
         return [
             "count"     => $count,

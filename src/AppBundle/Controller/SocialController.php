@@ -165,6 +165,7 @@ class SocialController extends Controller
             $decklist->setPrecedent($deck->getParent());
         }
         $decklist->setParent($deck);
+        $decklist->setGuildDistribution($deck->getGuildDistribution());
 
         $entityManager->persist($decklist);
 
@@ -340,18 +341,6 @@ class SocialController extends Controller
              ORDER BY t.description DESC"
         )->fetchAll();
 
-        $claims = $dbh->executeQuery("SELECT "
-            . "c.url, "
-            . "c.rank, "
-            . "c.name, "
-            . "c.participants, "
-            . "u.id user_id, "
-            . "u.username "
-            . "FROM claim c "
-            . "JOIN decklist d ON d.id=c.decklist_id "
-            . "JOIN user u ON u.id=c.user_id "
-            . "WHERE d.id=?", [$decklist_id])->fetchAll();
-
         $packs = $dbh->executeQuery("
              SELECT DISTINCT
                p.code code,
@@ -371,7 +360,6 @@ class SocialController extends Controller
             'successor_decklists' => $successor_decklists,
             'duplicate'           => $duplicate,
             'tournaments'         => $tournaments,
-            'claims'              => $claims,
             'packs'               => $packs,
         ], $response);
     }

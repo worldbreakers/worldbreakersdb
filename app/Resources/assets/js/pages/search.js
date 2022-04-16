@@ -1,7 +1,9 @@
-/* global $, WBDB */
+/* global $ */
+import { latestCards, findMatches } from "../search.js";
+
 export function enhanceSearchPage() {
   $(document).on("data.app", function () {
-    var latestCards = WBDB.search.latestCards();
+    var cards = latestCards();
 
     $("#filter-text").typeahead(
       {
@@ -11,10 +13,10 @@ export function enhanceSearchPage() {
       },
       {
         name: "cardnames",
-        display: function (card) {
+        display(card) {
           return card.title;
         },
-        source: WBDB.search.findMatches(latestCards),
+        source: findMatches(cards),
       }
     );
 
@@ -35,7 +37,7 @@ export function enhanceSearchPage() {
             ")</p>"
         );
         line.on({
-          click: function () {
+          click() {
             line.remove();
           },
         });

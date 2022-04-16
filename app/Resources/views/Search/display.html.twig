@@ -1,6 +1,13 @@
 {% extends '/layout.html.twig' %}
 
+
 {% block title %}{{ title }}{% endblock %}
+
+{% block head %}
+<script>
+WBDB.pages.enhanceDisplayPage();
+</script>
+{% endblock %}
 
 {% block body %}
 <div class="container">

@@ -518,4 +518,23 @@ class Deck implements NormalizableInterface, TimestampableInterface
     {
         return $this->changes;
     }
+
+    public function getGuildDistribution(): array
+    {
+        $guilds = [];
+        foreach ($this->getSlots() as $slot) {
+            $quantity = $slot->getQuantity();
+            $card = $slot->getCard();
+            $standing = $card->getStanding();
+            if (empty($standing)) {
+                $guilds[] = 'neutral';
+            } else {
+                foreach ($standing as $guild => $amount) {
+                    $guilds[] = $guild;
+                }
+            }
+        }
+
+        return array_count_values($guilds);
+    }
 }

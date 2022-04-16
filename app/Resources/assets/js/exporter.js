@@ -1,37 +1,37 @@
 /* global $, WBDB */
-export const exporter = {
-  bbcode(deck) {
-    $("#export-deck").html(build_bbcode(deck).join("\n"));
-    $("#exportModal").modal("show");
-  },
+import { data as Data } from "./wbdb.data.js";
 
-  markdown(deck) {
-    $("#export-deck").html(build_markdown(deck).join("\n"));
-    $("#exportModal").modal("show");
-  },
+export function bbcode(deck) {
+  $("#export-deck").html(build_bbcode(deck).join("\n"));
+  $("#exportModal").modal("show");
+}
 
-  plaintext(deck) {
-    $("#export-deck").html(build_plaintext(deck).join("\n"));
-    $("#exportModal").modal("show");
-  },
+export function markdown(deck) {
+  $("#export-deck").html(build_markdown(deck).join("\n"));
+  $("#exportModal").modal("show");
+}
 
-  tts(deck) {
-    var content = $("#export-deck").parent().html();
+export function plaintext(deck) {
+  $("#export-deck").html(build_plaintext(deck).join("\n"));
+  $("#exportModal").modal("show");
+}
 
-    // show loading message
-    var $modalBody = $("#export-deck").parent();
-    $modalBody.html("<p>Loading …</p>");
-    $("#exportModal").modal("show");
+export function tts(deck) {
+  var content = $("#export-deck").parent().html();
 
-    build_tts(deck).then((link) => {
-      $modalBody.html(link);
-      $(link).on("click", function () {
-        $("#exportModal").modal("hide");
-        $modalBody.html(content);
-      });
+  // show loading message
+  var $modalBody = $("#export-deck").parent();
+  $modalBody.html("<p>Loading …</p>");
+  $("#exportModal").modal("show");
+
+  build_tts(deck).then((link) => {
+    $modalBody.html(link);
+    $(link).on("click", function () {
+      $("#exportModal").modal("hide");
+      $modalBody.html(content);
     });
-  },
-};
+  });
+}
 
 var FactionColors = {
   earth: "#FF4500",
@@ -74,9 +74,7 @@ function build_bbcode(deck) {
             .trim()
             .replace(/x.*/, "x");
           var inf = $(line).find("span").text().trim();
-          var card = WBDB.data.cards.findById(
-            $(line).find("a.card").data("index")
-          );
+          var card = Data.cards.findById($(line).find("a.card").data("index"));
           lines.push(
             qty +
               " [url=" +
@@ -152,9 +150,7 @@ function build_markdown(deck) {
             .trim()
             .replace(/x.*/, "x");
           var inf = $(line).find("span").text().trim();
-          var card = WBDB.data.cards.findById(
-            $(line).find("a.card").data("index")
-          );
+          var card = Data.cards.findById($(line).find("a.card").data("index"));
           lines.push(
             "* " +
               qty +
@@ -274,14 +270,14 @@ function build_tts(deck) {
 
 function process_deck_by_type() {
   var bytype = {};
-  WBDB.Identity = WBDB.data.cards
+  WBDB.Identity = Data.cards
     .find({ indeck: { $gt: 0 }, type_code: "identity" })
     .pop();
   if (!WBDB.Identity) {
     return;
   }
 
-  WBDB.data.cards
+  Data.cards
     .find(
       { indeck: { $gt: 0 }, type_code: { $ne: "identity" } },
       {

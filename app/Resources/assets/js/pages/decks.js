@@ -1,5 +1,9 @@
 /* global _, $, moment, Routing, WBDB */
 import { show_publish_deck_form } from "./publish_deck_form.js";
+import { data as Data } from "../wbdb.data.js";
+import { update as updateDeck } from "../deck.js";
+import { compute_simple } from "../diff.js";
+import { bbcode, markdown, plaintext, tts } from "../exporter.js";
 
 let lastClickedDeck = null;
 
@@ -25,7 +29,7 @@ export function enhanceDecksPage({ Decks }) {
               .match(/btn-sort-(\w+)/)
           ) {
             WBDB.DisplaySort = RegExp.$1;
-            WBDB.deck.update();
+            updateDeck();
           }
         },
       },
@@ -137,7 +141,7 @@ export function enhanceDecksPage({ Decks }) {
       names.push(deck.name);
     }
 
-    var diff = WBDB.diff.compute_simple(contents);
+    var diff = compute_simple(contents);
     var listings = diff[0];
     var intersect = diff[1];
 
@@ -146,7 +150,7 @@ export function enhanceDecksPage({ Decks }) {
     container.append("<h4>Cards in all decks</h4>");
     var list = $("<ul></ul>").appendTo(container);
     var cards = $.map(intersect, function (qty, card_code) {
-      var card = WBDB.data.cards.findById(card_code);
+      var card = Data.cards.findById(card_code);
       if (card) return { title: card.title, qty: qty };
     }).sort(function (a, b) {
       return a.title.localeCompare(b.title);
@@ -159,7 +163,7 @@ export function enhanceDecksPage({ Decks }) {
       container.append("<h4>Cards only in <b>" + names[i] + "</b></h4>");
       list = $("<ul></ul>").appendTo(container);
       cards = $.map(listings[i], function (qty, card_code) {
-        var card = WBDB.data.cards.findById(card_code);
+        var card = Data.cards.findById(card_code);
         if (card) return { title: card.title, qty: qty };
       }).sort(function (a, b) {
         return a.title.localeCompare(b.title);
@@ -237,7 +241,7 @@ export function enhanceDecksPage({ Decks }) {
     container.append("<h4>Cards in all decks</h4>");
     var list = $("<ul></ul>").appendTo(container);
     $.each(intersect, function (card_code, qty) {
-      var card = WBDB.data.cards.findById(card_code);
+      var card = Data.cards.findById(card_code);
       if (card) list.append("<li>" + card.title + " x" + qty + "</li>");
     });
 
@@ -245,7 +249,7 @@ export function enhanceDecksPage({ Decks }) {
       container.append("<h4>Cards only in <b>" + names[i] + "</b></h4>");
       list = $("<ul></ul>").appendTo(container);
       $.each(listings[i], function (card_code, qty) {
-        var card = WBDB.data.cards.findById(card_code);
+        var card = Data.cards.findById(card_code);
         if (card) list.append("<li>" + card.title + " x" + qty + "</li>");
       });
     }
@@ -327,16 +331,16 @@ export function enhanceDecksPage({ Decks }) {
         });
         break;
       case "btn-export-tts":
-        WBDB.exporter.tts(deck);
+        tts(deck);
         break;
       case "btn-export-bbcode":
-        WBDB.exporter.bbcode(deck);
+        bbcode(deck);
         break;
       case "btn-export-markdown":
-        WBDB.exporter.markdown(deck);
+        markdown(deck);
         break;
       case "btn-export-plaintext":
-        WBDB.exporter.plaintext(deck);
+        plaintext(deck);
         break;
     }
     return false;
@@ -550,10 +554,10 @@ export function enhanceDecksPage({ Decks }) {
     $(this).closest("tr").siblings().removeClass("active");
     $(this).closest("tr").addClass("active");
 
-    WBDB.data.cards.update({}, { indeck: 0 });
+    Data.cards.update({}, { indeck: 0 });
     for (var i = 0; i < deck.cards.length; i++) {
       var slot = deck.cards[i];
-      WBDB.data.cards.updateById(slot.card_code, {
+      Data.cards.updateById(slot.card_code, {
         indeck: parseInt(slot.qty, 10),
       });
     }
@@ -573,7 +577,7 @@ export function enhanceDecksPage({ Decks }) {
       })
     );
 
-    WBDB.deck.update();
+    updateDeck();
     // convert date from UTC to local
     $("#date_creation").html(
       "Creation: " + moment(deck.date_creation).format("LLLL")

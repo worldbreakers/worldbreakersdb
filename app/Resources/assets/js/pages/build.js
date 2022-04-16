@@ -1,10 +1,12 @@
-/* global $, WBDB */
+/* global $ */
+import { data } from "../wbdb.data.js";
+
 export function enhanceBuildPage() {
   $(function () {
     // Shows a preview of IDs the user mouses over
     $(".list-group").on("mouseenter touchstart", "a", function () {
       let card_code = $(this).data("code");
-      let card = WBDB.data.cards.findById(card_code);
+      let card = data.cards.findById(card_code);
       $("#cardimg")
         .prop("src", card.images.large[0])
         .attr("data-code", card_code)

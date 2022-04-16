@@ -1,9 +1,8 @@
-/* global Chart, WBDB */
-export const charts = {};
-
+/* global Chart */
+import { data as Data } from './wbdb.data.js';
 let instances = null;
 
-charts.update = function () {
+export function update() {
   if (instances === null) {
     instances = create_charts();
   }
@@ -19,7 +18,7 @@ charts.update = function () {
     instances.cardCount.data = cardCountData;
     instances.cardCount.update();
   }
-};
+}
 
 function create_charts() {
   var charts = {};
@@ -45,7 +44,7 @@ function repartitionByCost() {
 
   var minCost = 0;
   var maxCost = 0;
-  var cards = WBDB.data.cards.find({
+  var cards = Data.cards.find({
     indeck: { $gt: 0 },
     type_code: { $ne: "identity" },
   });
@@ -65,7 +64,7 @@ function repartitionByCost() {
     }
   });
 
-  var types = WBDB.data.types.find({ code: { $ne: "identity" } });
+  var types = Data.types.find({ code: { $ne: "identity" } });
   var types_colors = {
     event: "red",
     follower: "blue",
@@ -77,7 +76,7 @@ function repartitionByCost() {
     labels.push(i);
   }
 
-  var data = {
+  return {
     labels: labels,
     datasets: types.map(function (type) {
       return {
@@ -88,8 +87,6 @@ function repartitionByCost() {
       };
     }),
   };
-
-  return data;
 }
 
 function make_stacked_bar_chart(element, data) {
@@ -128,16 +125,16 @@ var COLORS = {
 };
 
 function cardCountGraphData() {
-  var cards = WBDB.data.cards.find({
+  var cards = Data.cards.find({
     indeck: { $gt: 0 },
     type_code: { $ne: "identity" },
   });
 
-  var guilds = WBDB.data.factions.find(
+  var guilds = Data.factions.find(
     { code: { $ne: "neutral" } },
     { $orderBy: { name: 1 } }
   );
-  guilds.push(WBDB.data.factions.find({ code: { $eq: "neutral" } })[0]);
+  guilds.push(Data.factions.find({ code: { $eq: "neutral" } })[0]);
   var guildCodes = guilds.map(function (guild) {
     return guild.code;
   });

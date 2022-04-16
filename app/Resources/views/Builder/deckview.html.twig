@@ -3,11 +3,9 @@
 {% block head %}
 
 <script type="text/javascript">
-WBDB.initCardModal();
 WBDB.pages.enhanceDeckviewPage();
 WBDB.Deck = {{ deck|json_encode|raw }};
 WBDB.SelectedDeck = WBDB.Deck;
-WBDB.Identity = null;
 </script>
 {% endblock %}
 

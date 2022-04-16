@@ -1,5 +1,4 @@
 /* global $ */
-export const diff = {};
 
 // TODO: DRY this
 // takes an array of strings and returns an object where each string of the array
@@ -21,7 +20,7 @@ function array_count(list) {
  * contents is an array of content
  * content is a hash of pairs code-qty
  */
-diff.compute_simple = function (contents) {
+export function compute_simple(contents) {
   var ensembles = [];
   for (var decknum = 0; decknum < contents.length; decknum++) {
     var cards = [];
@@ -58,4 +57,4 @@ diff.compute_simple = function (contents) {
   var intersect = array_count(conjunction);
 
   return [listings, intersect];
-};
+}

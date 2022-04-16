@@ -12,25 +12,6 @@ security:
             id: fos_user.user_provider.username
 
     firewalls:
-        api:
-            pattern:    ^/api_oauth2
-            fos_oauth:  true
-            stateless:  true
-        api_20:
-            pattern:    ^/api/\d+.\d+/private
-            fos_oauth:  true
-            stateless:  true
-        oauth_token:
-            pattern:    ^/oauth/v2/token
-            security:   false
-        oauth_authorize:
-            pattern:    ^/oauth/v2/auth
-            form_login:
-                provider: fos_userbundle
-                check_path: oauth_server_auth_login_check
-                login_path: oauth_server_auth_login
-            anonymous: true
-            logout_on_user_change: true
         main:
             remember_me:
                 secret:      "%secret%"
@@ -57,4 +38,3 @@ security:
         - { path: ^/../deck/, role: ROLE_USER }
         - { path: ^/../decks, role: ROLE_USER }
         - { path: ^/../user/, role: ROLE_USER }
-        - { path: ^/api_oauth2, roles: IS_AUTHENTICATED_FULLY }

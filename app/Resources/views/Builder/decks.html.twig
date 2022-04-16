@@ -2,11 +2,9 @@
 {% extends '/layout.html.twig' %}
 {% block head %}
 <script type="text/javascript">
-WBDB.initCardModal();
 WBDB.pages.enhanceDecksPage({ Decks: {{ decks|json_encode|raw }} });
-WBDB.SelectedDeck = null;
-WBDB.Identity = null;
 </script>
+
 <style>
   a.deck-list-group-item {
     cursor: pointer;

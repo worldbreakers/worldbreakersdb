@@ -551,6 +551,12 @@ api_public_decklists_by_date:
     requirements:
         date: "\\d\\d\\d\\d-\\d\\d-\\d\\d"
 
+api_public_recent_decklists:
+    path: /api/2.0/public/decklists/recent
+    methods: [GET]
+    defaults:
+        _controller: AppBundle:PublicApi20:recentDecklists
+
 api_public_deck:
     path: /api/2.0/public/deck/{deck_id}
     methods: [GET]
@@ -566,52 +572,6 @@ api_public_deck_by_uuid:
         _controller: AppBundle:PublicApi20:deckByUuid
     requirements:
         uuid: '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
-
-api_private_decks:
-    path: /api/2.0/private/decks
-    methods: [GET]
-    defaults:
-        _controller: AppBundle:PrivateApi20:decks
-
-api_private_deck_load_by_id:
-    path: /api/2.0/private/deck/{deck_id}
-    methods: [GET]
-    defaults:
-        _controller: AppBundle:PrivateApi20:loadDeckById
-    requirements:
-        deck_id: "\\d+"
-
-api_private_deck_load_by_uuid:
-    path: /api/2.0/private/deck/{deck_uuid}
-    methods: [GET]
-    defaults:
-        _controller: AppBundle:PrivateApi20:loadDeckByUuid
-    requirements:
-        uuid: '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
-
-api_private_deck_save:
-    path: /api/2.0/private/deck/save
-    methods: [POST]
-    defaults:
-        _controller: AppBundle:PrivateApi20:saveDeck
-
-api_private_deck_publish:
-    path: /api/2.0/private/deck/publish
-    methods: [POST]
-    defaults:
-        _controller: AppBundle:PrivateApi20:publishDeck
-
-api_private_decklists:
-    path: /api/2.0/private/decklists
-    methods: [GET]
-    defaults:
-        _controller: AppBundle:PrivateApi20:decklists
-
-api_private_account_info:
-    path: /api/2.0/private/account/info
-    methods: [GET]
-    defaults:
-        _controller: AppBundle:PrivateApi20:accountInfo
 
 cards_list:
     path:  /{_locale}/set/{pack_code}/{view}/{sort}/{page}
@@ -689,17 +649,3 @@ modflags_get:
     path: /modflags
     defaults:
         _controller: AppBundle:Modflags:get
-
-formats:
-    path: /{_locale}/formats
-    methods: [GET]
-    defaults:
-        _controller: AppBundle:Formats:get
-
-claims:
-    resource: "@AppBundle/Controller/ClaimsController.php"
-    type:     annotation
-
-oauth:
-    resource: "@AppBundle/Controller/OauthController.php"
-    type:     annotation

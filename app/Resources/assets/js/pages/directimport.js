@@ -1,4 +1,7 @@
-/* global $, WBDB */
+/* global $ */
+import { data as Data } from "../wbdb.data.js";
+import { lookup } from "../fuzzy_search.js";
+
 export function enhanceDirectImportPage() {
   $(document).on("data.app", function () {
     $("#btn-import").prop("disabled", false);
@@ -42,7 +45,7 @@ export function enhanceDirectImportPage() {
   };
 
   function import_one_line(line, lineNumber) {
-    var result = WBDB.fuzzy_search.lookup(line);
+    var result = lookup(line);
     if (!result) return;
     var options = result.cards,
       qty = result.qty;
@@ -127,7 +130,7 @@ export function enhanceDirectImportPage() {
       var code = card[0],
         qty = parseInt(card[1], 10);
       deck[code] = qty;
-      var record = WBDB.data.cards.findById(code);
+      var record = Data.cards.findById(code);
       types[record.type.name] = types[record.type.name] || 0;
       types[record.type.name] += qty;
     });

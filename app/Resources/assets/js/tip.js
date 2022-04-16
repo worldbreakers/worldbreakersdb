@@ -1,14 +1,17 @@
-/* global $, WBDB */
+/* global $ */
+import { data as Data } from "./wbdb.data.js";
+import * as format from "./format.js";
+
 export const tip = {};
 
 var hide_event = "mouseout";
 var prevent_all = false;
 
-tip.prevent = function () {
+export function prevent() {
   prevent_all = true;
-};
+}
 
-tip.display = function (event) {
+export function display(event) {
   var $this = $(this);
 
   if (prevent_all || $this.hasClass("no-popup")) {
@@ -20,9 +23,9 @@ tip.display = function (event) {
     $this.closest(".card-container").data("index") ||
     ($this.attr("href") &&
       $this.attr("href").replace(/.*\/card\/(\d\d\d\d\d).*/, "$1"));
-  var card = WBDB.data.cards.findById(code);
+  var card = Data.cards.findById(code);
   if (!card) return;
-  var type = '<p class="card-info">' + WBDB.format.type(card) + "</p>";
+  var type = '<p class="card-info">' + format.type(card) + "</p>";
   if (card.type_code === "follower") {
     type +=
       "<p>Strength <b>" +
@@ -33,7 +36,7 @@ tip.display = function (event) {
   } else if (card.type_code === "location") {
     var stages = card.stages
       .filter((s) => s)
-      .map((stage) => "<li>" + WBDB.format.text({ text: stage }) + "</li>");
+      .map((stage) => "<li>" + format.text({ text: stage }) + "</li>");
     type += '<p><ol class="stages">' + stages.join("") + "</ol></p>";
   }
   var image_svg = "";
@@ -65,7 +68,7 @@ tip.display = function (event) {
           '<div class="card-text border-' +
           card.faction_code +
           '">' +
-          WBDB.format.text(card) +
+          format.text(card) +
           "</div>" +
           '<p class="card-faction" style="text-align:right;clear:right">' +
           card.faction.name +
@@ -94,10 +97,10 @@ tip.display = function (event) {
     },
     event
   );
-};
+}
 
-tip.set_hide_event = function set_hide_event(opt_hide_event) {
+export function set_hide_event(opt_hide_event) {
   if (opt_hide_event === "mouseout" || opt_hide_event === "unfocus") {
     hide_event = opt_hide_event;
   }
-};
+}

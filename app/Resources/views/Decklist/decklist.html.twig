@@ -3,11 +3,9 @@
 {% block head %}
 <script type="text/javascript">
 WBDB.pages.enhanceDecklistPage({ commenters: {{ commenters|json_encode|raw }} });
-WBDB.initCardModal();
 
 WBDB.Decklist = {{ decklist|json_encode|raw }};
 WBDB.SelectedDeck = WBDB.Decklist;
-WBDB.Identity = null;
 WBDB.user.params.decklist_id = WBDB.Decklist.id;
 
 </script>
@@ -114,30 +112,6 @@ WBDB.user.params.decklist_id = WBDB.Decklist.id;
 <!-- Deck Content -->
 <div class="row" id="deck-content" style="margin-bottom:20px"></div>
 <!-- Deck Content -->
-
-<!-- Claims -->
-{% if claims|length %}
-<table class="table table-condensed" id="table-claims">
-<thead>
-<tr><th colspan="3">Tournaments</th></tr>
-</thead>
-<tbody>
-{% for claim in claims %}
-<tr>
-    <td>
-      <a href="{{ claim.url|raw }}" class="tournament_claim">{{ claim.name }}</a>
-    </td>
-    <td>
-        #{{ claim.rank }} of {{ claim.participants }}
-    </td>
-    <td>
-        <a href="{{ path('user_profile_view', {_locale:app.request.locale,user_id:claim.user_id,user_name:claim.username|e('url')}) }}">{{ claim.username }}</a>
-    </td>
-</tr>
-{% endfor %}
-</tbody>
-</table>
-{% endif %}
 
 <!-- Graphs -->
 <div class="decklist-graphs">

@@ -7,9 +7,7 @@ WBDB.pages.enhanceDeckPage({
     deck_uuid: {{ deck.uuid|json_encode|raw }},
     history: {{ deck.history|json_encode|raw }}
 });
-WBDB.initCardModal();
 WBDB.initSettings();
-WBDB.Identity = null;
 WBDB.Deck = {{ deck.slots|json_encode|raw }};
 WBDB.Filters = {};
 </script>

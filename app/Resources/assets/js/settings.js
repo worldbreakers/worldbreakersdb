@@ -1,5 +1,4 @@
 /* global $, _ */
-export const settings = {};
 
 // all the settings, initialized with their default value
 var cache = {
@@ -8,7 +7,7 @@ var cache = {
   "sort-order": "type",
 };
 
-settings.load = function load() {
+export function load() {
   // first give them the default values
   _.forIn(cache, function (defaultValue, key) {
     $("[name=" + key + "]").each(function (index, element) {
@@ -37,12 +36,12 @@ settings.load = function load() {
     .then(function () {
       $(document).trigger("settings.app");
     });
-};
+}
 
-settings.getItem = function (key) {
+export function getItem(key) {
   return cache[key];
-};
+}
 
-settings.promise = new Promise(function (resolve) {
+export const promise = new Promise(function (resolve) {
   $(document).on("settings.app", resolve);
 });

@@ -1,17 +1,15 @@
 /* global _ */
-export const smart_filter = {};
-
 var SmartFilterQuery = [];
 
-smart_filter.get_query = function (FilterQuery) {
+export function get_query(FilterQuery) {
   var query = _.extend(FilterQuery, SmartFilterQuery);
   if (!SmartFilterQuery.text) {
     delete query.text;
   }
   return query;
-};
+}
 
-smart_filter.handler = function (value, callback) {
+export function handler(value, callback) {
   var conditions = filterSyntax(value);
   SmartFilterQuery = {};
 
@@ -54,7 +52,7 @@ smart_filter.handler = function (value, callback) {
   }
 
   callback();
-};
+}
 
 function add_integer_sf(key, operator, values) {
   for (var j = 0; j < values.length; j++) {

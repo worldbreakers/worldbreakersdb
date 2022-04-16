@@ -49,11 +49,12 @@
 
         <script src="{{ asset('/dist/worldbreakersdb.umd.js') }}"></script>
         <script type="text/javascript">
-        WBDB.init({
+        WBDB.setConfig({
             locale: '{{ app.request.locale }}',
             card_image_url: '{{ card_image_url }}',
             worldbreakersdb_url: '{{ worldbreakersdb_url }}'
         });
+        WBDB.init();
         moment.locale(window.navigator.language);
         </script>
 
@@ -61,83 +62,9 @@
 
     </head>
     <body>
-        {% include 'icons.html' %}
+        {% include '/icons.html' %}
         <div id="wrapper">
-            <nav class="navbar navbar-inverse navbar-static-top" role="navigation">
-                <div class="container">
-                    {% block navbar %}
-                        <div class="navbar-header">
-                            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                                <span class="icon-bar"></span>
-                                <span class="icon-bar"></span>
-                                <span class="icon-bar"></span>
-                            </button>
-                            <a class="navbar-brand" href="{{ path('worldbreakersdb_index') }}">
-                                <img src="/tug.svg" style="display: inline; height: 22px;">
-                                WorldbreakersDB
-                            </a>
-                        </div>
-                        <div class="navbar-collapse collapse">
-                            <ul class="nav navbar-nav">
-                                <li><a href="{{ path('decks_list') }}">My Decks</a></li>
-                                <li><a href="{{ path('decklists_list', {type:'popular'}) }}">Decklists</a></li>
-                                <li><a href="{{ path('cards_sets') }}">Sets</a></li>
-                                <li class="hidden-sm dropdown">
-                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Guilds <span class="caret"></span></a>
-                                    <ul class="dropdown-menu" role="menu">
-                                        <li>
-                                            <a href="{{ path('faction_page',{faction_code:'earth'}) }}">
-                                                <svg class="icon-wb icon-earth"><use xlink:href="#icon-earth"></use></svg>
-                                                <span class="hidden-sm">Earth Guild</span>
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="{{ path('faction_page',{faction_code:'moon'}) }}">
-                                                <svg class="icon-wb icon-moon"><use xlink:href="#icon-moon"></use></svg>
-                                                <span class="hidden-sm">Moon Guild</span>
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="{{ path('faction_page',{faction_code:'stars'}) }}">
-                                                <svg class="icon-wb icon-stars"><use xlink:href="#icon-stars"></use></svg>
-                                                <span class="hidden-sm">Stars Guild</span>
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="{{ path('faction_page',{faction_code:'void'}) }}">
-                                                <svg class="icon-wb icon-void"><use xlink:href="#icon-void"></use></svg>
-                                                <span class="hidden-sm">Void Guild</span>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li class="hidden-sm dropdown">
-                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">More <span class="caret"></span></a>
-                                    <ul class="dropdown-menu" role="menu">
-                                        <li class="hidden-sm"><a href="{{ path('card_reviews_list') }}">Reviews</a></li>
-                                        <li><a href="{{ path('card_rulings') }}">Rulings</a></li>
-                                    </ul>
-                                </li>
-                            </ul>
-                            <ul class="nav navbar-nav navbar-right">
-                                <li class="dropdown" id="top_nav_card_search_menu">
-                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Card Search&nbsp;&nbsp;<span class="glyphicon glyphicon-search"></span></a>
-                                    <div class="dropdown-menu" id="miney">
-                                        <form id="top_nav_card_search_form" method="get" action="{{ path('cards_find') }}">
-                                            <input type="text" placeholder="Card Search" class="form-control" name="q" id="top_nav_card_search" title="{% include '/Search/searchtooltip.html.twig' %}">
-                                        </form>
-                                    </div>
-                                </li>
-                                <li><a href="{{ path('search_syntax') }}">Syntax</a></li>
-                                <li><a href="{{ path('advanced_search') }}">Advanced</a></li>
-                                <li id="login">
-                                    <a href="#" class="dropdown-toggle loginname" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span><b class="caret"></b></a>
-                                </li>
-                            </ul>
-                        </div><!--/.navbar-collapse -->
-                    {% endblock %}
-                </div>
-            </nav>
+            {% include '/navbar.html.twig' %}
 
             <div class="container">
                 <div class="alert alert-info alert-alpha-stage" role="alert">
@@ -158,43 +85,9 @@
             {% block body %}{% endblock %}
             <div id="push"></div>
         </div>
-        <footer class="hidden-print">
-            <div class="container">
 
-                {% block footer %}
-                    <div class="row">
-                        <div class="col-xs-12">
+        {% include '/footer.html.twig' %}
 
-                            <ul class="list-inline">
-                                <li><a href="{{ path('cards_about') }}">About</a></li>
-                                <li><a href="javascript:localStorage.clear()">Clear data</a></li>
-                            </ul>
-
-                            <p>
-                                Standing on the shoulders of <a href="https://github.com/NetrunnerDB/netrunnerdb" rel="noreferrer noopener">NetrunnerDB</a>. Maintained by <a href="https://github.com/tessaluniki" rel="noreferrer noopener">@tessaluniki</a>.
-                            </p>
-
-                            <p>
-                                Please post bug reports and feature requests on <a href="https://github.com/worldbreakers/worldbreakersdb/issues" rel="noreferrer noopener">Github</a>
-                            </p>
-
-                            <p style="color:#333">
-                                The information presented on this site about Worldbreakers, both literal and graphical, is copyrighted by <a href="https://worldbreakersgame.com" rel="noreferrer noopener">Elli Amir</a>.
-                            </p>
-
-                            <svg width="0" height="0" viewBox="0 0 677 601" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="nrdb_svg_hex">
-                                <defs>
-                                    <symbol id="hex"><polygon points="623,302.91412353515625 480,550.5973510742188 194,550.5973510742188 51,302.91412353515625 194,55.23085021972656 480,55.23085021972656 623,302.91412353515625 "/></symbol>
-                                    <symbol id="rect"><rect x="0" y="0" width="677" height="601" fill="white" /></symbol>
-                                </defs>
-                            </svg>
-
-                        </div>
-                    </div>
-                {% endblock %}
-
-            </div>
-        </footer>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/lazysizes/5.2.0/lazysizes.min.js" async></script>
     </body>
 </html>

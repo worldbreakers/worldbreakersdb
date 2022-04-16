@@ -3,10 +3,9 @@
 {% block head %}
 <script type="text/javascript">
 WBDB.pages.enhanceIndexPage();
-WBDB.Identity = null;
 WBDB.Decklist = {{ decklist|json_encode|raw }};
-
 </script>
+
 <script type="application/ld+json">
 {
    "@context": "http://schema.org",
@@ -29,7 +28,6 @@ WBDB.Decklist = {{ decklist|json_encode|raw }};
       {% include '/Default/decklist_of_the_week.html.twig' %}
     </div>
     <div class="col-md-4">
-      {% include '/Default/recent_decklists.html.twig' %}
     </div>
   </div>
 </div> <!-- .container -->
