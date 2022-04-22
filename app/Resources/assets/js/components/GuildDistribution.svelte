@@ -10,7 +10,7 @@
     return sum > 0
       ? Object.entries(distribution).reduce((guilds, [guild, count]) => {
           guilds[guild] = count / sum;
-          return guilds
+          return guilds;
         }, {})
       : {};
   };
@@ -31,7 +31,7 @@
 </span>
 
 <style>
-.guild-distribution {
+  .guild-distribution {
     display: flex;
     height: 8px;
     overflow: hidden;
@@ -39,8 +39,8 @@
     background-color: rgba(175, 184, 193, 0.2);
     border-radius: 6px;
     outline: 1px solid transparent;
-}
-.guild-distribution-item {
+  }
+  .guild-distribution-item {
     outline: 2px solid transparent;
-}
+  }
 </style>

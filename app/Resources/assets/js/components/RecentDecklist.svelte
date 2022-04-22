@@ -2,13 +2,12 @@
   import GuildDistribution from "./GuildDistribution.svelte";
   import { data as Data } from "../wbdb.data.js";
   import { onMount } from "svelte";
+  import { route, cardImageURL } from "../svelte-helpers.js";
 
   export let decklist;
+
   let cards = [];
   let identity = {};
-  const card_image_url = window.WBDB.card_image_url;
-  export let route = (name, options) =>
-    window.encodeURI(window.Routing.generate(name, options));
 
   onMount(() => {
     const allCards = Data.cards.find({
@@ -22,7 +21,7 @@
 <tr class="decklist-row--info">
   <td>
     <img
-      data-src="{card_image_url}/tiny/{identity.code}_front.jpg"
+      data-src="{cardImageURL()}/tiny/{identity.code}_front.jpg"
       alt={identity.stripped_title}
       style="width:51px;height:71px"
       class="lazyload"
@@ -76,23 +75,23 @@
     </div>
 
     <div class="decklist-row--guild-distribution">
-        {#if decklist.guild_distribution}
-            <GuildDistribution distribution={decklist.guild_distribution} />
-        {/if}
+      {#if decklist.guild_distribution}
+        <GuildDistribution distribution={decklist.guild_distribution} />
+      {/if}
     </div>
   </td>
 </tr>
 
 <style>
-tr.decklist-row--info td {
+  tr.decklist-row--info td {
     padding-bottom: 0.5em;
-}
+  }
 
-tr.decklist-row--info td:nth-child(1) {
+  tr.decklist-row--info td:nth-child(1) {
     width: 67px;
-}
+  }
 
-.decklist-row--guild-distribution {
-  margin-top: 0.5em;
-}
+  .decklist-row--guild-distribution {
+    margin-top: 0.5em;
+  }
 </style>
