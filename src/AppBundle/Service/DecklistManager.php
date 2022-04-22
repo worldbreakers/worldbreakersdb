@@ -42,6 +42,7 @@ class DecklistManager
                 d.date_creation,
                 d.user_id,
                 d.tournament_id,
+                d.guild_distribution,
                 t.description tournament,
                 u.username,
                 u.faction usercolor,
@@ -70,6 +71,7 @@ class DecklistManager
                     ->fetchAll(\PDO::FETCH_ASSOC);
 
         $count = $dbh->executeQuery("SELECT FOUND_ROWS()")->fetch(\PDO::FETCH_NUM)[0];
+        $rows = $this->hydrateGuildDistribution($rows);
 
         return [
             "count"     => $count,
@@ -99,6 +101,7 @@ class DecklistManager
                 d.date_creation,
                 d.user_id,
                 d.tournament_id,
+                d.guild_distribution,
                 t.description tournament,
                 u.username,
                 u.faction usercolor,
@@ -125,6 +128,7 @@ class DecklistManager
         )->fetchAll(\PDO::FETCH_ASSOC);
 
         $count = $dbh->executeQuery("SELECT FOUND_ROWS()")->fetch(\PDO::FETCH_NUM)[0];
+        $rows = $this->hydrateGuildDistribution($rows);
 
         return [
             "count"     => $count,
@@ -150,6 +154,7 @@ class DecklistManager
                 d.date_creation,
                 d.user_id,
                 d.tournament_id,
+                d.guild_distribution,
                 t.description tournament,
                 u.username,
                 u.faction usercolor,
@@ -174,6 +179,7 @@ class DecklistManager
         )->fetchAll(\PDO::FETCH_ASSOC);
 
         $count = $dbh->executeQuery("SELECT FOUND_ROWS()")->fetch(\PDO::FETCH_NUM)[0];
+        $rows = $this->hydrateGuildDistribution($rows);
 
         return [
             "count"     => $count,
@@ -199,6 +205,7 @@ class DecklistManager
               d.date_creation,
               d.user_id,
               d.tournament_id,
+              d.guild_distribution,
               t.description tournament,
               u.username,
               u.faction usercolor,
@@ -221,6 +228,7 @@ class DecklistManager
         )->fetchAll(\PDO::FETCH_ASSOC);
 
         $count = $dbh->executeQuery("SELECT FOUND_ROWS()")->fetch(\PDO::FETCH_NUM)[0];
+        $rows = $this->hydrateGuildDistribution($rows);
 
         return [
             "count"     => $count,
@@ -246,6 +254,7 @@ class DecklistManager
                 d.date_creation,
                 d.user_id,
                 d.tournament_id,
+                d.guild_distribution,
                 t.description tournament,
                 u.username,
                 u.faction usercolor,
@@ -269,6 +278,7 @@ class DecklistManager
         )->fetchAll(\PDO::FETCH_ASSOC);
 
         $count = $dbh->executeQuery("SELECT FOUND_ROWS()")->fetch(\PDO::FETCH_NUM)[0];
+        $rows = $this->hydrateGuildDistribution($rows);
 
         return [
             "count"     => $count,
@@ -294,6 +304,7 @@ class DecklistManager
                 d.date_creation,
                 d.user_id,
                 d.tournament_id,
+                d.guild_distribution,
                 t.description tournament,
                 u.username,
                 u.faction usercolor,
@@ -318,6 +329,7 @@ class DecklistManager
         )->fetchAll(\PDO::FETCH_ASSOC);
 
         $count = $dbh->executeQuery("SELECT FOUND_ROWS()")->fetch(\PDO::FETCH_NUM)[0];
+        $rows = $this->hydrateGuildDistribution($rows);
 
         return [
             "count"     => $count,
@@ -343,6 +355,7 @@ class DecklistManager
                 d.date_creation,
                 d.user_id,
                 d.tournament_id,
+                d.guild_distribution,
                 t.description tournament,
                 u.username,
                 u.faction usercolor,
@@ -366,6 +379,7 @@ class DecklistManager
         )->fetchAll(\PDO::FETCH_ASSOC);
 
         $count = $dbh->executeQuery("SELECT FOUND_ROWS()")->fetch(\PDO::FETCH_NUM)[0];
+        $rows = $this->hydrateGuildDistribution($rows);
 
         return [
             "count"     => $count,
@@ -391,6 +405,7 @@ class DecklistManager
                 d.date_creation,
                 d.user_id,
                 d.tournament_id,
+                d.guild_distribution,
                 t.description tournament,
                 u.username,
                 u.faction usercolor,
@@ -418,6 +433,7 @@ class DecklistManager
         )->fetchAll(\PDO::FETCH_ASSOC);
 
         $count = $dbh->executeQuery("SELECT FOUND_ROWS()")->fetch(\PDO::FETCH_NUM)[0];
+        $rows = $this->hydrateGuildDistribution($rows);
 
         return [
             "count"     => $count,
@@ -443,6 +459,7 @@ class DecklistManager
                 d.date_creation,
                 d.user_id,
                 d.tournament_id,
+                d.guild_distribution,
                 t.description tournament,
                 u.username,
                 u.faction usercolor,
@@ -469,6 +486,7 @@ class DecklistManager
         )->fetchAll(\PDO::FETCH_ASSOC);
 
         $count = $dbh->executeQuery("SELECT FOUND_ROWS()")->fetch(\PDO::FETCH_NUM)[0];
+        $rows = $this->hydrateGuildDistribution($rows);
 
         return [
             "count"     => $count,
@@ -496,6 +514,7 @@ class DecklistManager
                 d.date_creation,
                 d.user_id,
                 d.tournament_id,
+                d.guild_distribution,
                 t.description tournament,
                 u.username,
                 u.faction usercolor,
@@ -521,12 +540,7 @@ class DecklistManager
         )->fetchAll(\PDO::FETCH_ASSOC);
 
         $count = $dbh->executeQuery("SELECT FOUND_ROWS()")->fetch(\PDO::FETCH_NUM)[0];
-
-        foreach ($rows as &$row) {
-            if ($row['guild_distribution']) {
-                $row['guild_distribution'] = json_decode($row['guild_distribution'], true);
-            }
-        }
+        $rows = $this->hydrateGuildDistribution($rows);
 
         return [
             "count"     => $count,
@@ -552,6 +566,7 @@ class DecklistManager
                 d.date_creation,
                 d.user_id,
                 d.tournament_id,
+                d.guild_distribution,
                 t.description tournament,
                 u.username,
                 u.faction usercolor,
@@ -574,6 +589,7 @@ class DecklistManager
         )->fetchAll(\PDO::FETCH_ASSOC);
 
         $count = $dbh->executeQuery("SELECT FOUND_ROWS()")->fetch(\PDO::FETCH_NUM)[0];
+        $rows = $this->hydrateGuildDistribution($rows);
 
         return [
             "count"     => $count,
@@ -599,6 +615,7 @@ class DecklistManager
                 d.date_creation,
                 d.user_id,
                 d.tournament_id,
+                d.guild_distribution,
                 t.description tournament,
                 u.username,
                 u.faction usercolor,
@@ -621,6 +638,7 @@ class DecklistManager
         )->fetchAll(\PDO::FETCH_ASSOC);
 
         $count = $dbh->executeQuery("SELECT FOUND_ROWS()")->fetch(\PDO::FETCH_NUM)[0];
+        $rows = $this->hydrateGuildDistribution($rows);
 
         return [
             "count"     => $count,
@@ -761,6 +779,7 @@ class DecklistManager
                 d.date_creation,
                 d.user_id,
                 d.tournament_id,
+                d.guild_distribution,
                 t.description tournament,
                 $extra_select
                 u.username,
@@ -790,6 +809,7 @@ class DecklistManager
         )->fetchAll(\PDO::FETCH_ASSOC);
 
         $count = $dbh->executeQuery("SELECT FOUND_ROWS()")->fetch(\PDO::FETCH_NUM)[0];
+        $rows = $this->hydrateGuildDistribution($rows);
 
         return [
             "count"     => $count,
@@ -845,5 +865,16 @@ class DecklistManager
         }
 
         return true;
+    }
+
+    private function hydrateGuildDistribution($rows)
+    {
+        foreach ($rows as &$row) {
+            if ($row['guild_distribution']) {
+                $row['guild_distribution'] = json_decode($row['guild_distribution'], true);
+            }
+        }
+
+        return $rows;
     }
 }
