@@ -91,8 +91,10 @@ $: created_at = new Date(decklist.date_creation).toLocaleDateString();
 
 <style>
 .decklist--list-item {
-    border-top: 1px solid #ddd;
     margin-bottom: 10px;
     padding-top: 10px;
+}
+.decklist--list-item + .decklist--list-item {
+    border-top: 1px solid #ddd;
 }
 </style>
