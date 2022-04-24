@@ -11,7 +11,7 @@ $: {
     let guilds = [];
     if (sum > 0) {
         guilds = Object.entries(distribution).map(([guild, count]) => ([guild, count / sum]));
-        guilds.sort(([guildA, relA], [guildB, relB]) => relB - relA);
+        guilds.sort(([guildA, relA], [guildB, relB]) => guildB === 'neutral' ? -1 : relB - relA);
     }
     relatives = guilds;
 }
