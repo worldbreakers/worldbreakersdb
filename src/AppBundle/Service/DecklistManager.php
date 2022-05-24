@@ -172,8 +172,7 @@ class DecklistManager
                 join card c on d.identity_id=c.id
                 join pack p on d.last_pack_id=p.id
                 left join tournament t on d.tournament_id=t.id
-                where d.date_creation > DATE_SUB(CURRENT_DATE, INTERVAL 1 MONTH)
-                and d.moderation_status in (0,1)
+                where d.moderation_status in (0,1)
                 order by 2*nbvotes/(1+nbjours*nbjours) DESC, nbvotes desc, nbcomments desc
                 limit $start, $limit"
         )->fetchAll(\PDO::FETCH_ASSOC);
@@ -271,7 +270,7 @@ class DecklistManager
                 join card c on d.identity_id=c.id
                 join pack p on d.last_pack_id=p.id
                 left join tournament t on d.tournament_id=t.id
-                where nbvotes > 10
+                where nbvotes > 0
                 and d.moderation_status in (0,1)
                 order by nbvotes desc, date_creation desc
                 limit $start, $limit"
@@ -532,8 +531,7 @@ class DecklistManager
                 join card c on d.identity_id=c.id
                 join pack p on d.last_pack_id=p.id
                 left join tournament t on d.tournament_id=t.id
-                where d.date_creation > DATE_SUB(CURRENT_DATE, INTERVAL 1 MONTH)
-                and d.moderation_status in (0,1)
+                where d.moderation_status in (0,1)
                 $additional_clause
                 order by date_creation desc
                 limit $start, $limit"
