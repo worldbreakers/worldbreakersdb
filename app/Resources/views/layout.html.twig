@@ -67,10 +67,6 @@
             {% include '/navbar.html.twig' %}
 
             <div class="container">
-                <div class="alert alert-info alert-alpha-stage" role="alert">
-                    We are in the alpha phase of development. Things will break or get lost. Please report problems via <a class="btn btn-sm btn-link" href="https://discord.com/invite/as32bEvqgG" rel="noreferrer noopener">Discord</a> or <a class="btn btn-sm btn-link" href="https://github.com/worldbreakers/worldbreakersdb/issues" rel="noreferrer noopener">Github.</a>
-                </div>
-
                 {% for flashMessage in app.session.flashbag.get('error') %}
                     <div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>{{ flashMessage }}</div>
                 {% endfor %}
