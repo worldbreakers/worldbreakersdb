@@ -66,3 +66,14 @@ DirectoryIndex app.php
         # RedirectTemp cannot be used instead
     </IfModule>
 </IfModule>
+
+AddType application/x-font-woff .woff
+AddType font/woff2 .woff2
+
+ExpiresActive on
+
+ExpiresByType application/font-woff1  "access plus 1 month"
+ExpiresByType application/javascript  "access plus 1 month"
+ExpiresByType font/woff2  "access plus 1 month"
+ExpiresByType image/jpeg "access plus 1 month"
+ExpiresByType text/css  "access plus 1 month"
