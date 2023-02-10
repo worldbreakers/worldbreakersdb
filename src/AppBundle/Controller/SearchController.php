@@ -37,16 +37,15 @@ class SearchController extends Controller
 
     const SEARCH_SHORTCUTS = [
         // "_", // title or index
-        "a", // flavor
+        "f", // flavor
         "e", // extension (pack)
-        "f", // faction
         "g", // guild
         "i", // illustrator
-        "o", // cost
-        "p", // strength
+        "c", // cost
+        "s", // strength
         "h", // health
         "r", // release
-        "s", // subtype (trait)
+        "k", // subtype (trait)
         "t", // type
         "x", // text
         "y", //

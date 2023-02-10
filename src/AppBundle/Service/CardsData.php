@@ -175,7 +175,7 @@ class CardsData
                     }
                     $clauses[] = implode($operator == '!' ? " and " : " or ", $or);
                     break;
-                case 'a': // flavor
+                case 'f': // flavor
                     $or = [];
                     foreach ($condition as $arg) {
                         switch ($operator) {
@@ -247,7 +247,7 @@ class CardsData
                     }
                     $clauses[] = implode($operator == '!' ? " and " : " or ", $or);
                     break;
-                case 's': // subtype (keywords)
+                case 'k': // subtype (keywords)
                     $or = [];
                     foreach ($condition as $arg) {
                         switch ($operator) {
@@ -284,7 +284,7 @@ class CardsData
                     }
                     $clauses[] = implode($operator == '!' ? " and " : " or ", $or);
                     break;
-                case 'o': // cost
+                case 'c': // cost
                     $or = [];
                     foreach ($condition as $arg) {
                         if (($arg === 'x') or ($arg === 'X')) {
@@ -316,7 +316,7 @@ class CardsData
                     }
                     $clauses[] = implode($operator == '!' ? " and " : " or ", $or);
                     break;
-                case 'p': // strength
+                case 's': // strength
                     $or = [];
                     foreach ($condition as $arg) {
                         switch ($operator) {
@@ -622,7 +622,7 @@ class CardsData
     public function validateConditions(array &$conditions)
     {
         // Remove invalid conditions
-        $canDoNumeric = ['e', 'o', 'p', 'h', 'r', 'y'];
+        $canDoNumeric = ['e', 'c', 's', 'h', 'r', 'y'];
         $numeric = ['<', '>'];
         foreach ($conditions as $i => $l) {
             if (in_array($l[1], $numeric) && !in_array($l[0], $canDoNumeric)) {
