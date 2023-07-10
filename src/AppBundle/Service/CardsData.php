@@ -165,10 +165,10 @@ class CardsData
                     foreach ($condition as $arg) {
                         switch ($operator) {
                             case ':':
-                                $or[] = "(c.strippedText like ?$i)";
+                                $or[] = "(c.strippedText like ?$i) or (c.stages like ?$i)";
                                 break;
                             case '!':
-                                $or[] = "(c.strippedText not like ?$i)";
+                                $or[] = "(c.strippedText not like ?$i) and (c.stages not like ?$i)";
                                 break;
                         }
                         $parameters[$i++] = "%$arg%";
