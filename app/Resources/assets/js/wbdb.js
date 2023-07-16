@@ -131,6 +131,10 @@ const WBDB = {
       settings.load();
     });
   },
+
+  clearCache() {
+    data.update();
+  },
 };
 
 export default WBDB;
