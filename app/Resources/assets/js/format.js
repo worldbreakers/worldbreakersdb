@@ -27,19 +27,23 @@ export function text(card) {
   );
   text = text.replace(
     /\[earth\]/g,
-    '<svg class="icon-wb icon-earth"><use xlink:href="#icon-earth"></use></svg><span class="icon-fallback">Mythium</span>'
+    '<svg class="icon-wb icon-earth"><use xlink:href="#icon-earth"></use></svg><span class="icon-fallback">Earth Guild</span>'
   );
   text = text.replace(
     /\[moon\]/g,
-    '<svg class="icon-wb icon-moon"><use xlink:href="#icon-moon"></use></svg><span class="icon-fallback">Mythium</span>'
+    '<svg class="icon-wb icon-moon"><use xlink:href="#icon-moon"></use></svg><span class="icon-fallback">Moon Guild</span>'
   );
   text = text.replace(
     /\[stars\]/g,
-    '<svg class="icon-wb icon-stars"><use xlink:href="#icon-stars"></use></svg><span class="icon-fallback">Mythium</span>'
+    '<svg class="icon-wb icon-stars"><use xlink:href="#icon-stars"></use></svg><span class="icon-fallback">Stars Guild</span>'
   );
   text = text.replace(
     /\[void\]/g,
-    '<svg class="icon-wb icon-void"><use xlink:href="#icon-void"></use></svg><span class="icon-fallback">Mythium</span>'
+    '<svg class="icon-wb icon-void"><use xlink:href="#icon-void"></use></svg><span class="icon-fallback">Void Guild</span>'
+  );
+  text = text.replace(
+    /\[historic\]/g,
+    '<svg class="icon-wb icon-historic"><use xlink:href="#icon-historic"></use></svg><span class="icon-fallback">Historic Flavor</span>'
   );
 
   text = text.split("\n").join("</p><p>");

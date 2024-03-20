@@ -66,6 +66,7 @@ class CardsData
             '[moon]' => '<svg class="icon-wb icon-moon"><use xlink:href="#icon-moon"></use></svg><span class="icon-fallback">Moon Guild</span>',
             '[stars]' => '<svg class="icon-wb icon-stars"><use xlink:href="#icon-stars"></use></svg><span class="icon-fallback">Stars Guild</span>',
             '[void]' => '<svg class="icon-wb icon-void"><use xlink:href="#icon-void"></use></svg><span class="icon-fallback">Void Guild</span>',
+            '[historic]' => '<svg class="icon-wb icon-historic"><use xlink:href="#icon-historic"></use></svg><span class="icon-fallback">Historic Flavor</span>',
         ];
 
         return str_replace(array_keys($map), array_values($map), $text);

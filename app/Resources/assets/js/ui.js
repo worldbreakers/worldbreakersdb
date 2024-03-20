@@ -62,7 +62,7 @@ export function enhanceTextarea(element, showPackName = false) {
         var regexp = new RegExp("^" + term);
         callback(
           $.grep(
-            ["mythium", "earth", "moon", "stars", "void"],
+            ["mythium", "earth", "moon", "stars", "void", "historic"],
             function (symbol) {
               return regexp.test(symbol);
             }
